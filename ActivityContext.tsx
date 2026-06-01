@@ -53,7 +53,6 @@ export const ActivityLoggerProvider: React.FC<ActivityLoggerProviderProps> = ({ 
     const handleBeforeUnload = () => {
       if (newLogger) {
         newLogger.endSession();
-        newLogger.sendToSanity();
       }
     };
 
@@ -64,10 +63,8 @@ export const ActivityLoggerProvider: React.FC<ActivityLoggerProviderProps> = ({ 
       window.removeEventListener('beforeunload', handleBeforeUnload);
       if (newLogger) {
         newLogger.endSession();
-        newLogger.sendToSanity();
       } else if (logger) {
         logger.endSession();
-        logger.sendToSanity();
       }
     };
   }, [studentId, moduleId]);
