@@ -30,10 +30,10 @@ export default defineConfig(({ mode }) => {
       },
       plugins: [react()],
       define: {
-        'process.env.API_KEY': JSON.stringify(env.MISTRAL_API_KEY),
-        'process.env.MISTRAL_API_KEY': JSON.stringify(env.MISTRAL_API_KEY),
+        'process.env.API_KEY': JSON.stringify(env.DEEPSEEK_API_KEY),
+        'process.env.DEEPSEEK_API_KEY': JSON.stringify(env.DEEPSEEK_API_KEY),
         'import.meta.env': JSON.stringify({
-          VITE_MISTRAL_API_KEY: env.VITE_MISTRAL_API_KEY,
+          VITE_DEEPSEEK_API_KEY: env.VITE_DEEPSEEK_API_KEY,
           VITE_SANITY_PROJECT_ID: env.VITE_SANITY_PROJECT_ID,
           VITE_SANITY_DATASET: env.VITE_SANITY_DATASET,
           VITE_SANITY_WRITE_TOKEN: env.VITE_SANITY_WRITE_TOKEN,

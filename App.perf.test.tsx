@@ -11,16 +11,16 @@ vi.mock('./components/Whiteboard', () => ({ default: () => <div /> }));
 vi.mock('./components/GlobalSettings', () => ({ default: () => <div /> }));
 vi.mock('./components/GamificationHUD', () => ({ default: () => <div /> }));
 
-// Mock RadialMenu to expose a way to trigger state updates (difficulty)
-vi.mock('./components/RadialMenu', () => ({
-  default: ({ onCycleDifficulty }: any) => {
+// Mock Sidebar to expose a way to trigger state updates (difficulty)
+vi.mock('./components/Sidebar', () => ({
+  default: ({ onAddExercise }: any) => {
     return (
       <div data-testid="radial-menu">
         <button
-            onClick={onCycleDifficulty}
-            data-testid="cycle-difficulty"
+            onClick={() => onAddExercise("FITB")}
+            data-testid="add-exercise"
         >
-            Cycle Difficulty
+            Add Exercise
         </button>
       </div>
     );
@@ -41,7 +41,7 @@ describe('App Performance', () => {
 
   it('debounces localStorage updates for high-frequency state changes', () => {
     const { getByTestId } = render(<ActivityLoggerProvider><App /></ActivityLoggerProvider>);
-    const updateBtn = getByTestId('cycle-difficulty');
+    const updateBtn = getByTestId('add-exercise');
 
     const UPDATE_COUNT = 20;
 
@@ -55,7 +55,7 @@ describe('App Performance', () => {
     });
 
     const calls = vi.mocked(localStorage.setItem).mock.calls;
-    const difficultyCallsBefore = calls.filter(call => call[0] === 'practiceGenie-difficulty');
+    const difficultyCallsBefore = calls.filter(call => call[0] === 'practiceGenie-blocks');
 
     // Should be 0 because we haven't advanced timers yet
     expect(difficultyCallsBefore.length).toBe(0);
@@ -66,7 +66,7 @@ describe('App Performance', () => {
     });
 
     const callsAfter = vi.mocked(localStorage.setItem).mock.calls;
-    const difficultyCallsAfter = callsAfter.filter(call => call[0] === 'practiceGenie-difficulty');
+    const difficultyCallsAfter = callsAfter.filter(call => call[0] === 'practiceGenie-blocks');
 
     // Should be exactly 1 call now
     expect(difficultyCallsAfter.length).toBe(1);

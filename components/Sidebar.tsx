@@ -231,6 +231,7 @@ const CategoryAccordion: React.FC<{
 
 interface SidebarProps {
     isSidebarOpen: boolean;
+    onToggleSidebar: () => void;
     onAddExercise: (type: ExerciseType) => void;
     onExportState: () => void;
     onImportState: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -238,7 +239,7 @@ interface SidebarProps {
 }
 
 const Sidebar = React.memo(({
-    isSidebarOpen, onAddExercise, onExportState, onImportState, onClearBoard
+    isSidebarOpen, onToggleSidebar, onAddExercise, onExportState, onImportState, onClearBoard
 }: SidebarProps) => {
   const [openCategory, setOpenCategory] = useState<string | null>('PPP');
   const { logger, logFocusItem } = useActivityLogger();
@@ -279,6 +280,21 @@ const Sidebar = React.memo(({
 
 
   return (
+    <>
+    {/* Tucked-away edge trigger */}
+    <div
+        onClick={onToggleSidebar}
+        className={`fixed inset-y-0 left-0 z-40 w-2 hover:w-3 cursor-pointer bg-slate-900/60 backdrop-blur-sm border-r border-white/10 transition-all duration-300 ease-in-out group ${isSidebarOpen ? 'opacity-0 pointer-events-none translate-x-[-100%]' : 'opacity-100'}`}
+        aria-label="Expand Sidebar"
+        role="button"
+    >
+        <div className="absolute top-1/2 -translate-y-1/2 left-0 w-full h-16 flex flex-col items-center justify-center gap-1 opacity-50 group-hover:opacity-100 transition-opacity">
+            <div className="w-1 h-1 rounded-full bg-slate-400"></div>
+            <div className="w-1 h-1 rounded-full bg-slate-400"></div>
+            <div className="w-1 h-1 rounded-full bg-slate-400"></div>
+        </div>
+    </div>
+
     <aside className={`fixed inset-y-0 left-0 z-40 w-80 bg-slate-900/40 backdrop-blur-xl text-white flex flex-col h-screen transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] will-change-transform border-r border-white/5 shadow-2xl
                      ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} font-casual`}>
       
@@ -352,6 +368,7 @@ const Sidebar = React.memo(({
         }
       `}</style>
     </aside>
+    </>
   );
 });
 
