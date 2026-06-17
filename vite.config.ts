@@ -1,48 +1,11 @@
-import path from 'path';
-import { defineConfig, loadEnv } from 'vite';
-import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite'
+import { svelte } from '@sveltejs/vite-plugin-svelte'
+import tailwindcss from '@tailwindcss/vite'
 
-export default defineConfig(({ mode }) => {
-    const env = loadEnv(mode, '.', '');
-    return {
-      base: './', // Changed to relative path for better deployment flexibility
-      server: {
-        port: 3000,
-        host: '0.0.0.0',
-      },
-      build: {
-        outDir: 'dist',
-        sourcemap: false, // Disable in production for smaller bundle
-        minify: 'terser', // More aggressive minification
-        terserOptions: {
-          compress: {
-            drop_console: true, // Remove console logs in production
-            drop_debugger: true,
-          },
-        },
-        rollupOptions: {
-          output: {
-            manualChunks: {
-              'react-vendor': ['react', 'react-dom'],
-            }
-          }
-        }
-      },
-      plugins: [react()],
-      define: {
-        'process.env.API_KEY': JSON.stringify(env.DEEPSEEK_API_KEY),
-        'process.env.DEEPSEEK_API_KEY': JSON.stringify(env.DEEPSEEK_API_KEY),
-        'import.meta.env': JSON.stringify({
-          VITE_DEEPSEEK_API_KEY: env.VITE_DEEPSEEK_API_KEY,
-          VITE_SANITY_PROJECT_ID: env.VITE_SANITY_PROJECT_ID,
-          VITE_SANITY_DATASET: env.VITE_SANITY_DATASET,
-          VITE_SANITY_WRITE_TOKEN: env.VITE_SANITY_WRITE_TOKEN,
-        })
-      },
-      resolve: {
-        alias: {
-          '@': path.resolve(__dirname, '.'),
-        }
-      }
-    };
-});
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [
+    tailwindcss(),
+    svelte()
+  ],
+})
