@@ -1,33 +1,25 @@
 {
-  "name": "copy-of-gitenglish™-practice-genie",
+  "name": "copy-of-gitenglish-practice-genie",
   "private": true,
-  "version": "1.0.0",
+  "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "test": "vitest",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "validate-build": "npm run build && echo 'Build completed successfully!'"
-  },
-  "dependencies": {
-    "@google/genai": "^1.40.0",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "react-rnd": "^10.5.2",
-    "update": "^0.7.4",
-    "uuid": "^9.0.0"
+    "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json"
   },
   "devDependencies": {
-    "@testing-library/dom": "^10.4.1",
-    "@testing-library/react": "^16.3.2",
-    "@testing-library/user-event": "^14.6.1",
-    "@types/node": "^22.14.0",
-    "@vitejs/plugin-react": "^5.0.0",
-    "jsdom": "^28.0.0",
-    "terser": "^5.46.0",
-    "typescript": "~5.8.2",
-    "vite": "^6.2.0",
-    "vitest": "^4.0.18"
+    "@humanspeak/svelte-motion": "^0.7.0",
+    "@sveltejs/vite-plugin-svelte": "^7.1.2",
+    "@tailwindcss/vite": "^4.3.1",
+    "@tsconfig/svelte": "^5.0.8",
+    "@types/node": "^24.12.3",
+    "lucide-svelte": "0.479.0",
+    "svelte": "^5.55.5",
+    "svelte-check": "^4.4.8",
+    "tailwindcss": "^4.3.1",
+    "typescript": "~6.0.2",
+    "vite": "^8.0.12"
   }
 }
