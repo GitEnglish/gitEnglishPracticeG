@@ -768,7 +768,7 @@ Use '[BLANK]' as the placeholder for any missing words. Ensure the word bank is 
 };
 
 /**
- * Generates exercises using the Mistral API.
+ * Generates exercises using the DeepSeek API.
  */
 export const generateExercises = async (
   exerciseType: ExerciseType,
@@ -804,8 +804,8 @@ export const generateExercises = async (
     return generatedExercises;
   }
 
-  if (!import.meta.env.VITE_MISTRAL_API_KEY) {
-      console.warn("Using DUMMY data as VITE_MISTRAL_API_KEY is missing.");
+  if (!import.meta.env.VITE_DEEPSEEK_API_KEY) {
+      console.warn("Using DUMMY data as VITE_DEEPSEEK_API_KEY is missing.");
       console.log("Available env vars:", import.meta.env);
       // Dummy data map for verification
       if (exerciseType === ExerciseType.FITB) {
@@ -1051,15 +1051,15 @@ export const generateExercises = async (
     // Get prompt and schema for text-based exercises
     const { prompt, schema } = getPromptAndSchema(exerciseType, difficulty, tone, theme, amount, focusVocabulary, inclusionRate, focusGrammar, grammarInclusionRate);
 
-    // Call Mistral API for content generation
-    const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
+    // Call DeepSeek API for content generation
+    const response = await fetch("https://api.deepseek.com/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${import.meta.env.VITE_MISTRAL_API_KEY}`
+        "Authorization": `Bearer ${import.meta.env.VITE_DEEPSEEK_API_KEY}`
       },
       body: JSON.stringify({
-        model: "mistral-large-latest", // Using Mistral's most capable model
+        model: "deepseek-chat", // Using DeepSeek's most capable model
         messages: [
           {
             role: "user",
@@ -1076,7 +1076,7 @@ export const generateExercises = async (
     });
 
     if (!response.ok) {
-      throw new Error(`Mistral API error: ${response.status} ${response.statusText}`);
+      throw new Error(`DeepSeek API error: ${response.status} ${response.statusText}`);
     }
 
     const data = await response.json();
@@ -1087,15 +1087,15 @@ export const generateExercises = async (
     return parsed.result || parsed;
   } catch (error) {
     console.error("Error generating exercises:", error);
-    if (error instanceof Error && error.message.includes('MISTRAL_API_KEY')) {
-        return { error: "MISTRAL_API_KEY is not valid. Please check your environment configuration." };
+    if (error instanceof Error && error.message.includes('DEEPSEEK_API_KEY')) {
+        return { error: "DEEPSEEK_API_KEY is not valid. Please check your environment configuration." };
     }
     return { error: "Failed to generate exercises. The model may be overloaded or the request is invalid. Please try again later." };
   }
 };
 
 /**
- * Checks a user's answer for an exercise using the Mistral API.
+ * Checks a user's answer for an exercise using the DeepSeek API.
  * Returns a JSON string with feedback and correctness.
  */
 export const checkAnswerWithAI = async (
@@ -1103,10 +1103,10 @@ export const checkAnswerWithAI = async (
   exerciseContext: any,
   userResponse: any
 ): Promise<string> => { // Keep string return type but formatted as JSON now
-  if (!import.meta.env.VITE_MISTRAL_API_KEY) {
+  if (!import.meta.env.VITE_DEEPSEEK_API_KEY) {
       return JSON.stringify({
           isCorrect: true,
-          feedback: "This is dummy feedback because the VITE_MISTRAL_API_KEY is missing. Great job!"
+          feedback: "This is dummy feedback because the VITE_DEEPSEEK_API_KEY is missing. Great job!"
       });
   }
 
@@ -1126,14 +1126,14 @@ export const checkAnswerWithAI = async (
   `;
 
   try {
-    const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
+    const response = await fetch("https://api.deepseek.com/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${import.meta.env.VITE_MISTRAL_API_KEY}`
+        "Authorization": `Bearer ${import.meta.env.VITE_DEEPSEEK_API_KEY}`
       },
       body: JSON.stringify({
-        model: "mistral-small-latest", // Using Mistral's efficient model for quick feedback
+        model: "deepseek-chat", // Using DeepSeek's efficient model for quick feedback
         messages: [
           {
             role: "user",
@@ -1149,7 +1149,7 @@ export const checkAnswerWithAI = async (
     });
 
     if (!response.ok) {
-      throw new Error(`Mistral API error: ${response.status} ${response.statusText}`);
+      throw new Error(`DeepSeek API error: ${response.status} ${response.statusText}`);
     }
 
     const data = await response.json();

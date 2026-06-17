@@ -12,7 +12,7 @@ import {
     ICollocationOddOneOutExercise, IInformationTransferExercise, IListeningSpecificInfoExercise, 
     IRegisterSortExercise 
 } from '../types';
-import { checkAnswerWithAI } from '../services/mistralService';
+import { checkAnswerWithAI } from '../services/deepseekService';
 import { LoadingIcon, SpeakerWaveIcon, SparklesIcon } from './icons';
 import { soundEffects } from '../services/SoundEffectsService';
 import Confetti from './Confetti';

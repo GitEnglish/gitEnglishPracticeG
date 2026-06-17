@@ -1,9 +1,9 @@
-import * as mistral from './mistralService';
+import * as mistral from './deepseekService';
 import { ExerciseType, Difficulty, Tone } from '../enums';
 
 /**
  * Unified AI Service.
- * Currently routes all requests to Mistral.
+ * Currently routes all requests to DeepSeek.
  */
 
 export const generateExercises = async (
@@ -17,7 +17,7 @@ export const generateExercises = async (
   focusGrammar: string[],
   grammarInclusionRate: number
 ) => {
-  console.log("Routing generation task to Mistral.");
+  console.log("Routing generation task to DeepSeek.");
   return mistral.generateExercises(
     exerciseType,
     difficulty,
@@ -36,6 +36,6 @@ export const checkAnswerWithAI = async (
   exerciseContext: any,
   userResponse: any
 ) => {
-  console.log("Routing checkAnswer task to Mistral.");
+  console.log("Routing checkAnswer task to DeepSeek.");
   return mistral.checkAnswerWithAI(exerciseType, exerciseContext, userResponse);
 };

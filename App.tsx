@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import Sidebar from './components/Sidebar';
 import Whiteboard from './components/Whiteboard';
-import RadialMenu from './components/RadialMenu';
 import GlobalSettings from './components/GlobalSettings';
 import { ExerciseType, Difficulty, Tone } from './enums';
 import { DrawingPath, ExerciseBlockState } from "./types";
@@ -315,16 +314,6 @@ const App: React.FC = () => {
   return (
 
     <div className="h-screen w-screen flex font-casual antialiased overflow-hidden bg-slate-800 text-slate-200">
-
-
-      <RadialMenu 
-          onOpenSettingsTab={handleOpenSettings}
-          onExportState={handleExportState}
-          difficulty={difficulty}
-          onCycleDifficulty={cycleDifficulty}
-          isDrawingMode={isDrawingMode}
-          onToggleDrawing={handleToggleDrawing}
-      />
 
       {settingsModalTab && (
           <GlobalSettings 

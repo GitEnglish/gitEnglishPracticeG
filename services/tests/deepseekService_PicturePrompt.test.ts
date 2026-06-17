@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { generateExercises } from '../mistralService';
+import { generateExercises } from '../deepseekService';
 import { ExerciseType, Difficulty, Tone } from '../../enums';
 
-describe('mistralService - PicturePrompt', () => {
+describe('deepseekService - PicturePrompt', () => {
     const originalEnv = process.env;
 
     beforeEach(() => {

@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { generateExercises } from '../mistralService';
+import { generateExercises } from '../deepseekService';
 import { ExerciseType, Difficulty, Tone } from '../../enums';
 
-describe('mistralService', () => {
+describe('deepseekService', () => {
     const originalEnv = process.env;
 
     beforeEach(() => {
@@ -16,8 +16,8 @@ describe('mistralService', () => {
         vi.restoreAllMocks();
     });
 
-    it('should use dummy data when MISTRAL_API_KEY is missing', async () => {
-        import.meta.env.VITE_MISTRAL_API_KEY = '';
+    it('should use dummy data when DEEPSEEK_API_KEY is missing', async () => {
+        import.meta.env.VITE_DEEPSEEK_API_KEY = '';
          const result = await generateExercises(
             ExerciseType.FITB,
             Difficulty.A1,
@@ -33,8 +33,8 @@ describe('mistralService', () => {
         expect(result[0].question).toContain('This is a [BLANK] sentence');
     });
 
-    it('should call Mistral API when key is present', async () => {
-        import.meta.env.VITE_MISTRAL_API_KEY = 'mistral-key';
+    it('should call DeepSeek API when key is present', async () => {
+        import.meta.env.VITE_DEEPSEEK_API_KEY = 'deepseek-key';
 
         const mockResponse = {
             ok: true,
@@ -42,7 +42,7 @@ describe('mistralService', () => {
                 choices: [{
                     message: {
                         content: JSON.stringify({
-                            result: [{ question: 'Mistral Q?', answer: 'A', wordBank: ['A', 'B'] }]
+                            result: [{ question: 'DeepSeek Q?', answer: 'A', wordBank: ['A', 'B'] }]
                         })
                     }
                 }]
@@ -63,20 +63,20 @@ describe('mistralService', () => {
         );
 
         expect(global.fetch).toHaveBeenCalledWith(
-            "https://api.mistral.ai/v1/chat/completions",
+            "https://api.deepseek.com/chat/completions",
             expect.objectContaining({
                 method: "POST",
                 headers: expect.objectContaining({
-                    "Authorization": "Bearer mistral-key"
+                    "Authorization": "Bearer deepseek-key"
                 })
             })
         );
         expect(result).toHaveLength(1);
-        expect(result[0].question).toBe('Mistral Q?');
+        expect(result[0].question).toBe('DeepSeek Q?');
     });
 
-    it('should generate PicturePrompt exercises using Pollinations.ai without calling Mistral API', async () => {
-        import.meta.env.VITE_MISTRAL_API_KEY = 'mistral-key';
+    it('should generate PicturePrompt exercises using Pollinations.ai without calling DeepSeek API', async () => {
+        import.meta.env.VITE_DEEPSEEK_API_KEY = 'deepseek-key';
 
         // ExerciseType.PicturePrompt is special and handled locally
         // We do NOT mock fetch here because we expect it NOT to be called for PicturePrompt
