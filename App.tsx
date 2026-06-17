@@ -319,7 +319,6 @@ const App: React.FC = () => {
 
       <RadialMenu 
           onOpenSettingsTab={handleOpenSettings}
-          onToggleSidebar={handleToggleSidebar}
           onExportState={handleExportState}
           difficulty={difficulty}
           onCycleDifficulty={cycleDifficulty}
@@ -344,6 +343,7 @@ const App: React.FC = () => {
 
       <Sidebar 
         isSidebarOpen={isSidebarOpen}
+        onToggleSidebar={handleToggleSidebar}
         onAddExercise={addBlock}
         onExportState={handleExportState}
         onImportState={handleImportState}

@@ -3,7 +3,6 @@ import { DifficultyIcon, DownloadIcon, MenuIcon, XMarkIcon, ThemeIcon, PencilIco
 
 interface RadialMenuProps {
     onOpenSettingsTab: (tab: 'General' | 'Vocabulary' | 'Grammar') => void;
-    onToggleSidebar: () => void;
     onExportState: () => void;
     difficulty: string;
     onCycleDifficulty: () => void;
@@ -11,7 +10,7 @@ interface RadialMenuProps {
     onToggleDrawing: () => void;
 }
 
-const RadialMenu = React.memo(({ onOpenSettingsTab, onToggleSidebar, onExportState, difficulty, onCycleDifficulty, isDrawingMode, onToggleDrawing }: RadialMenuProps) => {
+const RadialMenu = React.memo(({ onOpenSettingsTab, onExportState, difficulty, onCycleDifficulty, isDrawingMode, onToggleDrawing }: RadialMenuProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const [hoveredLabel, setHoveredLabel] = useState<string | null>(null);
 
@@ -36,7 +35,6 @@ const RadialMenu = React.memo(({ onOpenSettingsTab, onToggleSidebar, onExportSta
     }, [isOpen]);
 
         const menuItems = [
-        { icon: <MenuIcon className="w-5 h-5" />, label: "Exercises", action: onToggleSidebar },
         { icon: <DifficultyIcon className="w-5 h-5" />, label: `Difficulty: ${difficulty}`, action: onCycleDifficulty },
         { icon: <ToneIcon className="w-5 h-5" />, label: "Tone & Theme", action: () => onOpenSettingsTab('General') },
         { icon: <VocabularyIcon className="w-5 h-5" />, label: "Vocab Focus", action: () => onOpenSettingsTab('Vocabulary') },
