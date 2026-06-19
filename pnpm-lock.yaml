@@ -9,8 +9,8 @@ importers:
   .:
     devDependencies:
       '@humanspeak/svelte-motion':
-        specifier: ^0.7.0
-        version: 0.7.0(svelte@5.56.3)
+        specifier: ^0.7.1
+        version: 0.7.1(svelte@5.56.3)
       '@sveltejs/vite-plugin-svelte':
         specifier: ^7.1.2
         version: 7.1.2(svelte@5.56.3)(vite@8.0.16(@types/node@24.13.2)(jiti@2.7.0))
@@ -26,6 +26,9 @@ importers:
       lucide-svelte:
         specifier: 0.479.0
         version: 0.479.0(svelte@5.56.3)
+      playwright:
+        specifier: ^1.61.0
+        version: 1.61.0
       svelte:
         specifier: ^5.55.5
         version: 5.56.3
@@ -53,8 +56,8 @@ packages:
   '@emnapi/wasi-threads@1.2.1':
     resolution: {integrity: sha512-uTII7OYF+/Mes/MrcIOYp5yOtSMLBWSIoLPpcgwipoiKbli6k322tcoFsxoIIxPDqW01SQGAgko4EzZi2BNv2w==}
 
-  '@humanspeak/svelte-motion@0.7.0':
-    resolution: {integrity: sha512-z7o17Q55Bf4S/p5zlvZbueh7ZOpmATsgDC1cqcPRd0AOqgjvkq4txbXlYhx5b/61G8XE4C80g5gI6wSNzVGtig==}
+  '@humanspeak/svelte-motion@0.7.1':
+    resolution: {integrity: sha512-N2lmgCnqR767jDRrJ4Gsj1TGHRfE+vhjVg3qdFl4l5TkV0Fs9WZzB/NTsx1+JeS65DdC5QQ4yh/XlIStbeivCw==}
     peerDependencies:
       svelte: ^5.0.0
 
@@ -376,6 +379,11 @@ packages:
       react-dom:
         optional: true
 
+  fsevents@2.3.2:
+    resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
+    engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
+    os: [darwin]
+
   fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
@@ -517,6 +525,16 @@ packages:
     resolution: {integrity: sha512-QP88BAKvMam/3NxH6vj2o21R6MjxZUAd6nlwAS/pnGvN9IVLocLHxGYIzFhg6fUQ+5th6P4dv4eW9jX3DSIj7A==}
     engines: {node: '>=12'}
 
+  playwright-core@1.61.0:
+    resolution: {integrity: sha512-caX7TrY3Ml6egyDX0WUcTHDxodl/b51y5wJOdCEA36QviK/s2g081hvmGs8eaE3DWb6NYZQ6BjO/QkNRPenoPA==}
+    engines: {node: '>=18'}
+    hasBin: true
+
+  playwright@1.61.0:
+    resolution: {integrity: sha512-Z+7BeeqQPRRzklHsVFP4KTGIyMxKUmfeRA4WisM6G3/XW6nwGeX6fX9qYaDa+CiUqpOkb2f6X3nar05R3kSuJQ==}
+    engines: {node: '>=18'}
+    hasBin: true
+
   postcss@8.5.15:
     resolution: {integrity: sha512-FfR8sjd4em2T6fb3I2MwAJU7HWVMr9zba+enmQeeWFfCbm+UOC/0X4DS8XtpUTMwWMGbjKYP7xjfNekzyGmB3A==}
     engines: {node: ^10 || ^12 || >=14}
@@ -644,7 +662,7 @@ snapshots:
       tslib: 2.8.1
     optional: true
 
-  '@humanspeak/svelte-motion@0.7.0(svelte@5.56.3)':
+  '@humanspeak/svelte-motion@0.7.1(svelte@5.56.3)':
     dependencies:
       acorn: 8.17.0
       motion: 12.40.0
@@ -871,6 +889,9 @@ snapshots:
       motion-utils: 12.39.0
       tslib: 2.8.1
 
+  fsevents@2.3.2:
+    optional: true
+
   fsevents@2.3.3:
     optional: true
 
@@ -961,6 +982,14 @@ snapshots:
   picocolors@1.1.1: {}
 
   picomatch@4.0.4: {}
+
+  playwright-core@1.61.0: {}
+
+  playwright@1.61.0:
+    dependencies:
+      playwright-core: 1.61.0
+    optionalDependencies:
+      fsevents: 2.3.2
 
   postcss@8.5.15:
     dependencies:

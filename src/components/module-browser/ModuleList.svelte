@@ -39,6 +39,7 @@
   <AnimatePresence>
     {#each list as mod (mod.id)}
       <motion.div
+        key={mod.id}
         layout
         variants={itemVariants}
         initial="hidden"

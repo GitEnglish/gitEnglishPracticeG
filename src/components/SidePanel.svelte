@@ -39,28 +39,31 @@
 
 <svelte:window onkeydown={handleKeydown} />
 
-  <AnimatePresence show={open}>
-    <!-- Backdrop -->
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.3, ease: 'easeOut' }}
-      onclick={() => (open = false)}
-      class="fixed inset-0 z-40 bg-black/30 backdrop-blur-md"
-    />
+  <AnimatePresence>
+    {#if open}
+      <!-- Backdrop -->
+      <motion.div
+        key="backdrop"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.3, ease: 'easeOut' }}
+        onclick={() => (open = false)}
+        class="fixed inset-0 z-40 bg-black/30 backdrop-blur-md"
+      />
 
-    <!-- Panel -->
-    <motion.div
-      initial={{ x: side === 'right' ? '100%' : '-100%' }}
-      animate={{ x: 0 }}
-      exit={{ x: side === 'right' ? '100%' : '-100%' }}
-      transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-      class="fixed top-0 {side === 'right' ? 'right-0' : 'left-0'} h-full {width} w-full
-             z-50 bg-white dark:bg-zinc-950 shadow-2xl flex flex-col
-             border-l border-zinc-200/50 dark:border-zinc-800/50
-             {side === 'left' ? 'border-r' : 'border-l'}"
-    >
+      <!-- Panel -->
+      <motion.div
+        key="panel"
+        initial={{ x: side === 'right' ? '100%' : '-100%' }}
+        animate={{ x: 0 }}
+        exit={{ x: side === 'right' ? '100%' : '-100%' }}
+        transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+        class="fixed top-0 {side === 'right' ? 'right-0' : 'left-0'} h-full {width} w-full
+               z-50 bg-white dark:bg-zinc-950 shadow-2xl flex flex-col
+               border-l border-zinc-200/50 dark:border-zinc-800/50
+               {side === 'left' ? 'border-r' : 'border-l'}"
+      >
       <!-- Gradient glow line on the edge -->
       <div class="absolute {side === 'right' ? 'left-0' : 'right-0'} top-0 bottom-0 w-px
                   bg-gradient-to-b from-transparent via-zinc-300/50 to-transparent
@@ -87,5 +90,6 @@
           {@render children()}
         {/if}
       </div>
-    </motion.div>
+      </motion.div>
+    {/if}
   </AnimatePresence>
