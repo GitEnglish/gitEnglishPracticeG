@@ -39,9 +39,11 @@
 
 <svelte:window onkeydown={handleKeydown} />
 
-  <AnimatePresence show={open}>
+  <AnimatePresence>
+    {#if open}
     <!-- Backdrop -->
     <motion.div
+      key="backdrop"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -52,6 +54,7 @@
 
     <!-- Panel -->
     <motion.div
+      key="panel"
       initial={{ x: side === 'right' ? '100%' : '-100%' }}
       animate={{ x: 0 }}
       exit={{ x: side === 'right' ? '100%' : '-100%' }}
@@ -88,4 +91,5 @@
         {/if}
       </div>
     </motion.div>
+    {/if}
   </AnimatePresence>

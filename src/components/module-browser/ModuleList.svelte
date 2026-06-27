@@ -39,6 +39,7 @@
   <AnimatePresence>
     {#each list as mod (mod.id)}
       <motion.div
+        key={mod.id}
         layout
         variants={itemVariants}
         initial="hidden"
@@ -46,8 +47,11 @@
         exit="exit"
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
+        drag="y"
+        dragConstraints={{ top: 0, bottom: 0 }}
+        dragElastic={0.2}
         class="group flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-zinc-900
-               border border-zinc-200 dark:border-zinc-800 shadow-sm cursor-grab active:cursor-grabbing"
+               border border-zinc-200 dark:border-zinc-800 shadow-sm cursor-grab active:cursor-grabbing z-10 hover:z-20 relative"
       >
         <div class="text-zinc-400 opacity-0 group-hover:opacity-100 transition-opacity">
           <GripVertical size={16} />
