@@ -8,7 +8,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "validate-build": "npm run build && echo 'Build completed successfully!'"
+    "validate-build": "bun run build && echo 'Build completed successfully!'"
   },
   "dependencies": {
     "@google/genai": "^1.40.0",

@@ -14,7 +14,7 @@ Welcome to the Practice Genie repository. This document outlines the system work
 *   **Language**: TypeScript
 *   **Styling**: Tailwind CSS
 *   **State/Interactions**: `react-rnd` (for drag/drop), `React.memo` (performance).
-*   **Package Manager**: `pnpm` (Preferred over npm).
+*   **Package Manager**: `bun` (Preferred over npm).
 
 ## 3. Vibe Coding Guidelines (The "Non-Nerd" Rule Set)
 We prioritize speed, clarity, and user experience.
@@ -43,7 +43,7 @@ We prioritize speed, clarity, and user experience.
 ## 4. Workflow & Verification
 1.  **Start the App**:
     ```bash
-    pnpm dev
+    bun dev
     ```
 2.  **Verify Visually**:
     *   Does it look good?
@@ -61,7 +61,7 @@ We prioritize speed, clarity, and user experience.
 
 ## 6. Agent Instructions
 When you (the agent) are working here:
-*   **Check `pnpm-lock.yaml`**: Ensure you respect the lockfile.
+*   **Check `bun.lockb`**: Ensure you respect the lockfile.
 *   **Read `ExerciseBlock.tsx`**: It is the canonical example of a complex, well-optimized component in this codebase. Follow its patterns.
 *   **Ask for Clarification**: If a "vibe" instruction is vague, ask what the user wants it to *look* or *feel* like.
 
