@@ -15,7 +15,9 @@
     theme,
     setTheme,
     totalTime,
-    onClose
+    onClose,
+    apiKey,
+    setApiKey
   } = $props<{
     difficulty: Difficulty;
     setDifficulty: (d: Difficulty) => void;
@@ -25,6 +27,8 @@
     setTheme: (t: string) => void;
     totalTime: number;
     onClose: () => void;
+    apiKey: string;
+    setApiKey: (k: string) => void;
   }>();
 </script>
 
@@ -97,6 +101,22 @@
                     class="w-full bg-slate-50 text-slate-900 font-medium border border-slate-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all placeholder-slate-500 font-casual"
                 />
             </div>
+
+            <div class="space-y-2">
+                <label for="global-apikey" class="flex items-center text-sm font-bold text-slate-700 uppercase tracking-wide font-casual">
+                    <SettingsIcon class="w-4 h-4 mr-2 text-slate-500" />
+                    DeepSeek API Key
+                </label>
+                <input
+                    id="global-apikey"
+                    type="password"
+                    value={apiKey}
+                    oninput={(e) => setApiKey(e.currentTarget.value)}
+                    placeholder="sk-..."
+                    class="w-full bg-slate-50 text-slate-900 font-medium border border-slate-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-slate-500 focus:border-slate-500 outline-none transition-all placeholder-slate-500 font-casual"
+                />
+            </div>
+
 
             <div class="pt-4 border-t border-slate-100 flex justify-between items-center font-casual">
                 <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Est. Lesson Time</span>

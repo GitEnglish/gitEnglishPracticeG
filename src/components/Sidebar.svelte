@@ -1,5 +1,6 @@
 <script lang="ts">
   import { BookOpen, ChevronDown, Puzzle } from 'lucide-svelte';
+  import { EXERCISE_CATEGORIES } from '../lib/constants';
 
   let { isSidebarOpen = true } = $props();
 
@@ -10,13 +11,7 @@
       openCategory = openCategory === name ? null : name;
   };
 
-  const EXERCISE_CATEGORIES = [
-      { name: 'PPP', types: ['Fill-in-the-Blank', 'Sentence Scramble', 'Multiple Choice', 'Matching'] },
-      { name: 'Lexis', types: ['Word Formation', 'Collocation Gap-Fill'] },
-      { name: 'C-R', types: ['Rule Discovery (C-R)', 'Spot the Difference (C-R)'] },
-      { name: 'Input', types: ['Reading for Gist (Skimming)', 'Reading for Detail (Scanning)'] },
-      { name: 'Skills', types: ['Functional Writing Prompt'] }
-  ];
+
 </script>
 
 <aside class="fixed inset-y-0 left-0 z-40 w-80 bg-slate-900 text-white flex flex-col h-screen transition-transform duration-300 ease-in-out will-change-transform border-r border-slate-800 shadow-2xl lg:static lg:translate-x-0 {isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} font-casual">
@@ -59,7 +54,7 @@
               <div class="grid transition-all duration-300 ease-in-out overflow-hidden {openCategory === category.name ? 'grid-rows-[1fr] opacity-100 mt-2' : 'grid-rows-[0fr] opacity-0'}">
                   <div class="min-h-0 space-y-2 pl-2 border-l-2 border-slate-700 border-opacity-30 ml-4 mb-2">
                       {#each category.types as type}
-                          <div class="cursor-grab hover:bg-slate-700 p-2 text-sm rounded transition-colors text-slate-300 flex items-center justify-between border border-slate-700/50">
+                          <div role="button" tabindex="0" draggable="true" ondragstart={(e) => { e.dataTransfer?.setData('exercise-type', type); }} class="cursor-grab hover:bg-slate-700 p-2 text-sm rounded transition-colors text-slate-300 flex items-center justify-between border border-slate-700/50">
                             <div class="flex items-center gap-2">
                               <Puzzle size={12} class="opacity-50" />
                               {type}
