@@ -16,8 +16,14 @@
     setTheme,
     totalTime,
     onClose,
-    apiKey,
-    setApiKey
+    makerApiKey,
+    setMakerApiKey,
+    checkerApiKey,
+    setCheckerApiKey,
+    makerTemperature,
+    setMakerTemperature,
+    checkerTemperature,
+    setCheckerTemperature
   } = $props<{
     difficulty: Difficulty;
     setDifficulty: (d: Difficulty) => void;
@@ -27,8 +33,14 @@
     setTheme: (t: string) => void;
     totalTime: number;
     onClose: () => void;
-    apiKey: string;
-    setApiKey: (k: string) => void;
+    makerApiKey: string;
+    setMakerApiKey: (k: string) => void;
+    checkerApiKey: string;
+    setCheckerApiKey: (k: string) => void;
+    makerTemperature: number;
+    setMakerTemperature: (t: number) => void;
+    checkerTemperature: number;
+    setCheckerTemperature: (t: number) => void;
   }>();
 </script>
 
@@ -102,20 +114,67 @@
                 />
             </div>
 
-            <div class="space-y-2">
-                <label for="global-apikey" class="flex items-center text-sm font-bold text-slate-700 uppercase tracking-wide font-casual">
-                    <SettingsIcon class="w-4 h-4 mr-2 text-slate-500" />
-                    DeepSeek API Key
-                </label>
-                <input
-                    id="global-apikey"
-                    type="password"
-                    value={apiKey}
-                    oninput={(e) => setApiKey(e.currentTarget.value)}
-                    placeholder="sk-..."
-                    class="w-full bg-slate-50 text-slate-900 font-medium border border-slate-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-slate-500 focus:border-slate-500 outline-none transition-all placeholder-slate-500 font-casual"
-                />
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-2">
+                    <label for="maker-apikey" class="flex items-center text-xs font-bold text-slate-700 uppercase tracking-wide font-casual">
+                        Maker API Key
+                    </label>
+                    <input
+                        id="maker-apikey"
+                        type="password"
+                        value={makerApiKey}
+                        oninput={(e) => setMakerApiKey(e.currentTarget.value)}
+                        placeholder="sk-..."
+                        class="w-full bg-slate-50 text-slate-900 font-medium border border-slate-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder-slate-500 font-casual"
+                    />
+                </div>
+                <div class="space-y-2">
+                    <label for="checker-apikey" class="flex items-center text-xs font-bold text-slate-700 uppercase tracking-wide font-casual">
+                        Checker API Key
+                    </label>
+                    <input
+                        id="checker-apikey"
+                        type="password"
+                        value={checkerApiKey}
+                        oninput={(e) => setCheckerApiKey(e.currentTarget.value)}
+                        placeholder="sk-..."
+                        class="w-full bg-slate-50 text-slate-900 font-medium border border-slate-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all placeholder-slate-500 font-casual"
+                    />
+                </div>
             </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-2">
+                    <label for="maker-temp" class="flex items-center justify-between text-xs font-bold text-slate-700 uppercase tracking-wide font-casual">
+                        <span>Maker Temp</span>
+                        <span class="text-slate-500">{makerTemperature}</span>
+                    </label>
+                    <input
+                        id="maker-temp"
+                        type="range"
+                        min="0" max="2" step="0.1"
+                        value={makerTemperature}
+                        oninput={(e) => setMakerTemperature(parseFloat(e.currentTarget.value))}
+                        class="w-full"
+                    />
+                </div>
+                <div class="space-y-2">
+                    <label for="checker-temp" class="flex items-center justify-between text-xs font-bold text-slate-700 uppercase tracking-wide font-casual">
+                        <span>Checker Temp</span>
+                        <span class="text-slate-500">{checkerTemperature}</span>
+                    </label>
+                    <input
+                        id="checker-temp"
+                        type="range"
+                        min="0" max="2" step="0.1"
+                        value={checkerTemperature}
+                        oninput={(e) => setCheckerTemperature(parseFloat(e.currentTarget.value))}
+                        class="w-full"
+                    />
+                </div>
+            </div>
+
 
 
             <div class="pt-4 border-t border-slate-100 flex justify-between items-center font-casual">

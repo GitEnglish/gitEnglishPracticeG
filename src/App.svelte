@@ -13,7 +13,10 @@
   let globalDifficulty = $state<Difficulty>(Difficulty.B1);
   let globalTone = $state<Tone>(Tone.Casual);
   let globalTheme = $state<string>('');
-  let globalApiKey = $state<string>(localStorage.getItem('deepseek_api_key') || '');
+  let globalMakerApiKey = $state<string>(localStorage.getItem('deepseek_maker_api_key') || '');
+  let globalCheckerApiKey = $state<string>(localStorage.getItem('deepseek_checker_api_key') || '');
+  let globalMakerTemperature = $state<number>(parseFloat(localStorage.getItem('deepseek_maker_temp') || '0.7'));
+  let globalCheckerTemperature = $state<number>(parseFloat(localStorage.getItem('deepseek_checker_temp') || '0.2'));
 
   // App State
   let blocks = $state<ExerciseBlockState[]>([]);
@@ -86,11 +89,29 @@
         theme={globalTheme}
         setTheme={(t) => globalTheme = t}
         totalTime={blocks.reduce((acc, b) => acc + (b.quantity || 1), 0)}
-        apiKey={globalApiKey}
-        setApiKey={(k) => {
-            globalApiKey = k;
-            localStorage.setItem('deepseek_api_key', k);
-            import('./services/deepseekService').then(m => m.setApiKey && m.setApiKey(k));
+        makerApiKey={globalMakerApiKey}
+        setMakerApiKey={(k) => {
+            globalMakerApiKey = k;
+            localStorage.setItem('deepseek_maker_api_key', k);
+            import('./services/deepseekService').then(m => m.setMakerApiKey && m.setMakerApiKey(k));
+        }}
+        checkerApiKey={globalCheckerApiKey}
+        setCheckerApiKey={(k) => {
+            globalCheckerApiKey = k;
+            localStorage.setItem('deepseek_checker_api_key', k);
+            import('./services/deepseekService').then(m => m.setCheckerApiKey && m.setCheckerApiKey(k));
+        }}
+        makerTemperature={globalMakerTemperature}
+        setMakerTemperature={(t) => {
+            globalMakerTemperature = t;
+            localStorage.setItem('deepseek_maker_temp', t.toString());
+            import('./services/deepseekService').then(m => m.setMakerTemperature && m.setMakerTemperature(t));
+        }}
+        checkerTemperature={globalCheckerTemperature}
+        setCheckerTemperature={(t) => {
+            globalCheckerTemperature = t;
+            localStorage.setItem('deepseek_checker_temp', t.toString());
+            import('./services/deepseekService').then(m => m.setCheckerTemperature && m.setCheckerTemperature(t));
         }}
       />
   {/if}
