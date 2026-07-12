@@ -13,6 +13,7 @@
   let globalDifficulty = $state<Difficulty>(Difficulty.B1);
   let globalTone = $state<Tone>(Tone.Casual);
   let globalTheme = $state<string>('');
+  let globalApiKey = $state<string>(localStorage.getItem('deepseek_api_key') || '');
 
   // App State
   let blocks = $state<ExerciseBlockState[]>([]);
@@ -77,14 +78,20 @@
 
   {#if isGlobalSettingsOpen}
       <GlobalSettings
+        onClose={() => isGlobalSettingsOpen = false}
         difficulty={globalDifficulty}
         setDifficulty={(d) => globalDifficulty = d}
         tone={globalTone}
         setTone={(t) => globalTone = t}
         theme={globalTheme}
         setTheme={(t) => globalTheme = t}
-        totalTime={15}
-        onClose={() => isGlobalSettingsOpen = false}
+        totalTime={blocks.reduce((acc, b) => acc + (b.quantity || 1), 0)}
+        apiKey={globalApiKey}
+        setApiKey={(k) => {
+            globalApiKey = k;
+            localStorage.setItem('deepseek_api_key', k);
+            import('./services/deepseekService').then(m => m.setApiKey && m.setApiKey(k));
+        }}
       />
   {/if}
 
