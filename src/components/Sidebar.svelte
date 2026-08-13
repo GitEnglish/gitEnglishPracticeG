@@ -2,11 +2,29 @@
   import { BookOpen, ChevronDown, Puzzle } from 'lucide-svelte';
   import { EXERCISE_CATEGORIES, EXERCISE_PEDAGOGY, PEDAGOGY_COLORS } from '../lib/constants';
   import { EXERCISE_INFO } from '../lib/exerciseInfo';
+  import VocabularyFocus from './VocabularyFocus.svelte';
+  import GrammarFocus from './GrammarFocus.svelte';
   import type { ExerciseType } from '../lib/types';
 
-  let { isSidebarOpen = true } = $props();
+  let {
+    isSidebarOpen = true,
+    focusVocabulary = [],
+    setFocusVocabulary = (v: string[]) => {},
+    inclusionRate = 50,
+    setInclusionRate = (r: number) => {},
+    focusGrammar = [],
+    setFocusGrammar = (g: string[]) => {},
+    grammarInclusionRate = 50,
+    setGrammarInclusionRate = (r: number) => {}
+  } = $props();
 
   let openCategory: string | null = $state('PPP');
+  let expandedInfo: string | null = $state(null);
+
+  const toggleInfo = (e: Event, type: string) => {
+      e.stopPropagation();
+      expandedInfo = expandedInfo === type ? null : type;
+  };
   let isConfigOpen = $state(false);
 
   const toggleCategory = (name: string) => {
@@ -51,6 +69,22 @@
               <span>Configuration</span>
               <ChevronDown class="w-4 h-4 transition-transform duration-200 {isConfigOpen ? 'rotate-180' : ''}" />
           </button>
+
+          <div class="space-y-2 overflow-hidden transition-all duration-300 {isConfigOpen ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}">
+              <VocabularyFocus
+                  {focusVocabulary}
+                  setFocusVocabulary={(v) => setFocusVocabulary(v)}
+                  {inclusionRate}
+                  setInclusionRate={(r) => setInclusionRate(r)}
+              />
+
+              <GrammarFocus
+                  {focusGrammar}
+                  setFocusGrammar={(g) => setFocusGrammar(g)}
+                  {grammarInclusionRate}
+                  setGrammarInclusionRate={(r) => setGrammarInclusionRate(r)}
+              />
+          </div>
       </div>
 
       <div class="pb-8">
@@ -84,8 +118,22 @@
                                   tabindex="0"
                                   draggable="true"
                                   ondragstart={(e) => {
-                                      e.dataTransfer?.setData('exercise-type', type);
-                                      if (e.dataTransfer) e.dataTransfer.effectAllowed = 'copy';
+                                      if (e.dataTransfer) {
+                                          e.dataTransfer.setData('exercise-type', type);
+                                          e.dataTransfer.effectAllowed = 'copy';
+
+                                          const dragGhost = document.createElement('div');
+                                          dragGhost.className = `p-3 rounded-lg border-2 ${colors.border} ${colors.bgOnDark} ${colors.textOnDark} font-bold shadow-2xl flex items-center gap-2`;
+                                          dragGhost.style.position = 'absolute';
+                                          dragGhost.style.top = '-1000px';
+                                          dragGhost.innerHTML = `
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19.439 7.85c-.049.322.059.648.289.878l1.568 1.568c.47.47.706 1.087.706 1.704s-.235 1.233-.706 1.704l-1.611 1.611a.98.98 0 0 1-.867.276c-.32-.049-.648.059-.878.289l-.756.756a1.5 1.5 0 0 0-.44 1.06v4.313a2.4 2.4 0 0 1-2.4 2.4h-4.312a1.5 1.5 0 0 0-1.061.44l-.756.756c-.23.23-.558.338-.878.289a.98.98 0 0 1-.276-.867l1.611-1.611c.47-.47.706-1.087.706-1.704s-.235-1.233-.706-1.704l-1.568-1.568c-.23-.23-.558-.338-.289-.878l.756-.756a1.5 1.5 0 0 0 .44-1.06V6.985a2.4 2.4 0 0 1 2.4-2.4h4.312a1.5 1.5 0 0 0 1.061-.44l.756-.756c.23-.23.558-.338.878-.289a.98.98 0 0 1 .276.867L15.427 5.57c-.47.47-.706 1.087-.706 1.704s.235 1.233.706 1.704l1.568 1.568c.23.23.558.338.289.878l-.756.756a1.5 1.5 0 0 0-.44 1.06v.001z"/></svg>
+                                            <span>${displayName}</span>
+                                          `;
+                                          document.body.appendChild(dragGhost);
+                                          e.dataTransfer.setDragImage(dragGhost, 20, 20);
+                                          setTimeout(() => { if (document.body.contains(dragGhost)) document.body.removeChild(dragGhost); }, 50);
+                                      }
                                   }}
                                   class="w-full text-left p-2.5 rounded-md cursor-grab active:scale-95 transition-all duration-200 border {colors.border} {colors.bgOnDark} hover:bg-opacity-100 hover:translate-x-1 hover:shadow-lg group-hover:ring-1 ring-opacity-50 ring-white/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:{colors.border.replace('border-', 'ring-')}"
                                   aria-label={`Add ${type} exercise`}
@@ -97,27 +145,37 @@
                                               <h3 class="text-xs font-medium truncate {colors.textOnDark}">{displayName}</h3>
                                           </div>
                                       </div>
-                                      <div class="flex-shrink-0">
+                                      <div class="flex items-center gap-2 flex-shrink-0">
                                           {@render difficultyIndicator(info.difficultyRating)}
+                                          <button
+                                              onclick={(e) => toggleInfo(e, type)}
+                                              class="p-1 rounded-md bg-blue-500/20 text-blue-300 hover:text-white hover:bg-blue-500 transition-colors z-20 focus:outline-none focus:ring-1 focus:ring-blue-400 shadow-sm flex items-center justify-center gap-1"
+                                              title="About this exercise"
+                                          >
+                                              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                                              <span class="text-[10px] font-bold uppercase tracking-wider pr-1">Info</span>
+                                          </button>
                                       </div>
                                   </div>
                               </div>
 
-                              <!-- Tooltip -->
-                              <div class="absolute left-full top-0 ml-4 w-72 p-4 rounded-xl bg-slate-900 border border-slate-700 shadow-2xl opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-200 z-50 translate-y-2 group-hover:translate-y-0 pointer-events-none">
-                                  <div class="absolute top-4 -left-2 w-4 h-4 bg-slate-900 border-b border-l border-slate-700 transform rotate-45"></div>
-                                  <h4 class="font-bold {colors.textOnDark} text-base mb-1.5">{info.name}</h4>
-                                  <div class="flex items-center gap-2 mb-3">
-                                      <span class="text-xs px-2 py-0.5 rounded-full border {colors.border} {colors.bgOnDark} {colors.textOnDark} bg-opacity-50">{pedagogy}</span>
-                                      <span class="text-xs text-slate-500">•</span>
-                                      <span class="text-xs text-slate-400">{info.difficultyRating}</span>
+                              <!-- Accordion Info Panel (Not Draggable) -->
+                              <div class="grid transition-all duration-300 ease-in-out overflow-hidden {expandedInfo === type ? 'grid-rows-[1fr] opacity-100 mt-2 mb-3' : 'grid-rows-[0fr] opacity-0'}">
+                                  <div class="min-h-0 bg-slate-900 border-l-2 border-{colors.border.replace('border-', '')} rounded-r-lg overflow-hidden shadow-2xl ml-2">
+                                      <div class="p-3.5">
+                                          <h4 class="font-bold text-blue-200 text-sm mb-1.5">{info.name}</h4>
+                                          <div class="flex items-center gap-2 mb-2">
+                                              <span class="text-[10px] px-1.5 py-0.5 rounded border {colors.border} {colors.textOnDark} bg-slate-800">{pedagogy}</span>
+                                              <span class="text-xs text-slate-500">•</span>
+                                              <span class="text-[10px] text-amber-300">{info.difficultyRating}</span>
+                                          </div>
+                                          <p class="text-slate-300 text-xs mb-3 leading-relaxed border-l-2 border-slate-700 pl-2">{info.description}</p>
+                                          <div class="bg-black/30 rounded p-2.5 border border-slate-800">
+                                              <p class="text-[10px] text-emerald-400 mb-1 font-semibold uppercase tracking-wider">Example</p>
+                                              <p class="text-xs text-slate-200 font-serif italic leading-tight">"{info.example}"</p>
+                                          </div>
+                                      </div>
                                   </div>
-                                  <p class="text-slate-300 text-sm mb-4 leading-relaxed">{info.description}</p>
-                                  <div class="bg-slate-950/50 rounded-lg p-3 border border-slate-800 mb-2">
-                                      <p class="text-xs text-slate-400 mb-1 font-semibold uppercase tracking-wider">Example</p>
-                                      <p class="text-xs text-slate-300 font-mono italic">"{info.example}"</p>
-                                  </div>
-                                  <p class="text-[10px] text-slate-500 text-center uppercase tracking-widest pt-1">Drag to place</p>
                               </div>
                           </div>
                       {/each}
@@ -129,7 +187,6 @@
   </div>
 
   <div class="p-4 border-t border-slate-800 bg-slate-950 text-center text-xs text-slate-600">
-      v2.1.0 • Infinite Canvas
   </div>
 </aside>
 
