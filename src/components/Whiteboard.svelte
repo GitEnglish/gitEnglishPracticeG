@@ -87,8 +87,8 @@
           const offsetY = parseFloat(e.dataTransfer?.getData('offset-y') || '0');
 
           const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-          const x = (e.clientX - rect.left - pan.x) / scale - offsetX;
-          const y = (e.clientY - rect.top - pan.y) / scale - offsetY;
+          const x = (e.clientX - rect.left - pan.x) / scale - offsetX + 5000;
+          const y = (e.clientY - rect.top - pan.y) / scale - offsetY + 5000;
 
           onUpdateBlock(id, { x: Math.round(x), y: Math.round(y) });
           return;
@@ -99,8 +99,8 @@
       if (exerciseType && onAddBlock) {
           // Adjust drop coordinates based on current pan and scale
           const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-          const x = (e.clientX - rect.left - pan.x) / scale;
-          const y = (e.clientY - rect.top - pan.y) / scale;
+          const x = (e.clientX - rect.left - pan.x) / scale + 5000;
+          const y = (e.clientY - rect.top - pan.y) / scale + 5000;
           onAddBlock(exerciseType, Math.round(x), Math.round(y));
       }
   };
