@@ -6,17 +6,132 @@
   import GrammarFocus from './GrammarFocus.svelte';
   import type { ExerciseType } from '../lib/types';
 
+  import { EXERCISE_CATEGORIES, PEDAGOGY_COLORS, EXERCISE_PEDAGOGY } from '../lib/constants';
+  import { EXERCISE_INFO } from '../lib/exerciseInfo';
+  import { ExerciseType } from '../lib/types';
+
+  import PencilSquareIcon from './icons/PencilSquareIcon.svelte';
+  import ListBulletIcon from './icons/ListBulletIcon.svelte';
+  import PuzzlePieceIcon from './icons/PuzzlePieceIcon.svelte';
+  import EyeIcon from './icons/EyeIcon.svelte';
+  import UserGroupIcon from './icons/UserGroupIcon.svelte';
+  import ArrowsRightLeftIcon from './icons/ArrowsRightLeftIcon.svelte';
+  import PhotoIcon from './icons/PhotoIcon.svelte';
+  import SparklesIcon from './icons/SparklesIcon.svelte';
+  import ChatBubbleBottomCenterTextIcon from './icons/ChatBubbleBottomCenterTextIcon.svelte';
+  import BookOpenIcon from './icons/BookOpenIcon.svelte';
+  import SpeakerWaveIcon from './icons/SpeakerWaveIcon.svelte';
+  import DifficultyIndicatorIcon from './icons/DifficultyIndicatorIcon.svelte';
+  import UploadIcon from './icons/UploadIcon.svelte';
+  import DownloadIcon from './icons/DownloadIcon.svelte';
+
+  import TrashIcon from './icons/TrashIcon.svelte';
+
+  // Settings state
   let {
-    isSidebarOpen = true,
-    focusVocabulary = [],
-    setFocusVocabulary = (v: string[]) => {},
-    inclusionRate = 50,
-    setInclusionRate = (r: number) => {},
-    focusGrammar = [],
-    setFocusGrammar = (g: string[]) => {},
-    grammarInclusionRate = 50,
-    setGrammarInclusionRate = (r: number) => {}
-  } = $props();
+      isSidebarOpen = true,
+      onAddExercise,
+      focusVocabulary = [],
+      onUpdateFocusVocabulary,
+      inclusionRate = 50,
+      onUpdateInclusionRate,
+      focusGrammar = [],
+      onUpdateFocusGrammar,
+      grammarInclusionRate = 50,
+      onUpdateGrammarInclusionRate,
+      onExportState,
+      onImportState,
+      onClearBoard
+  } = $props<{
+      isSidebarOpen?: boolean;
+      onAddExercise?: (type: string) => void;
+      focusVocabulary?: string[];
+      onUpdateFocusVocabulary?: (vocab: string[]) => void;
+      inclusionRate?: number;
+      onUpdateInclusionRate?: (rate: number) => void;
+      focusGrammar?: string[];
+      onUpdateFocusGrammar?: (grammar: string[]) => void;
+      grammarInclusionRate?: number;
+      onUpdateGrammarInclusionRate?: (rate: number) => void;
+      onExportState?: () => void;
+      onImportState?: (e: Event) => void;
+      onClearBoard?: () => void;
+  }>();
+
+  let isVocabOpen = $state(false);
+  let vocabInput = $state('');
+
+  let isGrammarOpen = $state(false);
+  let grammarInput = $state('');
+
+  const handleAddVocab = () => {
+        const newVocab = vocabInput.trim();
+        if (newVocab && !focusVocabulary.includes(newVocab.toLowerCase())) {
+            onUpdateFocusVocabulary && onUpdateFocusVocabulary([...focusVocabulary, newVocab.toLowerCase()]);
+            vocabInput = '';
+        }
+  };
+
+  const handleRemoveVocab = (vocabToRemove: string) => {
+        onUpdateFocusVocabulary && onUpdateFocusVocabulary(focusVocabulary.filter(v => v !== vocabToRemove));
+  };
+
+  const handleAddGrammar = () => {
+        const newGrammar = grammarInput.trim();
+        if (newGrammar && !focusGrammar.includes(newGrammar.toLowerCase())) {
+            onUpdateFocusGrammar && onUpdateFocusGrammar([...focusGrammar, newGrammar.toLowerCase()]);
+            grammarInput = '';
+        }
+  };
+
+  const handleRemoveGrammar = (grammarToRemove: string) => {
+        onUpdateFocusGrammar && onUpdateFocusGrammar(focusGrammar.filter(g => g !== grammarToRemove));
+  };
+
+
+  const EXERCISE_ICONS: Record<string, any> = {
+    [ExerciseType.FITB]: PencilSquareIcon,
+    [ExerciseType.CollocationGapFill]: PencilSquareIcon,
+    [ExerciseType.PhrasalVerbGapFill]: PencilSquareIcon,
+    [ExerciseType.WordFormation]: PencilSquareIcon,
+    [ExerciseType.ClozeParagraph]: PencilSquareIcon,
+    [ExerciseType.DialogueCompletion]: ChatBubbleBottomCenterTextIcon,
+    [ExerciseType.ErrorCorrection]: PencilSquareIcon,
+    [ExerciseType.FunctionalWriting]: PencilSquareIcon,
+    [ExerciseType.DictoGloss]: PencilSquareIcon,
+
+    [ExerciseType.MultipleChoice]: ListBulletIcon,
+    [ExerciseType.Prediction]: ListBulletIcon,
+    [ExerciseType.RuleDiscovery]: PuzzlePieceIcon,
+    [ExerciseType.SpotTheDifference]: EyeIcon,
+    [ExerciseType.PolitenessScenarios]: UserGroupIcon,
+    [ExerciseType.InferringMeaning]: PuzzlePieceIcon,
+    [ExerciseType.CollocationOddOneOut]: ListBulletIcon,
+    [ExerciseType.RegisterSort]: ArrowsRightLeftIcon,
+
+    [ExerciseType.Matching]: ArrowsRightLeftIcon,
+    [ExerciseType.FunctionMatching]: ArrowsRightLeftIcon,
+    [ExerciseType.SentenceScramble]: ArrowsRightLeftIcon,
+    [ExerciseType.StorySequencing]: ArrowsRightLeftIcon,
+
+    [ExerciseType.PicturePrompt]: PhotoIcon,
+    [ExerciseType.PictureComparison]: PhotoIcon,
+
+    [ExerciseType.MoralDilemma]: SparklesIcon,
+    [ExerciseType.ProblemSolvingScenario]: SparklesIcon,
+    [ExerciseType.RolePlayScenario]: ChatBubbleBottomCenterTextIcon,
+    [ExerciseType.StorytellingFromPrompts]: SparklesIcon,
+    [ExerciseType.JustifyYourOpinion]: SparklesIcon,
+
+    [ExerciseType.ReadingGist]: BookOpenIcon,
+    [ExerciseType.ReadingDetail]: EyeIcon,
+    [ExerciseType.InformationTransfer]: PencilSquareIcon,
+
+    [ExerciseType.ListeningSpecificInfo]: SpeakerWaveIcon,
+};
+
+
+
 
   let openCategory: string | null = $state('PPP');
   let expandedInfo: string | null = $state(null);
@@ -91,22 +206,23 @@
           <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 ml-3">Exercise Library</h3>
 
           {#each EXERCISE_CATEGORIES as category}
-            <div class="mb-1 rounded-xl overflow-hidden transition-all duration-300 border {openCategory === category.name ? 'border-slate-700 bg-slate-800/50 shadow-inner' : 'border-transparent bg-slate-900/50 hover:bg-slate-800'}">
+            {@const catColors = PEDAGOGY_COLORS[category.name] || PEDAGOGY_COLORS['Default']}
+            <div class="mb-2 font-casual">
               <button
                   onclick={() => toggleCategory(category.name)}
-                  class="flex items-center justify-between w-full p-3 text-left focus:outline-none cursor-pointer"
+                  class="w-full flex items-center justify-between p-3 rounded-lg transition-all duration-200 border {openCategory === category.name ? `${catColors.bgOnDark} ${catColors.border} shadow-lg` : 'bg-slate-800/40 border-transparent hover:bg-slate-800 hover:border-slate-700'}"
               >
                   <div class="flex items-center space-x-3">
-                      <div class="flex items-center justify-center w-6 h-6 rounded-md bg-slate-800 text-slate-300 border border-slate-700">
+                      <div class="flex items-center justify-center w-7 h-7 rounded-md {openCategory === category.name ? `${catColors.bgOnDark} ${catColors.textOnDark} border ${catColors.border}` : 'bg-slate-700 text-slate-400 border border-slate-600'} transition-colors duration-200">
                          <BookOpen size={14} />
                       </div>
-                      <span class="font-bold text-sm text-slate-200 transition-opacity duration-200 {openCategory === category.name ? 'opacity-100' : 'opacity-90'}">{category.name}</span>
+                      <span class="font-bold text-sm {catColors.textOnDark} transition-opacity duration-200 {openCategory === category.name ? 'opacity-100' : 'opacity-90'}">{category.name}</span>
                   </div>
-                  <ChevronDown size={16} class="transition-transform duration-200 {openCategory === category.name ? 'rotate-180 text-slate-200' : 'text-slate-500'}" />
+                  <ChevronDown size={16} class="transition-transform duration-200 {openCategory === category.name ? `rotate-180 ${catColors.textOnDark}` : 'text-slate-500'}" />
               </button>
 
               <div class="grid transition-all duration-300 ease-in-out overflow-hidden {openCategory === category.name ? 'grid-rows-[1fr] opacity-100 mt-2' : 'grid-rows-[0fr] opacity-0'}">
-                  <div class="min-h-0 space-y-2 pl-2 border-l-2 border-slate-700 border-opacity-30 ml-4 mb-2">
+                  <div class="min-h-0 space-y-2 pl-2 border-l-2 {catColors.border.replace('border-', 'border-opacity-30 ')} ml-4">
                       {#each category.types as type}
                           {@const pedagogy = EXERCISE_PEDAGOGY[type] || 'Default'}
                           {@const colors = PEDAGOGY_COLORS[pedagogy]}
@@ -191,6 +307,7 @@
 </aside>
 
 <style>
+
   .custom-scrollbar-dark::-webkit-scrollbar {
       width: 6px;
   }
@@ -201,4 +318,32 @@
       background: #334155;
       border-radius: 3px;
   }
+  .custom-scrollbar-dark::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+  }
+
+  .range-thumb-yellow::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      background: #eab308;
+      cursor: pointer;
+      border-radius: 50%;
+      border: 2px solid #1e293b;
+      box-shadow: 0 0 0 1px #eab308;
+  }
+
+  .range-thumb-emerald::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      background: #10b981;
+      cursor: pointer;
+      border-radius: 50%;
+      border: 2px solid #1e293b;
+      box-shadow: 0 0 0 1px #10b981;
+  }
+
 </style>
