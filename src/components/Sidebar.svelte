@@ -4,11 +4,8 @@
   import { EXERCISE_INFO } from '../lib/exerciseInfo';
   import VocabularyFocus from './VocabularyFocus.svelte';
   import GrammarFocus from './GrammarFocus.svelte';
-  import type { ExerciseType } from '../lib/types';
-
-  import { EXERCISE_CATEGORIES, PEDAGOGY_COLORS, EXERCISE_PEDAGOGY } from '../lib/constants';
-  import { EXERCISE_INFO } from '../lib/exerciseInfo';
   import { ExerciseType } from '../lib/types';
+
 
   import PencilSquareIcon from './icons/PencilSquareIcon.svelte';
   import ListBulletIcon from './icons/ListBulletIcon.svelte';
