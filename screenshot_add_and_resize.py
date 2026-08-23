@@ -9,21 +9,22 @@ def run():
 
         time.sleep(2)
 
-        # Click the canvas to add via radial menu wasn't opening it? Wait, legacy radial menu only works on right click or specific mode. Let me check Whiteboard.svelte.
-        # Radial Menu triggers on `contextmenu` (Right Click)! Let's try right click.
         page.mouse.click(600, 400, button="right")
         time.sleep(1)
 
-        # Click PPP in radial
         page.mouse.click(600, 320)
         time.sleep(1)
 
-        # Click FITB in radial
         page.mouse.click(600, 320)
         time.sleep(1)
 
-        page.screenshot(path="screenshot_after_right_click.png")
+        # After it's added, let's grab it by its header and drag to make sure it's placed and then grab its resize handles.
+        # Actually in Svelte we don't have Rnd, let me check how the block is being dragged.
+        # ExerciseBlock.svelte has draggable={!isPresenting}
+        # It's native HTML5 drag on the whole block.
+        # Wait, how is resize implemented?
 
+        page.screenshot(path="screenshot_final.png")
         browser.close()
 
 run()

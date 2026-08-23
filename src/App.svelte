@@ -79,8 +79,8 @@
       const newBlock: ExerciseBlockState = {
           id: nextId,
           exerciseType: type,
-          x: x, // Offset due to whiteboard grid coordinate system (left/top -5000)
-          y: y,
+          x: -5000 + (window.innerWidth / 2) - 175, // Center minus half width
+          y: -5000 + (window.innerHeight / 2) - 100,
           width: 350,
           height: 250,
           zIndex: maxZIndex + 1,
@@ -121,13 +121,13 @@
   <Sidebar
     {isSidebarOpen}
     focusVocabulary={globalFocusVocabulary}
-    setFocusVocabulary={(v: string[]) => { globalFocusVocabulary = v; localStorage.setItem('practiceGenie-focusVocabulary', JSON.stringify(v)); }}
+    onUpdateFocusVocabulary={(v: string[]) => { globalFocusVocabulary = v; localStorage.setItem('practiceGenie-focusVocabulary', JSON.stringify(v)); }}
     inclusionRate={globalInclusionRate}
-    setInclusionRate={(r: number) => { globalInclusionRate = r; localStorage.setItem('practiceGenie-inclusionRate', r.toString()); }}
+    onUpdateInclusionRate={(r: number) => { globalInclusionRate = r; localStorage.setItem('practiceGenie-inclusionRate', r.toString()); }}
     focusGrammar={globalFocusGrammar}
-    setFocusGrammar={(g: string[]) => { globalFocusGrammar = g; localStorage.setItem('practiceGenie-focusGrammar', JSON.stringify(g)); }}
+    onUpdateFocusGrammar={(g: string[]) => { globalFocusGrammar = g; localStorage.setItem('practiceGenie-focusGrammar', JSON.stringify(g)); }}
     grammarInclusionRate={globalGrammarInclusionRate}
-    setGrammarInclusionRate={(r: number) => { globalGrammarInclusionRate = r; localStorage.setItem('practiceGenie-grammarInclusionRate', r.toString()); }}
+    onUpdateGrammarInclusionRate={(r: number) => { globalGrammarInclusionRate = r; localStorage.setItem('practiceGenie-grammarInclusionRate', r.toString()); }}
   />
 
   {#if isGlobalSettingsOpen}

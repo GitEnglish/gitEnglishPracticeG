@@ -70,7 +70,7 @@
   };
 
   const handleRemoveVocab = (vocabToRemove: string) => {
-        onUpdateFocusVocabulary && onUpdateFocusVocabulary(focusVocabulary.filter(v => v !== vocabToRemove));
+        onUpdateFocusVocabulary && onUpdateFocusVocabulary(focusVocabulary.filter((v: string) => v !== vocabToRemove));
   };
 
   const handleAddGrammar = () => {
@@ -82,7 +82,7 @@
   };
 
   const handleRemoveGrammar = (grammarToRemove: string) => {
-        onUpdateFocusGrammar && onUpdateFocusGrammar(focusGrammar.filter(g => g !== grammarToRemove));
+        onUpdateFocusGrammar && onUpdateFocusGrammar(focusGrammar.filter((g: string) => g !== grammarToRemove));
   };
 
 
@@ -185,16 +185,16 @@
           <div class="space-y-2 overflow-hidden transition-all duration-300 {isConfigOpen ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}">
               <VocabularyFocus
                   {focusVocabulary}
-                  setFocusVocabulary={(v) => setFocusVocabulary(v)}
+                  onUpdateFocusVocabulary={onUpdateFocusVocabulary}
                   {inclusionRate}
-                  setInclusionRate={(r) => setInclusionRate(r)}
+                  onUpdateInclusionRate={onUpdateInclusionRate}
               />
 
               <GrammarFocus
                   {focusGrammar}
-                  setFocusGrammar={(g) => setFocusGrammar(g)}
+                  onUpdateFocusGrammar={onUpdateFocusGrammar}
                   {grammarInclusionRate}
-                  setGrammarInclusionRate={(r) => setGrammarInclusionRate(r)}
+                  onUpdateGrammarInclusionRate={onUpdateGrammarInclusionRate}
               />
           </div>
       </div>
