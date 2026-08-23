@@ -3,14 +3,14 @@
 
   let {
     focusVocabulary,
-    setFocusVocabulary,
+    onUpdateFocusVocabulary,
     inclusionRate,
-    setInclusionRate
+    onUpdateInclusionRate
   } = $props<{
     focusVocabulary: string[];
-    setFocusVocabulary: (v: string[]) => void;
+    onUpdateFocusVocabulary: (v: string[]) => void;
     inclusionRate: number;
-    setInclusionRate: (r: number) => void;
+    onUpdateInclusionRate: (r: number) => void;
   }>();
 
   let isOpen = $state(false);
@@ -19,18 +19,18 @@
   const handleAddVocab = () => {
       const newVocab = inputValue.trim();
       if (newVocab && !focusVocabulary.includes(newVocab.toLowerCase())) {
-          setFocusVocabulary([...focusVocabulary, newVocab.toLowerCase()]);
+          onUpdateFocusVocabulary([...focusVocabulary, newVocab.toLowerCase()]);
           inputValue = '';
       }
   };
 
   const handleRemoveVocab = (vocabToRemove: string) => {
-      setFocusVocabulary(focusVocabulary.filter((v: string) => v !== vocabToRemove));
+      onUpdateFocusVocabulary(focusVocabulary.filter((v: string) => v !== vocabToRemove));
   };
 
   const handleInclusionRateChange = (e: Event) => {
       const target = e.target as HTMLInputElement;
-      setInclusionRate(Number(target.value));
+      onUpdateInclusionRate(Number(target.value));
   };
 </script>
 

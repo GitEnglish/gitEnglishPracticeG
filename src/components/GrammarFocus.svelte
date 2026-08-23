@@ -3,14 +3,14 @@
 
   let {
     focusGrammar,
-    setFocusGrammar,
+    onUpdateFocusGrammar,
     grammarInclusionRate,
-    setGrammarInclusionRate
+    onUpdateGrammarInclusionRate
   } = $props<{
     focusGrammar: string[];
-    setFocusGrammar: (g: string[]) => void;
+    onUpdateFocusGrammar: (g: string[]) => void;
     grammarInclusionRate: number;
-    setGrammarInclusionRate: (r: number) => void;
+    onUpdateGrammarInclusionRate: (r: number) => void;
   }>();
 
   let isOpen = $state(false);
@@ -19,18 +19,18 @@
   const handleAddGrammar = () => {
       const newGrammar = inputValue.trim();
       if (newGrammar && !focusGrammar.includes(newGrammar)) {
-          setFocusGrammar([...focusGrammar, newGrammar]);
+          onUpdateFocusGrammar([...focusGrammar, newGrammar]);
           inputValue = '';
       }
   };
 
   const handleRemoveGrammar = (grammarToRemove: string) => {
-      setFocusGrammar(focusGrammar.filter((g: string) => g !== grammarToRemove));
+      onUpdateFocusGrammar(focusGrammar.filter((g: string) => g !== grammarToRemove));
   };
 
   const handleInclusionRateChange = (e: Event) => {
       const target = e.target as HTMLInputElement;
-      setGrammarInclusionRate(Number(target.value));
+      onUpdateGrammarInclusionRate(Number(target.value));
   };
 </script>
 

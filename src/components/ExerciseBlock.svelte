@@ -74,6 +74,8 @@
   let isSettingsOpen = $state(false);
   let currentSlide = $state(0);
 
+  let generateAmount = $derived(quantity ?? calculateExerciseAmount(exerciseType, height));
+
   // Stub generation to use mock data for now
   const handleGenerate = async () => {
     isLoading = true;
@@ -184,15 +186,22 @@
         {/if}
 
         {#if !isGenerated && !isLoading}
-            <div class="h-full flex flex-col justify-center items-center text-center p-6 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200">
-                 <p class="text-sm text-slate-500 mb-6 max-w-sm">
-                    This <strong class="text-slate-700">{exerciseType}</strong> block is ready to generate. Configure settings using the gear icon, then click Generate.
-                </p>
-                <ExerciseTemplate type={exerciseType} index={1} />
-                <button onclick={handleGenerate} class="mt-8 px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all flex items-center gap-2 active:scale-95">
-                    <MagicWandIcon class="w-5 h-5" />
-                    Generate Exercise
-                </button>
+            <div class="h-full flex flex-col items-center justify-start p-6 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200 overflow-y-auto">
+                 <div class="flex flex-col items-center sticky top-0 bg-slate-50/90 backdrop-blur-sm z-10 py-4 w-full border-b border-slate-200/50 mb-6">
+                     <p class="text-sm text-slate-500 mb-4 max-w-sm text-center">
+                        This <strong class="text-slate-700">{exerciseType}</strong> block is ready to generate. Configure settings using the gear icon, then click Generate.
+                    </p>
+                    <button onclick={handleGenerate} class="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all flex items-center gap-2 active:scale-95">
+                        <MagicWandIcon class="w-5 h-5" />
+                        Generate Exercise ({generateAmount})
+                    </button>
+                 </div>
+
+                 <div class="w-full space-y-4 max-w-2xl">
+                     {#each Array(generateAmount) as _, i}
+                         <ExerciseTemplate type={exerciseType} index={i} />
+                     {/each}
+                 </div>
             </div>
         {:else if isLoading}
             <div class="h-full flex items-center justify-center">
