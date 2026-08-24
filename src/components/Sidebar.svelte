@@ -6,6 +6,9 @@
   import GrammarFocus from './GrammarFocus.svelte';
   import { ExerciseType } from '../lib/types';
 
+  import { getActivityLogger } from '../services/ActivityLogger';
+
+
 
   import PencilSquareIcon from './icons/PencilSquareIcon.svelte';
   import ListBulletIcon from './icons/ListBulletIcon.svelte';
@@ -299,9 +302,27 @@
       </div>
   </div>
 
-  <div class="p-4 border-t border-slate-800 bg-slate-950 text-center text-xs text-slate-600">
+
+  <div class="p-4 border-t border-slate-800 bg-slate-950 text-xs text-slate-600">
+        <h3 class="font-bold text-slate-500 uppercase tracking-wider mb-3 ml-3">Project Actions</h3>
+        <div class="flex flex-col gap-2">
+            <button onclick={onExportState} class="flex items-center gap-2 w-full p-2 text-sm font-medium text-slate-300 hover:bg-slate-800 rounded-lg transition-colors" aria-label="Export current project">
+                <DownloadIcon class="w-4 h-4 text-blue-400" /> Export Project
+            </button>
+            <label class="flex items-center gap-2 w-full p-2 text-sm font-medium text-slate-300 hover:bg-slate-800 rounded-lg transition-colors cursor-pointer" aria-label="Import project from file">
+                <UploadIcon class="w-4 h-4 text-emerald-400" /> Import Project
+                <input type="file" accept=".json" onchange={onImportState} class="hidden" />
+            </label>
+            <button onclick={onClearBoard} class="flex items-center gap-2 w-full p-2 text-sm font-medium text-slate-300 hover:bg-red-900/20 hover:text-red-400 rounded-lg transition-colors" aria-label="Clear all exercises from board">
+                <TrashIcon class="w-4 h-4" /> Clear Board
+            </button>
+             <button onclick={() => getActivityLogger()?.downloadLog()} class="flex items-center gap-2 w-full p-2 text-sm font-medium text-slate-300 hover:bg-slate-800 rounded-lg transition-colors" aria-label="Download session activity log">
+                <DownloadIcon class="w-4 h-4 text-teal-400" /> Download Activity Log
+            </button>
+        </div>
   </div>
 </aside>
+
 
 <style>
 
