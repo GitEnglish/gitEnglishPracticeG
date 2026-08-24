@@ -1,17 +1,43 @@
 <script lang="ts">
   import Sidebar from './components/Sidebar.svelte';
   import Whiteboard from './components/Whiteboard.svelte';
-    import GlobalSettings from './components/GlobalSettings.svelte';
+    import RadialMenu from './components/RadialMenu.svelte';
+  import GlobalSettings from './components/GlobalSettings.svelte';
   import type { ExerciseBlockState } from './lib/types';
   import { Difficulty, Tone, ExerciseType } from './lib/types';
 
   let isSidebarOpen = $state(true);
 
+
+  // Local Storage Keys
+  const BLOCKS_KEY = 'practiceGenie-blocks';
+  const DIFFICULTY_KEY = 'practiceGenie-difficulty';
+  const TONE_KEY = 'practiceGenie-tone';
+  const THEME_KEY = 'practiceGenie-theme';
+
+  let initialBlocks = [];
+  try {
+      const savedBlocks = localStorage.getItem(BLOCKS_KEY);
+      if (savedBlocks) {
+          initialBlocks = JSON.parse(savedBlocks);
+      }
+  } catch (e) {
+      console.error('Failed to parse blocks from localStorage', e);
+      localStorage.removeItem(BLOCKS_KEY);
+  }
+  let blocks = $state<ExerciseBlockState[]>(initialBlocks);
+
   // Global Settings State
   let isGlobalSettingsOpen = $state(false);
-  let globalDifficulty = $state<Difficulty>(Difficulty.B1);
-  let globalTone = $state<Tone>(Tone.Casual);
-  let globalTheme = $state<string>('');
+  let globalDifficulty = $state<Difficulty>((localStorage.getItem(DIFFICULTY_KEY) as Difficulty) || Difficulty.B1);
+  let globalTone = $state<Tone>((localStorage.getItem(TONE_KEY) as Tone) || Tone.Casual);
+  let globalTheme = $state<string>(localStorage.getItem(THEME_KEY) || '');
+
+  $effect(() => { localStorage.setItem(BLOCKS_KEY, JSON.stringify(blocks)); });
+  $effect(() => { localStorage.setItem(DIFFICULTY_KEY, globalDifficulty); });
+  $effect(() => { localStorage.setItem(TONE_KEY, globalTone); });
+  $effect(() => { localStorage.setItem(THEME_KEY, globalTheme); });
+
   let globalMakerApiKey = $state<string>(localStorage.getItem('deepseek_maker_api_key') || '');
   let globalCheckerApiKey = $state<string>(localStorage.getItem('deepseek_checker_api_key') || '');
   let globalMakerTemperature = $state<number>(parseFloat(localStorage.getItem('deepseek_maker_temp') || '0.7'));
@@ -25,11 +51,78 @@
   let globalGrammarInclusionRate = $state<number>(parseFloat(localStorage.getItem('practiceGenie-grammarInclusionRate') || '50'));
 
   // App State
-  let blocks = $state<ExerciseBlockState[]>([]);
+
   let presentingBlockId = $state<number | null>(null);
 
   let nextId = $derived(blocks.length > 0 ? Math.max(...blocks.map(b => b.id)) + 1 : 1);
   let maxZIndex = $derived(blocks.length > 0 ? Math.max(...blocks.map(b => b.zIndex)) : 10);
+
+
+  const handleExportState = () => {
+      const data = {
+          version: '2.1.0',
+          timestamp: new Date().toISOString(),
+          state: {
+              blocks,
+              difficulty: globalDifficulty,
+              tone: globalTone,
+              theme: globalTheme,
+              focusVocabulary: globalFocusVocabulary,
+              inclusionRate: globalInclusionRate,
+              focusGrammar: globalFocusGrammar,
+              grammarInclusionRate: globalGrammarInclusionRate
+          }
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `practice-genie-project-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+  };
+
+  const handleImportState = (e: Event) => {
+      const target = e.target as HTMLInputElement;
+      const file = target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+          try {
+              const result = event.target?.result as string;
+              const data = JSON.parse(result);
+              if (data && data.state) {
+                  const state = data.state;
+                  if (state.blocks) blocks = state.blocks;
+                  if (state.difficulty) globalDifficulty = state.difficulty;
+                  if (state.tone) globalTone = state.tone;
+                  if (state.theme) globalTheme = state.theme;
+                  if (state.focusVocabulary) globalFocusVocabulary = state.focusVocabulary;
+                  if (state.inclusionRate) globalInclusionRate = state.inclusionRate;
+                  if (state.focusGrammar) globalFocusGrammar = state.focusGrammar;
+                  if (state.grammarInclusionRate) globalGrammarInclusionRate = state.grammarInclusionRate;
+                  alert("Project imported successfully!");
+              } else {
+                  throw new Error("Invalid project file format");
+              }
+          } catch (error) {
+              console.error("Failed to parse project file", error);
+              alert("Invalid project file.");
+          }
+      };
+      reader.readAsText(file);
+      target.value = '';
+  };
+
+  const handleClearBoard = () => {
+      if (window.confirm("Are you sure you want to clear the entire whiteboard? This cannot be undone unless you have exported your project.")) {
+          blocks = [];
+      }
+  };
+
 
   // Handlers
   const handleAddBlock = (typeStr: string, dropX?: number, dropY?: number) => {
@@ -118,6 +211,15 @@
 
 <div class="h-screen w-screen flex font-casual antialiased overflow-hidden bg-slate-800">
 
+  <RadialMenu
+      difficulty={globalDifficulty}
+      onToggleSettings={() => isGlobalSettingsOpen = true}
+      onToggleSidebar={() => isSidebarOpen = !isSidebarOpen}
+      onExportState={handleExportState}
+      onCycleDifficulty={cycleDifficulty}
+  />
+
+
   <Sidebar
     {isSidebarOpen}
     focusVocabulary={globalFocusVocabulary}
@@ -128,7 +230,11 @@
     onUpdateFocusGrammar={(g: string[]) => { globalFocusGrammar = g; localStorage.setItem('practiceGenie-focusGrammar', JSON.stringify(g)); }}
     grammarInclusionRate={globalGrammarInclusionRate}
     onUpdateGrammarInclusionRate={(r: number) => { globalGrammarInclusionRate = r; localStorage.setItem('practiceGenie-grammarInclusionRate', r.toString()); }}
+    onExportState={handleExportState}
+    onImportState={handleImportState}
+    onClearBoard={handleClearBoard}
   />
+
 
   {#if isGlobalSettingsOpen}
       <GlobalSettings
