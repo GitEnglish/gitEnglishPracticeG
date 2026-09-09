@@ -164,11 +164,15 @@
           finalX = 5000 + 100;
           finalY = 5000 + 100;
 
+          // We want it to be near the center of the screen
+          const centerX = 5000 + (window.innerWidth / 2) - (width / 2);
+          const centerY = 5000 + (window.innerHeight / 2) - (height / 2);
+
           let positionFound = false;
-          for (let y = 100; y < 3000 && !positionFound; y += 50) {
-              for (let x = 100; x < 3000 && !positionFound; x += 50) {
-                  const checkX = 5000 + x;
-                  const checkY = 5000 + y;
+          for (let offset = 0; offset < 3000 && !positionFound; offset += 50) {
+              for (let angle = 0; angle < Math.PI * 2 && !positionFound; angle += Math.PI / 4) {
+                  const checkX = Math.round(centerX + Math.cos(angle) * offset);
+                  const checkY = Math.round(centerY + Math.sin(angle) * offset);
                   let hasOverlap = false;
                   for (const block of blocks) {
                       if (
@@ -193,8 +197,8 @@
       const newBlock: ExerciseBlockState = {
           id: nextId,
           exerciseType: type,
-          x: -5000 + (window.innerWidth / 2) - 175, // Center minus half width
-          y: -5000 + (window.innerHeight / 2) - 100,
+          x: finalX,
+          y: finalY,
           width: 350,
           height: 250,
           zIndex: maxZIndex + 1,
@@ -245,6 +249,7 @@
 
   <Sidebar
     {isSidebarOpen}
+    onAddExercise={handleAddBlock}
     focusVocabulary={globalFocusVocabulary}
     onUpdateFocusVocabulary={(v: string[]) => { globalFocusVocabulary = v; localStorage.setItem('practiceGenie-focusVocabulary', JSON.stringify(v)); }}
     inclusionRate={globalInclusionRate}

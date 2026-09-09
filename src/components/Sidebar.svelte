@@ -233,6 +233,15 @@
                                   role="button"
                                   tabindex="0"
                                   draggable="true"
+                                  onclick={() => {
+                                      onAddExercise && onAddExercise(type);
+                                  }}
+                                  onkeydown={(e) => {
+                                      if (e.key === 'Enter' || e.key === ' ') {
+                                          e.preventDefault();
+                                          onAddExercise && onAddExercise(type);
+                                      }
+                                  }}
                                   ondragstart={(e) => {
                                       if (e.dataTransfer) {
                                           e.dataTransfer.setData('exercise-type', type);
