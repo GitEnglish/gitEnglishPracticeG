@@ -5,3 +5,6 @@ All agents operating in this workspace must record meaningful actions to the pro
 ### Execution Command:
 ```bash
 logwork "<Action summary in present or past tense>" "<category>" "<optional details or file paths>"
+
+## Package Manager
+* Use `bun` as the package manager exclusively. Do NOT use `pnpm` or `npm`.
