@@ -6,7 +6,8 @@
   import { useResponsiveScale } from '../hooks/useResponsiveScale';
   import { useAttentionTracker } from '../hooks/useAttentionTracker';
   import { getActivityLogger } from '../services/ActivityLogger';
-  import { checkAnswerWithAI } from '../services/aiService'; // Reusing aiService to mock generation temporarily
+  import { generateExercise } from '../services/deepseekService';
+  import type { Component } from 'svelte';
 
   import ExerciseTemplate from './ExerciseTemplate.svelte';
 
@@ -69,28 +70,85 @@
 
   let { id, x, y, width, height, zIndex, exerciseType, difficulty, tone, theme, focusVocabulary, inclusionRate, focusGrammar, grammarInclusionRate, isGenerated, quantity } = $derived(blockState);
 
-  let content = $state<any[] | { error: string }>([]);
+  let content = $state<any[]>([]);
   let isLoading = $state(false);
   let isSettingsOpen = $state(false);
   let currentSlide = $state(0);
 
+<<<<<<< Updated upstream
   let generateAmount = $derived(quantity ?? calculateExerciseAmount(exerciseType, height));
 
   // Stub generation to use mock data for now
+=======
+  // Real generation via OpenRouter (DeepSeek) — see services/deepseekService.ts
+>>>>>>> Stashed changes
   const handleGenerate = async () => {
     isLoading = true;
     onFocus(id);
-    // Simulate generation delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    // Provide some dummy content for visual testing based on type
-    if (exerciseType === ExerciseType.FITB) {
-        content = [{ question: "The cat sat on the [BLANK].", answer: "mat", wordBank: ["mat", "dog", "car"] }];
-    } else {
-        content = [{ error: "Mock generated content for " + exerciseType }];
+    currentSlide = 0;
+    try {
+        const amount = quantity ?? calculateExerciseAmount(exerciseType, height);
+        const result = await generateExercise(exerciseType, difficulty, tone, theme, amount, focusVocabulary, inclusionRate, focusGrammar, grammarInclusionRate);
+        if (Array.isArray(result)) {
+            content = result;
+            onUpdate(id, { isGenerated: true });
+        } else {
+            content = [result]; // { error } payload
+        }
+    } catch (e) {
+        content = [{ error: 'Generation failed: ' + (e instanceof Error ? e.message : String(e)) }];
+    } finally {
+        isLoading = false;
     }
+  };
 
-    onUpdate(id, { isGenerated: true });
-    isLoading = false;
+  // Renderer map: every ExerciseType has an interactive component.
+  // Components sniff their data shape (e.g. InteractiveMCQ handles all MCQ-like types).
+  const EXERCISE_RENDERERS: Partial<Record<ExerciseType, Component<any>>> = {
+    [ExerciseType.FITB]: InteractiveFITB,
+    [ExerciseType.CollocationGapFill]: InteractiveFITB,
+    [ExerciseType.PhrasalVerbGapFill]: InteractiveFITB,
+    [ExerciseType.WordFormation]: InteractiveWordFormation,
+    [ExerciseType.MultipleChoice]: InteractiveMCQ,
+    [ExerciseType.CollocationOddOneOut]: InteractiveMCQ,
+    [ExerciseType.Prediction]: InteractiveMCQ,
+    [ExerciseType.RuleDiscovery]: InteractiveMCQ,
+    [ExerciseType.SpotTheDifference]: InteractiveMCQ,
+    [ExerciseType.PolitenessScenarios]: InteractiveMCQ,
+    [ExerciseType.InferringMeaning]: InteractiveMCQ,
+    [ExerciseType.ReadingGist]: InteractiveMCQ,
+    [ExerciseType.SentenceScramble]: InteractiveSentenceScramble,
+    [ExerciseType.ClozeParagraph]: InteractiveClozeOrDialogue,
+    [ExerciseType.DialogueCompletion]: InteractiveClozeOrDialogue,
+    [ExerciseType.Matching]: InteractiveMatching,
+    [ExerciseType.FunctionMatching]: InteractiveMatching,
+    [ExerciseType.ErrorCorrection]: InteractiveErrorCorrection,
+    [ExerciseType.StorySequencing]: InteractiveStorySequencing,
+    [ExerciseType.ReadingDetail]: InteractiveReadingDetail,
+    [ExerciseType.PicturePrompt]: InteractivePicturePrompt,
+    [ExerciseType.DictoGloss]: InteractiveDictoGloss,
+    [ExerciseType.InformationTransfer]: InteractiveInformationTransfer,
+    [ExerciseType.ListeningSpecificInfo]: InteractiveListening,
+    [ExerciseType.RegisterSort]: InteractiveRegisterSort,
+    [ExerciseType.FunctionalWriting]: InteractiveOpenResponseTask,
+    [ExerciseType.MoralDilemma]: InteractiveOpenResponseTask,
+    [ExerciseType.ProblemSolvingScenario]: InteractiveOpenResponseTask,
+    [ExerciseType.RolePlayScenario]: InteractiveOpenResponseTask,
+    [ExerciseType.StorytellingFromPrompts]: InteractiveOpenResponseTask,
+    [ExerciseType.JustifyYourOpinion]: InteractiveOpenResponseTask,
+    [ExerciseType.PictureComparison]: InteractiveOpenResponseTask,
+  };
+
+  let ActiveExercise = $derived(EXERCISE_RENDERERS[exerciseType as ExerciseType]);
+  let activeItem = $derived(content[currentSlide] ?? content[0]);
+
+  // Adapts a generated item to the shape its renderer expects.
+  const mapItemForRenderer = (item: any): any => {
+    if (!item || item.error) return item;
+    if (exerciseType === ExerciseType.CollocationOddOneOut) {
+      return { question: 'Which word does NOT collocate with "' + item.keyword + '"?', options: item.options, correctAnswer: item.correctAnswer };
+    }
+    return item;
   };
 
   const handleUpdateSetting = (updates: Partial<ExerciseBlockState>) => {
@@ -101,14 +159,6 @@
   let colors: any = $derived((PEDAGOGY_COLORS as Record<string, any>)[pedagogy] || (PEDAGOGY_COLORS as Record<string, any>)['Default']);
   let isSingleInstance = $derived(SINGLE_INSTANCE_TYPES.includes(exerciseType));
 
-  const renderExercise = (item: any, idx: number) => {
-      // In a real port, we'd map types. Here we map a few to show it works
-      if (item.error) return `<div class="p-4 text-red-500">${item.error}</div>`;
-      if (exerciseType === ExerciseType.FITB) {
-          return `<InteractiveFITB exercise={item} colors={colors} />`;
-      }
-      return `<div class="p-4 bg-slate-100 rounded">Generic Content Render</div>`;
-  };
 
   let dragControls = $state(null);
 
@@ -211,14 +261,27 @@
                 </div>
             </div>
         {:else}
-            <div class="content-wrapper">
-                {#if exerciseType === ExerciseType.FITB && Array.isArray(content) && (content as any)[0] && !(content as any)[0].error}
-                     <InteractiveFITB exercise={(content as any)[0]} {colors} />
-                {:else}
-                     <div class="p-4 bg-slate-100 text-slate-600 rounded">
-                        {(content as any)[0]?.error || "Content generated successfully. Full render implementation pending."}
-                     </div>
+            <div class="content-wrapper h-full flex flex-col">
+                {#if content.length > 1}
+                    <div class="flex items-center justify-between mb-2 text-xs font-bold text-slate-500 flex-shrink-0">
+                        <button class="p-1 rounded hover:bg-slate-100 disabled:opacity-30" onclick={() => currentSlide = Math.max(0, currentSlide - 1)} disabled={currentSlide === 0} aria-label="Previous item">
+                            <ChevronLeftIcon class="w-4 h-4" />
+                        </button>
+                        <span>{currentSlide + 1} / {content.length}</span>
+                        <button class="p-1 rounded hover:bg-slate-100 disabled:opacity-30" onclick={() => currentSlide = Math.min(content.length - 1, currentSlide + 1)} disabled={currentSlide >= content.length - 1} aria-label="Next item">
+                            <ChevronRightIcon class="w-4 h-4" />
+                        </button>
+                    </div>
                 {/if}
+                <div class="flex-grow overflow-y-auto min-h-0">
+                    {#if activeItem?.error}
+                        <div class="p-4 bg-red-50 text-red-600 rounded-xl border border-red-200 text-sm">{activeItem.error}</div>
+                    {:else if ActiveExercise}
+                        <ActiveExercise exercise={mapItemForRenderer(activeItem)} {colors} />
+                    {:else if activeItem}
+                        <pre class="text-xs whitespace-pre-wrap text-slate-600 bg-slate-50 p-3 rounded">{JSON.stringify(activeItem, null, 2)}</pre>
+                    {/if}
+                </div>
             </div>
         {/if}
     </div>
