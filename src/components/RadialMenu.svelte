@@ -1,13 +1,15 @@
 <script lang="ts">
-  import { Menu, X, Settings, Gauge, Download, Palette } from 'lucide-svelte';
+  import { Menu, X, Settings, Gauge, Download, Palette, PenTool } from 'lucide-svelte';
   import { onMount, onDestroy } from 'svelte';
 
-  let { difficulty = 'B1', onToggleSettings, onToggleSidebar, onExportState, onCycleDifficulty } = $props<{
+  let { difficulty = 'B1', onToggleSettings, onToggleSidebar, onExportState, onCycleDifficulty, isDrawingMode = false, onToggleDrawingMode } = $props<{
       difficulty?: string;
       onToggleSettings?: () => void;
       onToggleSidebar?: () => void;
       onExportState?: () => void;
       onCycleDifficulty?: () => void;
+      isDrawingMode?: boolean;
+      onToggleDrawingMode?: () => void;
   }>();
 
   let isOpen = $state(false);
@@ -38,7 +40,7 @@
       { icon: Settings, label: "Config", action: onToggleSettings },
       { icon: Gauge, label: `Difficulty: ${difficulty}`, action: onCycleDifficulty },
       { icon: Download, label: "Export", action: onExportState },
-      { icon: Palette, label: "Themes", action: () => console.log("Theme toggle - Future feature") }
+      { icon: PenTool, label: isDrawingMode ? "Stop Drawing" : "Draw", action: onToggleDrawingMode }
   ]);
 
   const getStyle = (index: number, total: number) => {

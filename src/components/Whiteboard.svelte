@@ -2,9 +2,13 @@
   import { Wand2 } from 'lucide-svelte';
   import type { ExerciseBlockState } from '../lib/types';
   import ExerciseBlock from './ExerciseBlock.svelte';
+  import DrawingLayer from './DrawingLayer.svelte';
 
   let {
     blocks,
+    paths = [],
+    isDrawingMode = false,
+    onPathsChange,
     onAddBlock,
     onUpdateBlock,
     onRemoveBlock,
@@ -16,6 +20,9 @@
     onPrevSlide
   } = $props<{
     blocks: ExerciseBlockState[];
+    paths?: any[];
+    isDrawingMode?: boolean;
+    onPathsChange?: (paths: any[]) => void;
     onAddBlock?: (type: string, x: number, y: number) => void;
     onUpdateBlock: (id: number, updates: Partial<ExerciseBlockState>) => void;
     onRemoveBlock: (id: number) => void;
@@ -36,7 +43,7 @@
     const target = e.target as HTMLElement;
     const isBackground = target.id === 'whiteboard-background' || target.id === 'whiteboard-main';
 
-    if (e.button === 1 || e.button === 2 || (e.button === 0 && isBackground)) {
+    if (e.button === 1 || e.button === 2 || (e.button === 0 && isBackground && !isDrawingMode)) {
       isPanning = true;
       lastMousePos = { x: e.clientX, y: e.clientY };
       e.preventDefault();
@@ -113,7 +120,7 @@
   onwheel={handleWheel}
   ondrop={handleDrop}
   ondragover={(e) => e.preventDefault()}
-  class="flex-grow bg-slate-200 relative overflow-hidden font-casual h-full w-full {isPanning ? 'cursor-grabbing' : 'cursor-grab'}"
+  class="flex-grow bg-slate-200 relative overflow-hidden font-casual h-full w-full {isPanning ? 'cursor-grabbing' : (isDrawingMode ? 'cursor-crosshair' : 'cursor-grab')}"
 >
   {#if blocks.length === 0}
   <div class="absolute inset-0 flex flex-col justify-center items-center text-center text-slate-500 pointer-events-none p-4 z-0 select-none">
@@ -130,8 +137,17 @@
   <div
       id="whiteboard-background"
       class="absolute origin-top-left will-change-transform {isPanning ? 'pointer-events-none' : ''}"
-      style="transform: translate({pan.x}px, {pan.y}px) scale({scale}); width: 10000px; height: 10000px; left: -5000px; top: -5000px; background-image: radial-gradient(#94a3b8 1px, transparent 1px); background-size: 20px 20px; background-position: 5000px 5000px;"
+      style="transform: translate({pan.x}px, {pan.y}px) scale({scale}); width: 10000px; height: 10000px; left: -5000px; top: -5000px; background-image: radial-gradient(#94a3b8 1px, transparent 1px); background-size: 20px 20px; background-position: 5000px 5000px; z-index: 1;"
   >
+    <DrawingLayer
+      {paths}
+      {isDrawingMode}
+      {scale}
+      {pan}
+      onPathAdded={(newPath) => {
+        if (onPathsChange) onPathsChange([...paths, newPath]);
+      }}
+    />
     {#each blocks as block (block.id)}
       <ExerciseBlock
         blockState={block}
