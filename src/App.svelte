@@ -5,6 +5,12 @@
   import GlobalSettings from './components/GlobalSettings.svelte';
   import type { ExerciseBlockState } from './lib/types';
   import { Difficulty, Tone, ExerciseType } from './lib/types';
+  import { initActivityLogger, getActivityLogger } from './services/ActivityLogger';
+
+  $effect(() => {
+    initActivityLogger('practice-genie', 'student_default');
+    getActivityLogger()?.startSession();
+  });
 
   let isSidebarOpen = $state(true);
 
@@ -14,6 +20,7 @@
   const DIFFICULTY_KEY = 'practiceGenie-difficulty';
   const TONE_KEY = 'practiceGenie-tone';
   const THEME_KEY = 'practiceGenie-theme';
+  const PATHS_KEY = 'practiceGenie-paths';
 
   let initialBlocks = [];
   try {
@@ -27,6 +34,19 @@
   }
   let blocks = $state<ExerciseBlockState[]>(initialBlocks);
 
+  let initialPaths = [];
+  try {
+      const savedPaths = localStorage.getItem(PATHS_KEY);
+      if (savedPaths) {
+          initialPaths = JSON.parse(savedPaths);
+      }
+  } catch (e) {
+      console.error('Failed to parse paths from localStorage', e);
+      localStorage.removeItem(PATHS_KEY);
+  }
+  let paths = $state<any[]>(initialPaths);
+  let isDrawingMode = $state(false);
+
   // Global Settings State
   let isGlobalSettingsOpen = $state(false);
   let globalDifficulty = $state<Difficulty>((localStorage.getItem(DIFFICULTY_KEY) as Difficulty) || Difficulty.B1);
@@ -37,6 +57,7 @@
   $effect(() => { localStorage.setItem(DIFFICULTY_KEY, globalDifficulty); });
   $effect(() => { localStorage.setItem(TONE_KEY, globalTone); });
   $effect(() => { localStorage.setItem(THEME_KEY, globalTheme); });
+  $effect(() => { localStorage.setItem(PATHS_KEY, JSON.stringify(paths)); });
 
   let globalMakerApiKey = $state<string>(localStorage.getItem('deepseek_maker_api_key') || '');
   let globalCheckerApiKey = $state<string>(localStorage.getItem('deepseek_checker_api_key') || '');
@@ -217,6 +238,8 @@
       onToggleSidebar={() => isSidebarOpen = !isSidebarOpen}
       onExportState={handleExportState}
       onCycleDifficulty={cycleDifficulty}
+      isDrawingMode={isDrawingMode}
+      onToggleDrawingMode={() => isDrawingMode = !isDrawingMode}
   />
 
 
@@ -283,6 +306,9 @@
   <div class="flex-grow flex flex-col relative">
     <Whiteboard
       {blocks}
+      {paths}
+      {isDrawingMode}
+      onPathsChange={(newPaths) => paths = newPaths}
       onAddBlock={handleAddBlock}
       onUpdateBlock={handleUpdateBlock}
       onRemoveBlock={handleRemoveBlock}

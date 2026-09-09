@@ -276,6 +276,26 @@
                                   </div>
                               </div>
 
+                              <!-- Tooltip -->
+                              <div class="absolute left-full top-0 ml-4 w-72
+                                            p-4 rounded-xl bg-slate-900 border border-slate-700 shadow-2xl
+                                            opacity-0 group-hover:opacity-100 invisible group-hover:visible
+                                            transition-all duration-200 z-50 translate-y-2 group-hover:translate-y-0 pointer-events-none">
+                                  <div class="absolute top-4 -left-2 w-4 h-4 bg-slate-900 border-b border-l border-slate-700 transform rotate-45"></div>
+                                  <h4 class="font-bold {colors.textOnDark} text-base mb-1.5">{info.name}</h4>
+                                  <div class="flex items-center gap-2 mb-3">
+                                      <span class="text-xs px-2 py-0.5 rounded-full border {colors.border} {colors.bgOnDark} {colors.textOnDark} bg-opacity-50">{pedagogy}</span>
+                                      <span class="text-xs text-slate-500">•</span>
+                                      <span class="text-xs text-slate-400">{info.difficultyRating}</span>
+                                  </div>
+                                  <p class="text-slate-300 text-sm mb-4 leading-relaxed">{info.description}</p>
+                                  <div class="bg-slate-950/50 rounded-lg p-3 border border-slate-800 mb-2">
+                                      <p class="text-xs text-slate-400 mb-1 font-semibold uppercase tracking-wider">Example</p>
+                                      <p class="text-xs text-slate-300 font-mono italic">"{info.example}"</p>
+                                  </div>
+                                  <p class="text-[10px] text-slate-500 text-center uppercase tracking-widest pt-1">Click to add • Drag to place</p>
+                              </div>
+
                               <!-- Accordion Info Panel (Not Draggable) -->
                               <div class="grid transition-all duration-300 ease-in-out overflow-hidden {expandedInfo === type ? 'grid-rows-[1fr] opacity-100 mt-2 mb-3' : 'grid-rows-[0fr] opacity-0'}">
                                   <div class="min-h-0 bg-slate-900 border-l-2 border-{colors.border.replace('border-', '')} rounded-r-lg overflow-hidden shadow-2xl ml-2">
