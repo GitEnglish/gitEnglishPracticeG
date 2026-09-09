@@ -239,6 +239,7 @@
                                           e.dataTransfer.effectAllowed = 'copy';
 
                                           const dragGhost = document.createElement('div');
+                                          dragGhost.id = 'sidebar-drag-ghost';
                                           dragGhost.className = `p-3 rounded-lg border-2 ${colors.border} ${colors.bgOnDark} ${colors.textOnDark} font-bold shadow-2xl flex items-center gap-2`;
                                           dragGhost.style.position = 'absolute';
                                           dragGhost.style.top = '-1000px';

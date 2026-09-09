@@ -129,8 +129,8 @@
       const type = typeStr as ExerciseType;
       let finalX = 0;
       let finalY = 0;
-      const width = 350;
-      const height = 250;
+      const width = 400;
+      const height = 350;
 
       if (dropX !== undefined && dropY !== undefined) {
           finalX = Math.round(dropX - width/2); // Offset already handled by Whiteboard
@@ -250,25 +250,25 @@
         setMakerApiKey={(k) => {
             globalMakerApiKey = k;
             localStorage.setItem('deepseek_maker_api_key', k);
-            import('./services/deepseekService').then(m => m.setMakerApiKey && m.setMakerApiKey(k));
+
         }}
         checkerApiKey={globalCheckerApiKey}
         setCheckerApiKey={(k) => {
             globalCheckerApiKey = k;
             localStorage.setItem('deepseek_checker_api_key', k);
-            import('./services/deepseekService').then(m => m.setCheckerApiKey && m.setCheckerApiKey(k));
+
         }}
         makerTemperature={globalMakerTemperature}
         setMakerTemperature={(t) => {
             globalMakerTemperature = t;
             localStorage.setItem('deepseek_maker_temp', t.toString());
-            import('./services/deepseekService').then(m => m.setMakerTemperature && m.setMakerTemperature(t));
+
         }}
         checkerTemperature={globalCheckerTemperature}
         setCheckerTemperature={(t) => {
             globalCheckerTemperature = t;
             localStorage.setItem('deepseek_checker_temp', t.toString());
-            import('./services/deepseekService').then(m => m.setCheckerTemperature && m.setCheckerTemperature(t));
+
         }}
       />
   {/if}

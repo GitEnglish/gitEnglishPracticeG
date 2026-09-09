@@ -74,18 +74,11 @@
   let isLoading = $state(false);
   let isSettingsOpen = $state(false);
   let currentSlide = $state(0);
-
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
   let generateAmount = $derived(quantity ?? calculateExerciseAmount(exerciseType, height));
 
-  // Stub generation to use mock data for now
-=======
+
   // Real generation via OpenRouter (DeepSeek) — see services/deepseekService.ts
->>>>>>> Stashed changes
-=======
   // Real generation via OpenRouter (DeepSeek) — see services/deepseekService.ts
->>>>>>> Stashed changes
   const handleGenerate = async () => {
     isLoading = true;
     onFocus(id);
@@ -174,6 +167,8 @@
 <!-- Simplified ExerciseBlock implementation for step 6, focusing on Svelte Motion mechanics -->
 <!-- Simplified ExerciseBlock implementation -->
 <div
+    role="region"
+    aria-roledescription="exercise block"
     draggable={!isPresenting}
     ondragstart={(e) => {
         if (!isPresenting) {
@@ -190,7 +185,7 @@
     }}
     onmousedown={() => onFocus(id)}
     class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col will-change-transform transition-transform {isPresenting ? 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] scale-150 shadow-2xl' : 'absolute cursor-grab active:cursor-grabbing'}"
-    style="left: {x}px; top: {y}px; width: {isPresenting ? '900px' : width + 'px'}; min-height: {isPresenting ? 'auto' : height + 'px'}; z-index: {isPresenting ? 9999 : zIndex};"
+    style="left: {x}px; top: {y}px; width: {isPresenting ? '900px' : (!isGenerated ? '400px' : width + 'px')}; height: {isPresenting ? 'auto' : (!isGenerated ? 'fit-content' : height + 'px')}; min-height: {isPresenting ? 'auto' : (!isGenerated ? '350px' : height + 'px')}; z-index: {isPresenting ? 9999 : zIndex};"
 >
     <!-- Header -->
     <div class="px-4 py-3 {colors.bg} {colors.border} border-b flex justify-between items-center" style="touch-action: none;">
