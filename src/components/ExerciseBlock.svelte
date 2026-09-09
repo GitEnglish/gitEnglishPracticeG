@@ -76,9 +76,13 @@
   let currentSlide = $state(0);
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   let generateAmount = $derived(quantity ?? calculateExerciseAmount(exerciseType, height));
 
   // Stub generation to use mock data for now
+=======
+  // Real generation via OpenRouter (DeepSeek) — see services/deepseekService.ts
+>>>>>>> Stashed changes
 =======
   // Real generation via OpenRouter (DeepSeek) — see services/deepseekService.ts
 >>>>>>> Stashed changes

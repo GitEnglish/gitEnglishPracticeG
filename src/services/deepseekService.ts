@@ -1,4 +1,5 @@
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 import OpenAI from 'openai';
 import { ExerciseType, Difficulty, Tone } from '../lib/types';
 
@@ -64,6 +65,8 @@ const getPromptAndSchema = (
 
   let basePrompt = `You are an expert ESL curriculum creator and CEFR examiner. Generate English exercises for an ESL learner's self-study.
 =======
+=======
+>>>>>>> Stashed changes
 import { ExerciseType, Difficulty, Tone } from '../lib/types';
 
 /**
@@ -101,6 +104,9 @@ const CEFR_INSTRUCTIONS: Record<Difficulty, string> = {
 
 const BASE_PROMPT = (difficulty: Difficulty, tone: Tone, theme: string): string =>
   `You are an expert ESL curriculum creator and CEFR examiner. Generate English exercises for an ESL learner's self-study.
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
 **CRITICAL INSTRUCTION: STRICT AMERICAN ENGLISH ONLY**
@@ -110,6 +116,7 @@ const BASE_PROMPT = (difficulty: Difficulty, tone: Tone, theme: string): string 
 4. **Context**: Avoid British cultural references (e.g., 'GCSEs', 'NHS', 'High Street'). Use US equivalents (e.g., 'GPA', 'Main Street').
 
 Difficulty Level: ${difficulty}
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 Strict Proficiency Guideline: ${cefrInstructions[difficulty]}
 Tone: ${tone}
@@ -577,6 +584,8 @@ Use '[BLANK]' as the placeholder for any missing words. Ensure the word bank is 
  */
 export const generateExercises = async (
 =======
+=======
+>>>>>>> Stashed changes
 Strict Proficiency Guideline: ${CEFR_INSTRUCTIONS[difficulty]}
 Tone: ${tone}
 Theme: ${theme || 'general topics'}
@@ -855,6 +864,9 @@ export type GenerationResult = any[] | { error: string };
  * Returns an array of exercise items, or { error } on failure.
  */
 export const generateExercise = async (
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
   exerciseType: ExerciseType,
   difficulty: Difficulty,
@@ -862,6 +874,7 @@ export const generateExercise = async (
   theme: string,
   amount: number,
   focusVocabulary: string[] = [],
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
   inclusionRate: number = 0,
   focusGrammar: string[] = [],
@@ -923,6 +936,8 @@ export const generateExercise = async (
 /**
  * Checks a user's answer for an exercise using DeepSeek.
 =======
+=======
+>>>>>>> Stashed changes
   inclusionRate = 0.5,
   focusGrammar: string[] = [],
   grammarInclusionRate = 0.5,
@@ -964,11 +979,15 @@ export const generateExercises = generateExercise;
 
 /**
  * Checks a user's answer for an exercise and returns concise tutor feedback.
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
  */
 export const checkAnswerWithAI = async (
   exerciseType: string,
   exerciseContext: any,
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
   userResponse: any
 ) => {
@@ -976,10 +995,15 @@ export const checkAnswerWithAI = async (
   if (!ai) {
       return "This is dummy feedback because the Checker API Key is missing. Great job!";
 =======
+=======
+>>>>>>> Stashed changes
   userResponse: any,
 ): Promise<string> => {
   if (!API_KEY) {
     return 'AI feedback is unavailable: OPENROUTER_API_KEY is not configured.';
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
   }
 
@@ -1001,6 +1025,7 @@ export const checkAnswerWithAI = async (
 
   try {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     const response = await ai.chat.completions.create({
       model: 'deepseek-chat',
       messages: [{ role: "user", content: prompt }],
@@ -1013,10 +1038,16 @@ export const checkAnswerWithAI = async (
   }
 };
 =======
+=======
+>>>>>>> Stashed changes
     return await chatCompletion([{ role: 'user', content: prompt }], false);
   } catch (error) {
     console.error('Error checking answer:', error);
     return 'Could not retrieve feedback at this time.';
   }
+<<<<<<< Updated upstream
+};
+>>>>>>> Stashed changes
+=======
 };
 >>>>>>> Stashed changes
