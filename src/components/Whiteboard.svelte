@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Wand2 } from 'lucide-svelte';
-  import type { ExerciseBlockState } from '../lib/types';
+  import type { ExerciseBlockState, ExerciseType } from '../lib/types';
+  import { EXERCISE_SIZE_OVERRIDES, DEFAULT_BLOCK_DIMENSIONS } from '../lib/constants';
   import ExerciseBlock from './ExerciseBlock.svelte';
   import DrawingLayer from './DrawingLayer.svelte';
 
@@ -38,6 +39,36 @@
   let pan = $state({ x: 0, y: 0 });
   let isPanning = $state(false);
   let lastMousePos = $state({ x: 0, y: 0 });
+
+  let draggedSidebarType = $state<string | null>(null);
+  let ghostPos = $state({ x: 0, y: 0 });
+
+  $effect(() => {
+      const handleSidebarDragStart = (e: CustomEvent<{ type: string }>) => {
+          draggedSidebarType = e.detail.type;
+      };
+      const handleSidebarDragEnd = () => {
+          draggedSidebarType = null;
+      };
+      window.addEventListener('sidebar-drag-start', handleSidebarDragStart as EventListener);
+      window.addEventListener('sidebar-drag-end', handleSidebarDragEnd);
+      return () => {
+          window.removeEventListener('sidebar-drag-start', handleSidebarDragStart as EventListener);
+          window.removeEventListener('sidebar-drag-end', handleSidebarDragEnd);
+      };
+  });
+
+  const handleDragOver = (e: DragEvent) => {
+      e.preventDefault();
+      if (draggedSidebarType) {
+          const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+          ghostPos = {
+              x: (e.clientX - rect.left - pan.x) / scale + 5000,
+              y: (e.clientY - rect.top - pan.y) / scale + 5000
+          };
+      }
+  };
+
 
   const handleMouseDown = (e: MouseEvent) => {
     const target = e.target as HTMLElement;
@@ -119,7 +150,7 @@
   onmousedown={handleMouseDown}
   onwheel={handleWheel}
   ondrop={handleDrop}
-  ondragover={(e) => e.preventDefault()}
+  ondragover={handleDragOver}
   class="flex-grow bg-slate-200 relative overflow-hidden font-casual h-full w-full {isPanning ? 'cursor-grabbing' : (isDrawingMode ? 'cursor-crosshair' : 'cursor-grab')}"
 >
   {#if blocks.length === 0}
@@ -162,6 +193,20 @@
         {scale}
       />
     {/each}
+
+    {#if draggedSidebarType}
+        {@const dims = EXERCISE_SIZE_OVERRIDES[draggedSidebarType as ExerciseType] || DEFAULT_BLOCK_DIMENSIONS}
+        <div
+            class="absolute pointer-events-none opacity-50 z-[9999]"
+            style="left: {ghostPos.x}px; top: {ghostPos.y}px; transform: translate(-50%, -50%);"
+        >
+            <!-- A placeholder to represent the exact shape/size of the block being dragged -->
+            <div class="rounded-2xl shadow-lg border-4 border-slate-400 bg-white" style="width: {dims.width}px; height: {dims.height}px;">
+                <div class="p-3 border-b-4 border-slate-400 bg-slate-100 font-bold text-center">{draggedSidebarType}</div>
+                <div class="p-4 text-center text-slate-500 opacity-70">Drop to add</div>
+            </div>
+        </div>
+    {/if}
   </div>
 
   {#if presentingBlockId !== null}

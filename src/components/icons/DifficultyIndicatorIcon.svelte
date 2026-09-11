@@ -3,20 +3,20 @@
   let { rating } = $props<{ rating: string }>();
 
   let colorClass = $derived(
-    rating === Difficulty.A1 ? 'text-green-500' :
-    rating === Difficulty.A2 ? 'text-green-600' :
-    rating === Difficulty.B1 ? 'text-blue-500' :
-    rating === Difficulty.B2 ? 'text-blue-600' :
-    rating === Difficulty.C1 ? 'text-purple-500' :
-    rating === Difficulty.C2 ? 'text-purple-600' :
-    rating === Difficulty.Suffering ? 'text-red-500' : 'text-slate-400'
+    rating === Difficulty.A1 ? 'text-emerald-500' :
+    rating === Difficulty.A2 ? 'text-emerald-500' :
+    rating === Difficulty.B1 ? 'text-yellow-500' :
+    rating === Difficulty.B2 ? 'text-yellow-500' :
+    rating === Difficulty.C1 ? 'text-red-500' :
+    rating === Difficulty.C2 ? 'text-red-600' :
+    rating === Difficulty.Suffering ? 'text-red-700' : 'text-slate-400'
   );
 
   let labelClass = $derived(
-    rating === Difficulty.A1 || rating === Difficulty.A2 ? 'bg-green-100 text-green-700 border-green-200' :
-    rating === Difficulty.B1 || rating === Difficulty.B2 ? 'bg-blue-100 text-blue-700 border-blue-200' :
-    rating === Difficulty.C1 || rating === Difficulty.C2 ? 'bg-purple-100 text-purple-700 border-purple-200' :
-    rating === Difficulty.Suffering ? 'bg-red-100 text-red-700 border-red-200' : 'bg-slate-100 text-slate-700 border-slate-200'
+    rating === Difficulty.A1 || rating === Difficulty.A2 ? 'bg-emerald-100 text-emerald-700 border-emerald-200' :
+    rating === Difficulty.B1 || rating === Difficulty.B2 ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
+    rating === Difficulty.C1 || rating === Difficulty.C2 ? 'bg-red-100 text-red-700 border-red-200' :
+    rating === Difficulty.Suffering ? 'bg-red-200 text-red-800 border-red-300' : 'bg-slate-100 text-slate-700 border-slate-200'
   );
 </script>
 

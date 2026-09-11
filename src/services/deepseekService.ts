@@ -18,7 +18,9 @@ import { ExerciseType, Difficulty, Tone } from '../lib/types';
 
 export const OPENROUTER_BASE_URL: string = process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1';
 export const OPENROUTER_MODEL: string = process.env.OPENROUTER_MODEL || 'deepseek/deepseek-chat';
-const API_KEY: string | undefined = process.env.OPENROUTER_API_KEY || process.env.DEEPSEEK_API_KEY;
+const getApiKey = (): string | undefined => {
+  return localStorage.getItem('deepseek_maker_api_key') || localStorage.getItem('deepseek_checker_api_key') || process.env.OPENROUTER_API_KEY || process.env.DEEPSEEK_API_KEY;
+};
 
 // ---------------------------------------------------------------------------
 // Prompt engineering (ported from legacy geminiService.getPromptAndSchema)
@@ -211,7 +213,7 @@ const BACKSLASH = String.fromCharCode(92);
 const chatCompletion = async (messages: ChatMessage[], jsonMode: boolean): Promise<string> => {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${API_KEY}`,
+      'Authorization': `Bearer ${getApiKey()}`,
   };
   // OpenRouter attribution headers (optional but recommended)
   try {
@@ -332,7 +334,7 @@ export const generateExercise = async (
   focusGrammar: string[] = [],
   grammarInclusionRate = 0.5,
 ): Promise<GenerationResult> => {
-  if (!API_KEY) {
+  if (!getApiKey()) {
     console.warn('OPENROUTER_API_KEY is not set. Exercise generation is disabled.');
     return { error: 'AI generation is not configured. Set OPENROUTER_API_KEY in your .env (locally) or Railway variables (production), then reload.' };
   }
@@ -375,7 +377,7 @@ export const checkAnswerWithAI = async (
   exerciseContext: any,
   userResponse: any,
 ): Promise<string> => {
-  if (!API_KEY) {
+  if (!getApiKey()) {
     return 'AI feedback is unavailable: OPENROUTER_API_KEY is not configured.';
   }
 

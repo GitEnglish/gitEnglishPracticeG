@@ -157,11 +157,11 @@
   }}
   {@const level = ratingsMap[rating] || 1}
   <div class="flex items-end gap-0.5 h-4" title={`${rating} Difficulty`}>
-      <div class={`w-1 h-1.5 rounded-sm ${level >= 1 ? 'bg-blue-600' : 'bg-slate-700'}`}></div>
-      <div class={`w-1 h-2 rounded-sm ${level >= 2 ? 'bg-blue-600' : 'bg-slate-700'}`}></div>
-      <div class={`w-1 h-2.5 rounded-sm ${level >= 3 ? 'bg-purple-500' : 'bg-slate-700'}`}></div>
-      <div class={`w-1 h-3 rounded-sm ${level >= 4 ? 'bg-purple-500' : 'bg-slate-700'}`}></div>
-      <div class={`w-1 h-3.5 rounded-sm ${level >= 5 ? 'bg-orange-600' : 'bg-slate-700'}`}></div>
+      <div class={`w-1 h-1.5 rounded-sm ${level >= 1 ? 'bg-emerald-500' : 'bg-slate-700'}`}></div>
+      <div class={`w-1 h-2 rounded-sm ${level >= 2 ? 'bg-emerald-500' : 'bg-slate-700'}`}></div>
+      <div class={`w-1 h-2.5 rounded-sm ${level >= 3 ? 'bg-yellow-500' : 'bg-slate-700'}`}></div>
+      <div class={`w-1 h-3 rounded-sm ${level >= 4 ? 'bg-yellow-500' : 'bg-slate-700'}`}></div>
+      <div class={`w-1 h-3.5 rounded-sm ${level >= 5 ? 'bg-red-500' : 'bg-slate-700'}`}></div>
       <div class={`w-1 h-4 rounded-sm ${level >= 6 ? 'bg-red-600' : 'bg-slate-700'}`}></div>
   </div>
 {/snippet}
@@ -247,19 +247,17 @@
                                           e.dataTransfer.setData('exercise-type', type);
                                           e.dataTransfer.effectAllowed = 'copy';
 
-                                          const dragGhost = document.createElement('div');
-                                          dragGhost.id = 'sidebar-drag-ghost';
-                                          dragGhost.className = `p-3 rounded-lg border-2 ${colors.border} ${colors.bgOnDark} ${colors.textOnDark} font-bold shadow-2xl flex items-center gap-2`;
-                                          dragGhost.style.position = 'absolute';
-                                          dragGhost.style.top = '-1000px';
-                                          dragGhost.innerHTML = `
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19.439 7.85c-.049.322.059.648.289.878l1.568 1.568c.47.47.706 1.087.706 1.704s-.235 1.233-.706 1.704l-1.611 1.611a.98.98 0 0 1-.867.276c-.32-.049-.648.059-.878.289l-.756.756a1.5 1.5 0 0 0-.44 1.06v4.313a2.4 2.4 0 0 1-2.4 2.4h-4.312a1.5 1.5 0 0 0-1.061.44l-.756.756c-.23.23-.558.338-.878.289a.98.98 0 0 1-.276-.867l1.611-1.611c.47-.47.706-1.087.706-1.704s-.235-1.233-.706-1.704l-1.568-1.568c-.23-.23-.558-.338-.289-.878l.756-.756a1.5 1.5 0 0 0 .44-1.06V6.985a2.4 2.4 0 0 1 2.4-2.4h4.312a1.5 1.5 0 0 0 1.061-.44l.756-.756c.23-.23.558-.338.878-.289a.98.98 0 0 1 .276.867L15.427 5.57c-.47.47-.706 1.087-.706 1.704s.235 1.233.706 1.704l1.568 1.568c.23.23.558.338.289.878l-.756.756a1.5 1.5 0 0 0-.44 1.06v.001z"/></svg>
-                                            <span>${displayName}</span>
-                                          `;
-                                          document.body.appendChild(dragGhost);
-                                          e.dataTransfer.setDragImage(dragGhost, 20, 20);
-                                          setTimeout(() => { if (document.body.contains(dragGhost)) document.body.removeChild(dragGhost); }, 50);
+                                          // Create an invisible image to remove the default ghost
+                                          const blankImage = new Image();
+                                          blankImage.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+                                          e.dataTransfer.setDragImage(blankImage, 0, 0);
+
+                                          // Notify the app that we are dragging a sidebar item
+                                          window.dispatchEvent(new CustomEvent('sidebar-drag-start', { detail: { type } }));
                                       }
+                                  }}
+                                  ondragend={() => {
+                                      window.dispatchEvent(new CustomEvent('sidebar-drag-end'));
                                   }}
                                   class="w-full text-left p-2.5 rounded-md cursor-grab active:scale-95 transition-all duration-200 border {colors.border} {colors.bgOnDark} hover:bg-opacity-100 hover:translate-x-1 hover:shadow-lg group-hover:ring-1 ring-opacity-50 ring-white/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:{colors.border.replace('border-', 'ring-')}"
                                   aria-label={`Add ${type} exercise`}
