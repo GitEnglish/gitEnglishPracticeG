@@ -50,16 +50,29 @@
       const handleSidebarDragEnd = () => {
           draggedSidebarType = null;
       };
+      const handleSidebarItemDropped = (e: CustomEvent<{ type: string, clientX: number, clientY: number }>) => {
+          if (onAddBlock) {
+              const mainElement = document.getElementById('whiteboard-main');
+              if (mainElement) {
+                  const rect = mainElement.getBoundingClientRect();
+                  const x = (e.detail.clientX - rect.left - pan.x) / scale + 5000;
+                  const y = (e.detail.clientY - rect.top - pan.y) / scale + 5000;
+                  onAddBlock(e.detail.type, Math.round(x), Math.round(y));
+              }
+          }
+      };
+
       window.addEventListener('sidebar-drag-start', handleSidebarDragStart as EventListener);
       window.addEventListener('sidebar-drag-end', handleSidebarDragEnd);
+      window.addEventListener('sidebar-item-dropped', handleSidebarItemDropped as EventListener);
       return () => {
           window.removeEventListener('sidebar-drag-start', handleSidebarDragStart as EventListener);
           window.removeEventListener('sidebar-drag-end', handleSidebarDragEnd);
+          window.removeEventListener('sidebar-item-dropped', handleSidebarItemDropped as EventListener);
       };
   });
 
-  const handleDragOver = (e: DragEvent) => {
-      e.preventDefault();
+  const handlePointerMove = (e: PointerEvent) => {
       if (draggedSidebarType) {
           const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
           ghostPos = {
@@ -149,9 +162,8 @@
   id="whiteboard-main"
   onmousedown={handleMouseDown}
   onwheel={handleWheel}
-  ondrop={handleDrop}
-  ondragover={handleDragOver}
-  class="flex-grow bg-slate-200 relative overflow-hidden font-casual h-full w-full {isPanning ? 'cursor-grabbing' : (isDrawingMode ? 'cursor-crosshair' : 'cursor-grab')}"
+  onpointermove={handlePointerMove}
+  class="flex-grow bg-transparent relative overflow-hidden font-sans h-full w-full {isPanning ? 'cursor-grabbing' : (isDrawingMode ? 'cursor-crosshair' : 'cursor-grab')}"
 >
   {#if blocks.length === 0}
   <div class="absolute inset-0 flex flex-col justify-center items-center text-center text-slate-500 pointer-events-none p-4 z-0 select-none">
@@ -168,7 +180,7 @@
   <div
       id="whiteboard-background"
       class="absolute origin-top-left will-change-transform {isPanning ? 'pointer-events-none' : ''}"
-      style="transform: translate({pan.x}px, {pan.y}px) scale({scale}); width: 10000px; height: 10000px; left: -5000px; top: -5000px; background-image: radial-gradient(#94a3b8 1px, transparent 1px); background-size: 20px 20px; background-position: 5000px 5000px; z-index: 1;"
+      style="transform: translate({pan.x}px, {pan.y}px) scale({scale}); width: 10000px; height: 10000px; left: -5000px; top: -5000px; z-index: 1;"
   >
     <DrawingLayer
       {paths}

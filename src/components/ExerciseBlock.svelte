@@ -241,11 +241,11 @@
         }
     }}
     onmousedown={() => onFocus(id)}
-    class="rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,0.15)] overflow-hidden flex flex-col will-change-transform {isPresenting ? 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] scale-150 shadow-2xl !rounded-none !border-0 w-screen h-screen' : 'absolute cursor-grab active:cursor-grabbing'}"
+    class="bg-white rounded-[22px] shadow-card-academic border academic-card-border overflow-hidden transition-all duration-300 hover:shadow-2xl flex flex-col will-change-transform {isPresenting ? 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] scale-150 !rounded-none !border-0 w-screen h-screen' : 'absolute cursor-grab active:cursor-grabbing'}"
     style="left: {x}px; top: {y}px; width: {isPresenting ? '900px' : width + 'px'}; height: {isPresenting ? 'auto' : height + 'px'}; min-height: {isPresenting ? 'auto' : '150px'}; z-index: {isPresenting ? 9999 : zIndex};"
 >
-    <!-- Card Visual container -->
-    <div class="card-visual flex flex-col h-full w-full bg-paper-bg border-4 {colors.border} {isPresenting ? 'border-0' : ''}">
+    <!-- Top Gradient Bar -->
+    <div class="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-[#E59500] to-transparent"></div>
 
     <!-- Resize Handles -->
     {#if !isPresenting}
@@ -261,38 +261,37 @@
     {/if}
 
     <!-- Header -->
-    <div class="handle bg-slate-800 text-white {isPresenting ? 'rounded-none p-6' : 'p-3'} flex justify-between items-center cursor-move flex-shrink-0 border-b border-slate-700 relative z-10 font-casual" style="touch-action: none;">
-        <div class="flex items-center gap-4 min-w-0 flex-1 pointer-events-none">
-            <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                 <h3 class="font-playful font-bold {isPresenting ? 'text-3xl' : 'text-lg'} select-none {colors.textOnDark} tracking-wide truncate flex items-center gap-2">
-                    {exerciseType}
-                    {#if isLoading}
-                        <span class="animate-spin text-xs">...</span>
-                    {/if}
-                 </h3>
-                 <div class="flex gap-2 items-center">
-                    <span class="{isPresenting ? 'text-sm px-3 py-1.5' : 'text-[10px] px-2 py-1'} uppercase tracking-widest font-bold bg-slate-900/50 text-neutral-gray-400 rounded-full border border-slate-700 select-none whitespace-nowrap">{pedagogy}</span>
-                 </div>
-            </div>
+    <div class="px-7 py-5 flex items-center justify-between border-b border-slate-200 bg-[#F7FAFC]/60" style="touch-action: none;">
+        <div class="flex items-center min-w-[140px] pointer-events-none">
+            <h2 class="text-base font-bold tracking-tight text-[#0D1322] flex items-center gap-2">
+                {exerciseType}
+                {#if isLoading}
+                    <span class="animate-spin text-xs">...</span>
+                {/if}
+            </h2>
         </div>
 
-        <div class="flex items-center space-x-2 flex-shrink-0 relative z-50">
+        <div class="flex-1 flex justify-center">
             {#if !isGenerated && !isLoading}
-                <button onclick={handleGenerate} class="p-1.5 rounded-md bg-blue-600 hover:bg-blue-500 text-white transition-colors" title="Generate">
-                    <Wand2 class="w-4 h-4" />
+                <button onclick={handleGenerate} class="inline-flex items-center justify-center space-x-1.5 px-4 py-1.5 rounded-lg bg-gradient-to-r from-[#E59500] to-[#D97706] hover:from-[#F59E0B] hover:to-[#E59500] text-[#0D1322] font-bold text-xs tracking-tight shadow-jewel-gold hover:shadow-glow-gold transition-all active:scale-[0.98]" title="Generate">
+                    <svg class="w-3.5 h-3.5 text-[#0D1322]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"></path></svg>
+                    <span>Generate ({generateAmount})</span>
                 </button>
             {/if}
-            <button onclick={() => isSettingsOpen = !isSettingsOpen} class="p-1.5 rounded-md hover:bg-slate-700 text-slate-400 hover:text-white transition-colors" title="Settings">
-                <Settings class="w-4 h-4" />
+        </div>
+
+        <div class="flex items-center space-x-3 min-w-[140px] justify-end relative z-50">
+            <button onclick={() => isSettingsOpen = !isSettingsOpen} class="p-1.5 text-slate-400 hover:text-[#0D1322] hover:bg-slate-100 rounded-lg transition-colors" title="Settings">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"></path><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"></path></svg>
             </button>
-            <button onclick={() => onRemove(id)} class="p-1.5 rounded-md hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-colors" title="Remove">
-                <Trash2 class="w-4 h-4" />
+            <button onclick={() => onRemove(id)} class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors" title="Remove">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"></path></svg>
             </button>
         </div>
     </div>
 
     <!-- Body -->
-    <div class="flex-grow flex flex-col bg-paper-bg overflow-hidden relative w-full h-full">
+    <div class="flex-grow flex flex-col bg-white overflow-hidden relative w-full h-full">
         {#if isSettingsOpen}
             <div class="absolute inset-0 bg-white/95 backdrop-blur-sm z-10 p-5 overflow-y-auto font-casual">
                 <div class="flex justify-between items-center mb-4">
@@ -313,25 +312,13 @@
 
         {#if !isGenerated && !isLoading}
 
-<div class="h-full flex flex-col p-5 bg-paper-bg overflow-y-auto custom-scrollbar-light">
-    <!-- Slimmer, compact header for pre-gen state instead of huge sticky block -->
-    <div class="flex flex-col items-center justify-center py-3 px-4 w-full bg-slate-50/80 rounded-lg border border-slate-200 mb-4 shadow-sm flex-shrink-0">
-        <div class="flex items-center justify-between w-full">
-            <span class="text-sm text-slate-600">Ready to generate <strong>{exerciseType}</strong></span>
-            <button onclick={handleGenerate} class="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-bold rounded shadow hover:shadow-md hover:-translate-y-0.5 transition-all flex items-center gap-2 active:scale-95">
-                <Wand2 class="w-4 h-4" />
-                Generate ({generateAmount})
-            </button>
-        </div>
-    </div>
-
+<div class="h-full flex flex-col p-7 bg-white overflow-y-auto custom-scrollbar-light space-y-4">
     <div class="w-full flex-grow space-y-4 max-w-2xl mx-auto flex flex-col justify-start">
-
-                     {#each Array(generateAmount) as _, i}
-                         <ExerciseTemplate type={exerciseType} index={i} />
-                     {/each}
-                 </div>
-            </div>
+        {#each Array(generateAmount) as _, i}
+            <ExerciseTemplate type={exerciseType} index={i} />
+        {/each}
+    </div>
+</div>
         {:else if isLoading}
             <div class="h-full flex items-center justify-center">
                 <div class="flex flex-col items-center gap-3">
@@ -363,7 +350,6 @@
                 </div>
             </div>
         {/if}
-    </div>
     </div>
 </motion.div>
 

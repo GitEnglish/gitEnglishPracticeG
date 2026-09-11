@@ -164,23 +164,45 @@
   </div>
 {/snippet}
 
-<aside class="fixed inset-y-0 left-0 z-40 w-80 bg-slate-900 text-white flex flex-col h-screen transition-transform duration-300 ease-in-out will-change-transform border-r border-slate-800 shadow-2xl lg:static lg:translate-x-0 {isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} font-casual">
+<motion.aside
+  initial={false}
+  animate={{ x: isSidebarOpen ? 0 : "-100%" }}
+  transition={{ type: "spring", stiffness: 400, damping: 40 }}
+  class="w-80 flex-shrink-0 bg-[#0D1322]/98 border-r border-[#233054]/50 text-slate-300 flex flex-col justify-between relative z-30 frosted-navy will-change-transform h-screen lg:static lg:translate-x-0 font-sans"
+>
 
+  <div class="flex flex-col h-full overflow-hidden">
 
-  <div class="p-6 pb-4 flex-shrink-0 border-b border-slate-800 bg-slate-900 z-10">
-    <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-orange-500 font-playful">gitEnglish™</h1>
-    <h2 class="text-sm font-medium text-slate-400 mt-0.5 tracking-wide uppercase">Practice Genie</h2>
-  </div>
+    <div class="px-6 pt-7 pb-6 border-b border-[#233054]/60">
+      <div class="flex items-center space-x-3">
+        <div class="h-8 w-8 rounded-lg bg-gradient-to-br from-[#F59E0B] via-[#E59500] to-[#B45309] p-1.5 flex items-center justify-center shadow-[0_0_12px_rgba(229,149,0,0.5)] border border-[#FDE68A]/40 flex-shrink-0">
+          <svg class="w-full h-full text-[#0D1322]" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="9.5"></circle>
+            <polygon fill="currentColor" points="12 4 14.5 10.5 20 12 14.5 13.5 12 20 9.5 13.5 4 12 9.5 10.5 12 4"></polygon>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center">
+            <span class="text-white text-lg font-bold tracking-tight antialiased">
+              gitEnglish<sup class="text-[9px] font-semibold tracking-widest text-[#E59500] ml-0.5">™</sup>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
 
-  <div class="flex-grow overflow-y-auto custom-scrollbar-dark p-4">
+    <div class="flex-1 overflow-y-auto px-4 py-5 space-y-6">
 
-      <div class="mb-6">
+      <div data-purpose="sidebar-group">
           <button
             onclick={() => isConfigOpen = !isConfigOpen}
-            class="flex items-center justify-between w-full p-2 mb-2 text-xs font-bold text-slate-500 uppercase tracking-wider hover:text-slate-300 transition-colors"
+            class="w-full flex items-center justify-between px-3 py-2 text-[11px] font-bold tracking-[0.16em] uppercase text-slate-400 hover:text-white transition-colors"
           >
-              <span>Configuration</span>
-              <ChevronDown class="w-4 h-4 transition-transform duration-200 {isConfigOpen ? 'rotate-180' : ''}" />
+              <span class="flex items-center space-x-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#E59500]"></span>
+                <span>CONFIGURATION</span>
+              </span>
+              <ChevronDown class="w-3.5 h-3.5 text-slate-400 transform transition-transform duration-200 {isConfigOpen ? 'rotate-180' : ''}" />
           </button>
 
           <div class="space-y-2 overflow-hidden transition-all duration-300 {isConfigOpen ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}">
@@ -200,27 +222,25 @@
           </div>
       </div>
 
-      <div class="pb-8">
-          <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 ml-3">Exercise Library</h3>
+      <div class="pb-8 space-y-3" data-purpose="exercise-library-group">
+          <div class="px-3 text-[11px] font-bold tracking-[0.16em] uppercase text-slate-400">Exercise Library</div>
 
           {#each EXERCISE_CATEGORIES as category}
             {@const catColors = PEDAGOGY_COLORS[category.name] || PEDAGOGY_COLORS['Default']}
-            <div class="mb-2 font-casual">
+            <div class="rounded-xl bg-[#131B30]/70 border border-[#233054]/80 overflow-hidden p-1.5 transition-all">
               <button
                   onclick={() => toggleCategory(category.name)}
-                  class="w-full flex items-center justify-between p-3 rounded-lg transition-all duration-200 border {openCategory === category.name ? `${catColors.bgOnDark} ${catColors.border} shadow-lg` : 'bg-slate-800/40 border-transparent hover:bg-slate-800 hover:border-slate-700'}"
+                  class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg {openCategory === category.name ? 'bg-[#1A243F]' : 'bg-[#1A243F]/50 hover:bg-[#1A243F]'} transition-all text-left group"
               >
-                  <div class="flex items-center space-x-3">
-                      <div class="flex items-center justify-center w-7 h-7 rounded-md {openCategory === category.name ? `${catColors.bgOnDark} ${catColors.textOnDark} border ${catColors.border}` : 'bg-slate-700 text-slate-400 border border-slate-600'} transition-colors duration-200">
-                         <BookOpen size={14} />
-                      </div>
-                      <span class="font-bold text-sm {catColors.textOnDark} transition-opacity duration-200 {openCategory === category.name ? 'opacity-100' : 'opacity-90'}">{category.name}</span>
+                  <div class="flex items-center space-x-2.5">
+                      <BookOpen class="w-4 h-4 {catColors.textOnDark} transition-colors" />
+                      <span class="text-sm font-semibold text-white tracking-[-0.01em]">{category.name}</span>
                   </div>
-                  <ChevronDown size={16} class="transition-transform duration-200 {openCategory === category.name ? `rotate-180 ${catColors.textOnDark}` : 'text-slate-500'}" />
+                  <ChevronDown class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200 {openCategory === category.name ? 'rotate-180' : ''}" />
               </button>
 
               <div class="grid transition-all duration-300 ease-in-out overflow-hidden {openCategory === category.name ? 'grid-rows-[1fr] opacity-100 mt-2' : 'grid-rows-[0fr] opacity-0'}">
-                  <div class="min-h-0 space-y-2 pl-2 border-l-2 {catColors.border.replace('border-', 'border-opacity-30 ')} ml-4">
+                  <div class="min-h-0 space-y-1 px-1">
                       {#each category.types as type}
                           {@const pedagogy = EXERCISE_PEDAGOGY[type] || 'Default'}
                           {@const colors = PEDAGOGY_COLORS[pedagogy]}
@@ -232,8 +252,6 @@
                                   drag={true}
                                   dragSnapToOrigin={true}
                                   dragElastic={0.2}
-                                  whileHover={{ scale: 1.02, x: 4 }}
-                                  whileTap={{ scale: 0.95 }}
                                   role="button"
                                   tabindex="0"
                                   onclick={() => {
@@ -265,27 +283,22 @@
                                           }
                                       }
                                   }}
-                                  class="w-full text-left p-2.5 rounded-md cursor-grab border z-50 {colors.border} {colors.bgOnDark} hover:bg-opacity-100 hover:shadow-lg group-hover:ring-1 ring-opacity-50 ring-white/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:{colors.border.replace('border-', 'ring-')}"
+                                  class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-white/[0.04] cursor-grab active:cursor-grabbing transition-all z-50 relative group"
                                   aria-label={`Add ${type} exercise`}
                               >
-                                  <div class="flex justify-between items-center">
-                                      <div class="flex items-center gap-3 min-w-0">
-                                          <SpecificIcon class="w-4 h-4 {colors.textOnDark} opacity-70" />
-                                          <div class="min-w-0">
-                                              <h3 class="text-xs font-medium truncate {colors.textOnDark}">{displayName}</h3>
-                                          </div>
-                                      </div>
-                                      <div class="flex items-center gap-2 flex-shrink-0">
-                                          {@render difficultyIndicator(info.difficultyRating)}
-                                          <button
-                                              onclick={(e) => toggleInfo(e, type)}
-                                              class="p-1 rounded-md bg-blue-500/20 text-blue-300 hover:text-white hover:bg-blue-500 transition-colors z-20 focus:outline-none focus:ring-1 focus:ring-blue-400 shadow-sm flex items-center justify-center gap-1"
-                                              title="About this exercise"
-                                          >
-                                              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-                                              <span class="text-[10px] font-bold uppercase tracking-wider pr-1">Info</span>
-                                          </button>
-                                      </div>
+                                  <div class="flex items-center space-x-2.5">
+                                      <SpecificIcon class="w-3.5 h-3.5 text-slate-400 group-hover:{colors.textOnDark.replace('text-', 'text-')} transition-colors" />
+                                      <span class="text-xs font-normal text-slate-300 group-hover:text-white transition-colors tracking-tight">{displayName}</span>
+                                  </div>
+                                  <div class="flex items-center space-x-2">
+                                      {@render difficultyIndicator(info.difficultyRating)}
+                                      <button
+                                          onclick={(e) => toggleInfo(e, type)}
+                                          class="text-[10px] font-sans font-medium tracking-wide text-slate-400 border border-white/10 rounded px-1.5 py-0.5 hover:text-white hover:border-white/30 transition-colors z-20"
+                                          title="About this exercise"
+                                      >
+                                          {pedagogy}
+                                      </button>
                                   </div>
                               </motion.div>
 
@@ -337,25 +350,28 @@
   </div>
 
 
-  <div class="p-4 border-t border-slate-800 bg-slate-950 text-xs text-slate-600">
-        <h3 class="font-bold text-slate-500 uppercase tracking-wider mb-3 ml-3">Project Actions</h3>
+  <div class="p-4 border-t border-[#233054]/70 bg-[#080C16]/60 space-y-1" data-purpose="project-actions">
+        <div class="px-3 pb-2 text-[10px] font-bold tracking-[0.2em] uppercase text-slate-400">
+          Project Operations
+        </div>
         <div class="flex flex-col gap-2">
-            <button onclick={onExportState} class="flex items-center gap-2 w-full p-2 text-sm font-medium text-slate-300 hover:bg-slate-800 rounded-lg transition-colors" aria-label="Export current project">
-                <DownloadIcon class="w-4 h-4 text-blue-400" /> Export Project
+            <button onclick={onExportState} class="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-white/[0.06] transition-all" aria-label="Export current project">
+                <DownloadIcon class="w-3.5 h-3.5 text-[#E59500]" /> <span>Export Project</span>
             </button>
-            <label class="flex items-center gap-2 w-full p-2 text-sm font-medium text-slate-300 hover:bg-slate-800 rounded-lg transition-colors cursor-pointer" aria-label="Import project from file">
-                <UploadIcon class="w-4 h-4 text-emerald-400" /> Import Project
+            <label class="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-white/[0.06] transition-all cursor-pointer" aria-label="Import project from file">
+                <UploadIcon class="w-3.5 h-3.5 text-emerald-400" /> <span>Import Project</span>
                 <input type="file" accept=".json" onchange={onImportState} class="hidden" />
             </label>
-            <button onclick={onClearBoard} class="flex items-center gap-2 w-full p-2 text-sm font-medium text-slate-300 hover:bg-red-900/20 hover:text-red-400 rounded-lg transition-colors" aria-label="Clear all exercises from board">
-                <TrashIcon class="w-4 h-4" /> Clear Board
+            <button onclick={onClearBoard} class="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-medium text-slate-300 hover:text-rose-400 hover:bg-white/[0.06] transition-all" aria-label="Clear all exercises from board">
+                <TrashIcon class="w-3.5 h-3.5" /> <span>Clear Board</span>
             </button>
-             <button onclick={() => getActivityLogger()?.downloadLog()} class="flex items-center gap-2 w-full p-2 text-sm font-medium text-slate-300 hover:bg-slate-800 rounded-lg transition-colors" aria-label="Download session activity log">
-                <DownloadIcon class="w-4 h-4 text-teal-400" /> Download Activity Log
+             <button onclick={() => getActivityLogger()?.downloadLog()} class="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-white/[0.06] transition-all" aria-label="Download session activity log">
+                <DownloadIcon class="w-3.5 h-3.5 text-[#E59500]" /> <span>Download Activity Log</span>
             </button>
         </div>
   </div>
-</aside>
+  </div>
+</motion.aside>
 
 
 <style>
