@@ -237,7 +237,7 @@
   };
 </script>
 
-<div class="h-screen w-screen flex font-casual antialiased overflow-hidden bg-slate-800">
+<div class="h-screen w-screen flex font-sans antialiased overflow-hidden bg-[#0D1322]">
 
   <RadialMenu
       difficulty={globalDifficulty}
@@ -306,12 +306,12 @@
 
   <!-- Overlay for mobile - Smooth transition -->
   <div
-      class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-30 lg:hidden transition-opacity duration-300 ease-in-out {isSidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}"
+      class="fixed inset-0 bg-[#080C16]/60 backdrop-blur-sm z-30 lg:hidden transition-opacity duration-300 ease-in-out {isSidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}"
       aria-hidden="true"
       onclick={() => isSidebarOpen = false}
   ></div>
 
-  <div class="flex-grow flex flex-col relative">
+  <div class="flex-grow flex flex-col relative architectural-grid">
     <Whiteboard
       {blocks}
       {paths}

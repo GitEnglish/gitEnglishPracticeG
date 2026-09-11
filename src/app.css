@@ -1,5 +1,60 @@
 @import "tailwindcss";
 
 @theme {
-  --font-casual: Nunito, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-sans: "Plus Jakarta Sans", sans-serif;
+  --font-mono: "JetBrains Mono", Menlo, monospace;
+
+  --color-midnight-950: #080C16;
+  --color-midnight-900: #0D1322;
+  --color-midnight-850: #131B30;
+  --color-midnight-800: #1A243F;
+  --color-midnight-700: #233054;
+
+  --color-mist-50: #F7FAFC;
+  --color-mist-100: #EBF0F7;
+  --color-mist-200: #DCE4F0;
+  --color-mist-300: #CBD5E1;
+
+  --color-cybergold: #E59500;
+  --color-cybergold-hover: #D97706;
+  --color-cybergold-light: #FDE68A;
+  --color-cybergold-glow: #F59E0B;
+
+  --shadow-card-academic: 0 2px 4px rgba(13, 19, 34, 0.04), 0 12px 28px -4px rgba(13, 19, 34, 0.07), 0 24px 48px -12px rgba(13, 19, 34, 0.05);
+  --shadow-jewel-gold: 0 2px 10px -1px rgba(229, 149, 0, 0.45), inset 0 1px 1px 0 rgba(255, 255, 255, 0.35);
+  --shadow-glow-gold: 0 0 20px -2px rgba(229, 149, 0, 0.35);
+}
+
+.architectural-grid {
+  background-color: #EBF0F7;
+  background-image: radial-gradient(#94A3B8 1.15px, transparent 1.15px);
+  background-size: 24px 24px;
+}
+
+.hairline-navy-border {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.academic-card-border {
+  border: 1px solid #CBD5E1;
+}
+
+.frosted-navy {
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(229, 149, 0, 0.5);
 }
