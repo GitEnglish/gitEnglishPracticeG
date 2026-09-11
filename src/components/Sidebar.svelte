@@ -1,5 +1,6 @@
 <script lang="ts">
   import { BookOpen, ChevronDown, Puzzle } from 'lucide-svelte';
+  import { motion } from '@humanspeak/svelte-motion';
   import { EXERCISE_CATEGORIES, EXERCISE_PEDAGOGY, PEDAGOGY_COLORS } from '../lib/constants';
   import { EXERCISE_INFO } from '../lib/exerciseInfo';
   import VocabularyFocus from './VocabularyFocus.svelte';
@@ -26,6 +27,47 @@
   import DownloadIcon from './icons/DownloadIcon.svelte';
 
   import TrashIcon from './icons/TrashIcon.svelte';
+
+  const EXERCISE_ICONS: Record<ExerciseType, any> = {
+    [ExerciseType.FITB]: PencilSquareIcon,
+    [ExerciseType.CollocationGapFill]: PencilSquareIcon,
+    [ExerciseType.PhrasalVerbGapFill]: PencilSquareIcon,
+    [ExerciseType.WordFormation]: PencilSquareIcon,
+    [ExerciseType.ClozeParagraph]: PencilSquareIcon,
+    [ExerciseType.DialogueCompletion]: ChatBubbleBottomCenterTextIcon,
+    [ExerciseType.ErrorCorrection]: PencilSquareIcon,
+    [ExerciseType.FunctionalWriting]: PencilSquareIcon,
+    [ExerciseType.DictoGloss]: PencilSquareIcon,
+
+    [ExerciseType.MultipleChoice]: ListBulletIcon,
+    [ExerciseType.Prediction]: ListBulletIcon,
+    [ExerciseType.RuleDiscovery]: PuzzlePieceIcon,
+    [ExerciseType.SpotTheDifference]: EyeIcon,
+    [ExerciseType.PolitenessScenarios]: UserGroupIcon,
+    [ExerciseType.InferringMeaning]: PuzzlePieceIcon,
+    [ExerciseType.CollocationOddOneOut]: ListBulletIcon,
+    [ExerciseType.RegisterSort]: ArrowsRightLeftIcon,
+
+    [ExerciseType.Matching]: ArrowsRightLeftIcon,
+    [ExerciseType.FunctionMatching]: ArrowsRightLeftIcon,
+    [ExerciseType.SentenceScramble]: ArrowsRightLeftIcon,
+    [ExerciseType.StorySequencing]: ArrowsRightLeftIcon,
+
+    [ExerciseType.PicturePrompt]: PhotoIcon,
+    [ExerciseType.PictureComparison]: PhotoIcon,
+
+    [ExerciseType.MoralDilemma]: SparklesIcon,
+    [ExerciseType.ProblemSolvingScenario]: SparklesIcon,
+    [ExerciseType.RolePlayScenario]: ChatBubbleBottomCenterTextIcon,
+    [ExerciseType.StorytellingFromPrompts]: SparklesIcon,
+    [ExerciseType.JustifyYourOpinion]: SparklesIcon,
+
+    [ExerciseType.ReadingGist]: BookOpenIcon,
+    [ExerciseType.ReadingDetail]: EyeIcon,
+    [ExerciseType.InformationTransfer]: PencilSquareIcon,
+
+    [ExerciseType.ListeningSpecificInfo]: SpeakerWaveIcon,
+  };
 
   // Settings state
   let {
@@ -87,50 +129,6 @@
   const handleRemoveGrammar = (grammarToRemove: string) => {
         onUpdateFocusGrammar && onUpdateFocusGrammar(focusGrammar.filter((g: string) => g !== grammarToRemove));
   };
-
-
-  const EXERCISE_ICONS: Record<string, any> = {
-    [ExerciseType.FITB]: PencilSquareIcon,
-    [ExerciseType.CollocationGapFill]: PencilSquareIcon,
-    [ExerciseType.PhrasalVerbGapFill]: PencilSquareIcon,
-    [ExerciseType.WordFormation]: PencilSquareIcon,
-    [ExerciseType.ClozeParagraph]: PencilSquareIcon,
-    [ExerciseType.DialogueCompletion]: ChatBubbleBottomCenterTextIcon,
-    [ExerciseType.ErrorCorrection]: PencilSquareIcon,
-    [ExerciseType.FunctionalWriting]: PencilSquareIcon,
-    [ExerciseType.DictoGloss]: PencilSquareIcon,
-
-    [ExerciseType.MultipleChoice]: ListBulletIcon,
-    [ExerciseType.Prediction]: ListBulletIcon,
-    [ExerciseType.RuleDiscovery]: PuzzlePieceIcon,
-    [ExerciseType.SpotTheDifference]: EyeIcon,
-    [ExerciseType.PolitenessScenarios]: UserGroupIcon,
-    [ExerciseType.InferringMeaning]: PuzzlePieceIcon,
-    [ExerciseType.CollocationOddOneOut]: ListBulletIcon,
-    [ExerciseType.RegisterSort]: ArrowsRightLeftIcon,
-
-    [ExerciseType.Matching]: ArrowsRightLeftIcon,
-    [ExerciseType.FunctionMatching]: ArrowsRightLeftIcon,
-    [ExerciseType.SentenceScramble]: ArrowsRightLeftIcon,
-    [ExerciseType.StorySequencing]: ArrowsRightLeftIcon,
-
-    [ExerciseType.PicturePrompt]: PhotoIcon,
-    [ExerciseType.PictureComparison]: PhotoIcon,
-
-    [ExerciseType.MoralDilemma]: SparklesIcon,
-    [ExerciseType.ProblemSolvingScenario]: SparklesIcon,
-    [ExerciseType.RolePlayScenario]: ChatBubbleBottomCenterTextIcon,
-    [ExerciseType.StorytellingFromPrompts]: SparklesIcon,
-    [ExerciseType.JustifyYourOpinion]: SparklesIcon,
-
-    [ExerciseType.ReadingGist]: BookOpenIcon,
-    [ExerciseType.ReadingDetail]: EyeIcon,
-    [ExerciseType.InformationTransfer]: PencilSquareIcon,
-
-    [ExerciseType.ListeningSpecificInfo]: SpeakerWaveIcon,
-};
-
-
 
 
   let openCategory: string | null = $state('PPP');
@@ -228,43 +226,51 @@
                           {@const colors = PEDAGOGY_COLORS[pedagogy]}
                           {@const info = EXERCISE_INFO[type]}
                           {@const displayName = type.split('(')[0].trim()}
+                          {@const SpecificIcon = EXERCISE_ICONS[type] || PencilSquareIcon}
                           <div class="relative group">
-                              <div
+                              <motion.div
+                                  drag={true}
+                                  dragSnapToOrigin={true}
+                                  dragElastic={0.2}
+                                  whileHover={{ scale: 1.02, x: 4 }}
+                                  whileTap={{ scale: 0.95 }}
                                   role="button"
                                   tabindex="0"
-                                  draggable="true"
                                   onclick={() => {
                                       onAddExercise && onAddExercise(type);
                                   }}
-                                  onkeydown={(e) => {
+                                  onkeydown={(e: KeyboardEvent) => {
                                       if (e.key === 'Enter' || e.key === ' ') {
                                           e.preventDefault();
                                           onAddExercise && onAddExercise(type);
                                       }
                                   }}
-                                  ondragstart={(e) => {
-                                      if (e.dataTransfer) {
-                                          e.dataTransfer.setData('exercise-type', type);
-                                          e.dataTransfer.effectAllowed = 'copy';
+                                  onDragStart={() => {
+                                      window.dispatchEvent(new CustomEvent('sidebar-drag-start', { detail: { type } }));
+                                  }}
+                                  onDragEnd={(e: PointerEvent, info: any) => {
+                                      window.dispatchEvent(new CustomEvent('sidebar-drag-end'));
 
-                                          // Create an invisible image to remove the default ghost
-                                          const blankImage = new Image();
-                                          blankImage.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-                                          e.dataTransfer.setDragImage(blankImage, 0, 0);
-
-                                          // Notify the app that we are dragging a sidebar item
-                                          window.dispatchEvent(new CustomEvent('sidebar-drag-start', { detail: { type } }));
+                                      const sidebarElement = document.querySelector('aside');
+                                      if (sidebarElement) {
+                                          const sidebarRect = sidebarElement.getBoundingClientRect();
+                                          if (e.clientX > sidebarRect.right) {
+                                              window.dispatchEvent(new CustomEvent('sidebar-item-dropped', {
+                                                  detail: {
+                                                      type,
+                                                      clientX: e.clientX,
+                                                      clientY: e.clientY
+                                                  }
+                                              }));
+                                          }
                                       }
                                   }}
-                                  ondragend={() => {
-                                      window.dispatchEvent(new CustomEvent('sidebar-drag-end'));
-                                  }}
-                                  class="w-full text-left p-2.5 rounded-md cursor-grab active:scale-95 transition-all duration-200 border {colors.border} {colors.bgOnDark} hover:bg-opacity-100 hover:translate-x-1 hover:shadow-lg group-hover:ring-1 ring-opacity-50 ring-white/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:{colors.border.replace('border-', 'ring-')}"
+                                  class="w-full text-left p-2.5 rounded-md cursor-grab border z-50 {colors.border} {colors.bgOnDark} hover:bg-opacity-100 hover:shadow-lg group-hover:ring-1 ring-opacity-50 ring-white/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:{colors.border.replace('border-', 'ring-')}"
                                   aria-label={`Add ${type} exercise`}
                               >
                                   <div class="flex justify-between items-center">
                                       <div class="flex items-center gap-3 min-w-0">
-                                          <Puzzle class="w-4 h-4 {colors.textOnDark} opacity-70" />
+                                          <SpecificIcon class="w-4 h-4 {colors.textOnDark} opacity-70" />
                                           <div class="min-w-0">
                                               <h3 class="text-xs font-medium truncate {colors.textOnDark}">{displayName}</h3>
                                           </div>
@@ -281,7 +287,7 @@
                                           </button>
                                       </div>
                                   </div>
-                              </div>
+                              </motion.div>
 
                               <!-- Tooltip -->
                               <div class="absolute left-full top-0 ml-4 w-72

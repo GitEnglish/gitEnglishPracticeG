@@ -13,6 +13,7 @@
 
   // Icon Imports
   import { Trash2, Settings, Play, X, ChevronLeft, ChevronRight, Wand2 } from 'lucide-svelte';
+  import { motion } from '@humanspeak/svelte-motion';
 
   // Exercise Components (Dynamically Rendered)
   import InteractiveFITB from './exercises/InteractiveFITB.svelte';
@@ -218,27 +219,34 @@
 <!-- Simplified ExerciseBlock implementation for step 6, focusing on Svelte Motion mechanics -->
 <!-- Simplified ExerciseBlock implementation -->
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-<div
+<motion.div
     role="region"
     aria-roledescription="exercise block"
-    draggable={!isPresenting && !isResizing}
-    ondragstart={(e) => {
+    drag={!isPresenting && !isResizing}
+    dragMomentum={false}
+    dragElastic={0.2}
+    whileHover={{ scale: isPresenting ? 1 : 1.01 }}
+    whileTap={{ scale: isPresenting ? 1 : 0.99 }}
+    onDragStart={() => {
         if (!isPresenting && !isResizing) {
             onFocus(id);
-            if (e.dataTransfer) {
-                e.dataTransfer.setData('block-id', String(id));
-                const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-                e.dataTransfer.setData('offset-x', String((e.clientX - rect.left) / scale));
-                e.dataTransfer.setData('offset-y', String((e.clientY - rect.top) / scale));
-            }
-        } else {
-            e.preventDefault();
+        }
+    }}
+    onDragEnd={(e: PointerEvent, info: any) => {
+        if (!isPresenting && !isResizing) {
+            // Apply the drag offset, scaled to the whiteboard's zoom level
+            const newX = x + (info.offset.x / scale);
+            const newY = y + (info.offset.y / scale);
+            onUpdate(id, { x: Math.round(newX), y: Math.round(newY) });
         }
     }}
     onmousedown={() => onFocus(id)}
-    class="bg-white rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,0.15)] overflow-hidden border-4 {colors.border} flex flex-col will-change-transform {isPresenting ? 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] scale-150 shadow-2xl !rounded-none !border-0 w-screen h-screen' : 'absolute cursor-grab active:cursor-grabbing'}"
+    class="rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,0.15)] overflow-hidden flex flex-col will-change-transform {isPresenting ? 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] scale-150 shadow-2xl !rounded-none !border-0 w-screen h-screen' : 'absolute cursor-grab active:cursor-grabbing'}"
     style="left: {x}px; top: {y}px; width: {isPresenting ? '900px' : width + 'px'}; height: {isPresenting ? 'auto' : height + 'px'}; min-height: {isPresenting ? 'auto' : '150px'}; z-index: {isPresenting ? 9999 : zIndex};"
 >
+    <!-- Card Visual container -->
+    <div class="card-visual flex flex-col h-full w-full bg-paper-bg border-4 {colors.border} {isPresenting ? 'border-0' : ''}">
+
     <!-- Resize Handles -->
     {#if !isPresenting}
         <div class="absolute top-0 left-0 w-full h-2 cursor-ns-resize z-50 hover:bg-blue-500/20" onmousedown={(e) => startResize(e, 'n')} role="separator" aria-orientation="horizontal" tabindex="-1"></div>
@@ -253,27 +261,31 @@
     {/if}
 
     <!-- Header -->
-    <div class="px-4 py-3 {colors.bg} {colors.border} border-b flex justify-between items-center" style="touch-action: none;">
-        <div class="flex flex-col pointer-events-none">
-            <span class="text-sm font-bold {colors.text} font-playful flex items-center gap-2">
-                {exerciseType}
-                {#if isLoading}
-                    <span class="animate-spin text-xs">...</span>
-                {/if}
-            </span>
-            <span class="text-[10px] font-bold uppercase tracking-wider opacity-70 {colors.text}">{pedagogy}</span>
+    <div class="handle bg-slate-800 text-white {isPresenting ? 'rounded-none p-6' : 'p-3'} flex justify-between items-center cursor-move flex-shrink-0 border-b border-slate-700 relative z-10 font-casual" style="touch-action: none;">
+        <div class="flex items-center gap-4 min-w-0 flex-1 pointer-events-none">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                 <h3 class="font-playful font-bold {isPresenting ? 'text-3xl' : 'text-lg'} select-none {colors.textOnDark} tracking-wide truncate flex items-center gap-2">
+                    {exerciseType}
+                    {#if isLoading}
+                        <span class="animate-spin text-xs">...</span>
+                    {/if}
+                 </h3>
+                 <div class="flex gap-2 items-center">
+                    <span class="{isPresenting ? 'text-sm px-3 py-1.5' : 'text-[10px] px-2 py-1'} uppercase tracking-widest font-bold bg-slate-900/50 text-neutral-gray-400 rounded-full border border-slate-700 select-none whitespace-nowrap">{pedagogy}</span>
+                 </div>
+            </div>
         </div>
 
-        <div class="flex items-center gap-1">
+        <div class="flex items-center space-x-2 flex-shrink-0 relative z-50">
             {#if !isGenerated && !isLoading}
-                <button onclick={handleGenerate} class="p-1.5 rounded-lg {colors.buttonBg} text-white hover:brightness-110 active:scale-95 transition-all shadow-sm" title="Generate">
+                <button onclick={handleGenerate} class="p-1.5 rounded-md bg-blue-600 hover:bg-blue-500 text-white transition-colors" title="Generate">
                     <Wand2 class="w-4 h-4" />
                 </button>
             {/if}
-            <button onclick={() => isSettingsOpen = !isSettingsOpen} class="p-1.5 rounded-lg hover:bg-black/5 {colors.text} transition-colors" title="Settings">
+            <button onclick={() => isSettingsOpen = !isSettingsOpen} class="p-1.5 rounded-md hover:bg-slate-700 text-slate-400 hover:text-white transition-colors" title="Settings">
                 <Settings class="w-4 h-4" />
             </button>
-            <button onclick={() => onRemove(id)} class="p-1.5 rounded-lg hover:bg-red-100 text-red-500 transition-colors" title="Remove">
+            <button onclick={() => onRemove(id)} class="p-1.5 rounded-md hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-colors" title="Remove">
                 <Trash2 class="w-4 h-4" />
             </button>
         </div>
@@ -352,7 +364,8 @@
             </div>
         {/if}
     </div>
-</div>
+    </div>
+</motion.div>
 
 
 <style>
