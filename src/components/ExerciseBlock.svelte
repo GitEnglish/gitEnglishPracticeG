@@ -12,18 +12,7 @@
   import ExerciseTemplate from './ExerciseTemplate.svelte';
 
   // Icon Imports
-  import TrashIcon from './icons/TrashIcon.svelte';
-  import SettingsIcon from './icons/SettingsIcon.svelte';
-  import PlayIcon from './icons/PlayIcon.svelte';
-  import XMarkIcon from './icons/XMarkIcon.svelte';
-  import ChevronLeftIcon from './icons/ChevronLeftIcon.svelte';
-  import ChevronRightIcon from './icons/ChevronRightIcon.svelte';
-  import MagicWandIcon from './icons/MagicWandIcon.svelte';
-  import DifficultyIcon from './icons/DifficultyIcon.svelte';
-  import ToneIcon from './icons/ToneIcon.svelte';
-  import ThemeIcon from './icons/ThemeIcon.svelte';
-  import VocabularyIcon from './icons/VocabularyIcon.svelte';
-  import GrammarIcon from './icons/GrammarIcon.svelte';
+  import { Trash2, Settings, Play, X, ChevronLeft, ChevronRight, Wand2 } from 'lucide-svelte';
 
   // Exercise Components (Dynamically Rendered)
   import InteractiveFITB from './exercises/InteractiveFITB.svelte';
@@ -162,31 +151,107 @@
   // Calculate scaled positions for framer motion if whiteboard is zoomed
   let scaledX = $derived(x * scale);
   let scaledY = $derived(y * scale);
+
+  // Resize State
+  let isResizing = $state(false);
+  let resizeDirection = $state<string | null>(null);
+  let startWidth = $state(0);
+  let startHeight = $state(0);
+  let startX = $state(0);
+  let startY = $state(0);
+  let startMouseX = $state(0);
+  let startMouseY = $state(0);
+
+  const startResize = (e: MouseEvent, direction: string) => {
+      e.stopPropagation();
+      onFocus(id);
+      isResizing = true;
+      resizeDirection = direction;
+      startWidth = width;
+      startHeight = height;
+      startX = x;
+      startY = y;
+      startMouseX = e.clientX;
+      startMouseY = e.clientY;
+
+      window.addEventListener('mousemove', handleResizeMove);
+      window.addEventListener('mouseup', stopResize);
+  };
+
+  const handleResizeMove = (e: MouseEvent) => {
+      if (!isResizing || !resizeDirection) return;
+      e.preventDefault();
+
+      const dx = (e.clientX - startMouseX) / scale;
+      const dy = (e.clientY - startMouseY) / scale;
+
+      let newWidth = startWidth;
+      let newHeight = startHeight;
+      let newX = startX;
+      let newY = startY;
+
+      if (resizeDirection.includes('e')) newWidth = Math.max(350, startWidth + dx);
+      if (resizeDirection.includes('s')) newHeight = Math.max(150, startHeight + dy);
+      if (resizeDirection.includes('w')) {
+          newWidth = Math.max(350, startWidth - dx);
+          // Only adjust X by the amount the width actually changed
+          newX = startX + (startWidth - newWidth);
+      }
+      if (resizeDirection.includes('n')) {
+          newHeight = Math.max(150, startHeight - dy);
+          // Only adjust Y by the amount the height actually changed
+          newY = startY + (startHeight - newHeight);
+      }
+
+      onUpdate(id, { width: newWidth, height: newHeight, x: newX, y: newY });
+  };
+
+  const stopResize = () => {
+      isResizing = false;
+      resizeDirection = null;
+      window.removeEventListener('mousemove', handleResizeMove);
+      window.removeEventListener('mouseup', stopResize);
+  };
+
 </script>
 
 <!-- Simplified ExerciseBlock implementation for step 6, focusing on Svelte Motion mechanics -->
 <!-- Simplified ExerciseBlock implementation -->
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <div
     role="region"
     aria-roledescription="exercise block"
-    draggable={!isPresenting}
+    draggable={!isPresenting && !isResizing}
     ondragstart={(e) => {
-        if (!isPresenting) {
+        if (!isPresenting && !isResizing) {
             onFocus(id);
-            // We'll calculate a basic drag offset
             if (e.dataTransfer) {
                 e.dataTransfer.setData('block-id', String(id));
-                // Set offset
                 const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
                 e.dataTransfer.setData('offset-x', String((e.clientX - rect.left) / scale));
                 e.dataTransfer.setData('offset-y', String((e.clientY - rect.top) / scale));
             }
+        } else {
+            e.preventDefault();
         }
     }}
     onmousedown={() => onFocus(id)}
-    class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col will-change-transform transition-transform {isPresenting ? 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] scale-150 shadow-2xl' : 'absolute cursor-grab active:cursor-grabbing'}"
-    style="left: {x}px; top: {y}px; width: {isPresenting ? '900px' : (!isGenerated ? '400px' : width + 'px')}; height: {isPresenting ? 'auto' : (!isGenerated ? 'fit-content' : height + 'px')}; min-height: {isPresenting ? 'auto' : (!isGenerated ? '350px' : height + 'px')}; z-index: {isPresenting ? 9999 : zIndex};"
+    class="bg-white rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,0.15)] overflow-hidden border-4 {colors.border} flex flex-col will-change-transform {isPresenting ? 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] scale-150 shadow-2xl !rounded-none !border-0 w-screen h-screen' : 'absolute cursor-grab active:cursor-grabbing'}"
+    style="left: {x}px; top: {y}px; width: {isPresenting ? '900px' : width + 'px'}; height: {isPresenting ? 'auto' : height + 'px'}; min-height: {isPresenting ? 'auto' : '150px'}; z-index: {isPresenting ? 9999 : zIndex};"
 >
+    <!-- Resize Handles -->
+    {#if !isPresenting}
+        <div class="absolute top-0 left-0 w-full h-2 cursor-ns-resize z-50 hover:bg-blue-500/20" onmousedown={(e) => startResize(e, 'n')} role="separator" aria-orientation="horizontal" tabindex="-1"></div>
+        <div class="absolute bottom-0 left-0 w-full h-2 cursor-ns-resize z-50 hover:bg-blue-500/20" onmousedown={(e) => startResize(e, 's')} role="separator" aria-orientation="horizontal" tabindex="-1"></div>
+        <div class="absolute top-0 left-0 w-2 h-full cursor-ew-resize z-50 hover:bg-blue-500/20" onmousedown={(e) => startResize(e, 'w')} role="separator" aria-orientation="vertical" tabindex="-1"></div>
+        <div class="absolute top-0 right-0 w-2 h-full cursor-ew-resize z-50 hover:bg-blue-500/20" onmousedown={(e) => startResize(e, 'e')} role="separator" aria-orientation="vertical" tabindex="-1"></div>
+
+        <div class="absolute top-0 left-0 w-4 h-4 cursor-nwse-resize z-50 hover:bg-blue-500/20" onmousedown={(e) => startResize(e, 'nw')} role="separator" tabindex="-1"></div>
+        <div class="absolute top-0 right-0 w-4 h-4 cursor-nesw-resize z-50 hover:bg-blue-500/20" onmousedown={(e) => startResize(e, 'ne')} role="separator" tabindex="-1"></div>
+        <div class="absolute bottom-0 left-0 w-4 h-4 cursor-nesw-resize z-50 hover:bg-blue-500/20" onmousedown={(e) => startResize(e, 'sw')} role="separator" tabindex="-1"></div>
+        <div class="absolute bottom-0 right-0 w-4 h-4 cursor-nwse-resize z-50 hover:bg-blue-500/20" onmousedown={(e) => startResize(e, 'se')} role="separator" tabindex="-1"></div>
+    {/if}
+
     <!-- Header -->
     <div class="px-4 py-3 {colors.bg} {colors.border} border-b flex justify-between items-center" style="touch-action: none;">
         <div class="flex flex-col pointer-events-none">
@@ -202,28 +267,28 @@
         <div class="flex items-center gap-1">
             {#if !isGenerated && !isLoading}
                 <button onclick={handleGenerate} class="p-1.5 rounded-lg {colors.buttonBg} text-white hover:brightness-110 active:scale-95 transition-all shadow-sm" title="Generate">
-                    <MagicWandIcon class="w-4 h-4" />
+                    <Wand2 class="w-4 h-4" />
                 </button>
             {/if}
             <button onclick={() => isSettingsOpen = !isSettingsOpen} class="p-1.5 rounded-lg hover:bg-black/5 {colors.text} transition-colors" title="Settings">
-                <SettingsIcon class="w-4 h-4" />
+                <Settings class="w-4 h-4" />
             </button>
             <button onclick={() => onRemove(id)} class="p-1.5 rounded-lg hover:bg-red-100 text-red-500 transition-colors" title="Remove">
-                <TrashIcon class="w-4 h-4" />
+                <Trash2 class="w-4 h-4" />
             </button>
         </div>
     </div>
 
     <!-- Body -->
-    <div class="flex-grow p-5 bg-white overflow-hidden relative">
+    <div class="flex-grow flex flex-col bg-paper-bg overflow-hidden relative w-full h-full">
         {#if isSettingsOpen}
             <div class="absolute inset-0 bg-white/95 backdrop-blur-sm z-10 p-5 overflow-y-auto font-casual">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
-                        <SettingsIcon class="w-5 h-5 text-slate-500" />
+                        <Settings class="w-5 h-5 text-slate-500" />
                         Configuration
                     </h3>
-                    <button onclick={() => isSettingsOpen = false} class="p-1 rounded hover:bg-slate-100 text-slate-500"><XMarkIcon class="w-5 h-5" /></button>
+                    <button onclick={() => isSettingsOpen = false} class="p-1 rounded hover:bg-slate-100 text-slate-500"><X class="w-5 h-5" /></button>
                 </div>
                 <div class="space-y-4">
                     <div>
@@ -235,18 +300,21 @@
         {/if}
 
         {#if !isGenerated && !isLoading}
-            <div class="h-full flex flex-col items-center justify-start p-6 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200 overflow-y-auto">
-                 <div class="flex flex-col items-center sticky top-0 bg-slate-50/90 backdrop-blur-sm z-10 py-4 w-full border-b border-slate-200/50 mb-6">
-                     <p class="text-sm text-slate-500 mb-4 max-w-sm text-center">
-                        This <strong class="text-slate-700">{exerciseType}</strong> block is ready to generate. Configure settings using the gear icon, then click Generate.
-                    </p>
-                    <button onclick={handleGenerate} class="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all flex items-center gap-2 active:scale-95">
-                        <MagicWandIcon class="w-5 h-5" />
-                        Generate Exercise ({generateAmount})
-                    </button>
-                 </div>
 
-                 <div class="w-full space-y-4 max-w-2xl">
+<div class="h-full flex flex-col p-5 bg-paper-bg overflow-y-auto custom-scrollbar-light">
+    <!-- Slimmer, compact header for pre-gen state instead of huge sticky block -->
+    <div class="flex flex-col items-center justify-center py-3 px-4 w-full bg-slate-50/80 rounded-lg border border-slate-200 mb-4 shadow-sm flex-shrink-0">
+        <div class="flex items-center justify-between w-full">
+            <span class="text-sm text-slate-600">Ready to generate <strong>{exerciseType}</strong></span>
+            <button onclick={handleGenerate} class="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-bold rounded shadow hover:shadow-md hover:-translate-y-0.5 transition-all flex items-center gap-2 active:scale-95">
+                <Wand2 class="w-4 h-4" />
+                Generate ({generateAmount})
+            </button>
+        </div>
+    </div>
+
+    <div class="w-full flex-grow space-y-4 max-w-2xl mx-auto flex flex-col justify-start">
+
                      {#each Array(generateAmount) as _, i}
                          <ExerciseTemplate type={exerciseType} index={i} />
                      {/each}
@@ -264,15 +332,15 @@
                 {#if content.length > 1}
                     <div class="flex items-center justify-between mb-2 text-xs font-bold text-slate-500 flex-shrink-0">
                         <button class="p-1 rounded hover:bg-slate-100 disabled:opacity-30" onclick={() => currentSlide = Math.max(0, currentSlide - 1)} disabled={currentSlide === 0} aria-label="Previous item">
-                            <ChevronLeftIcon class="w-4 h-4" />
+                            <ChevronLeft class="w-4 h-4" />
                         </button>
                         <span>{currentSlide + 1} / {content.length}</span>
                         <button class="p-1 rounded hover:bg-slate-100 disabled:opacity-30" onclick={() => currentSlide = Math.min(content.length - 1, currentSlide + 1)} disabled={currentSlide >= content.length - 1} aria-label="Next item">
-                            <ChevronRightIcon class="w-4 h-4" />
+                            <ChevronRight class="w-4 h-4" />
                         </button>
                     </div>
                 {/if}
-                <div class="flex-grow overflow-y-auto min-h-0">
+                <div class="flex-grow overflow-y-auto p-5 custom-scrollbar-light h-full w-full">
                     {#if activeItem?.error}
                         <div class="p-4 bg-red-50 text-red-600 rounded-xl border border-red-200 text-sm">{activeItem.error}</div>
                     {:else if ActiveExercise}
