@@ -54,7 +54,7 @@ export const EXERCISE_SIZE_OVERRIDES: Partial<Record<ExerciseType, { width: numb
     [ExerciseType.DictoGloss]: { width: 700, height: 600 },
     [ExerciseType.CollocationGapFill]: { width: 700, height: 600 },
     [ExerciseType.WordFormation]: { width: 700, height: 600 },
-    [ExerciseType.PhrasalVerbGapFill]: { width: 700, height: 600 },
+    [ExerciseType.PhrasalVerbGapFill]: { width: 595, height: 510 },
     [ExerciseType.CollocationOddOneOut]: { width: 700, height: 600 },
     [ExerciseType.InformationTransfer]: { width: 800, height: 700 },
     [ExerciseType.ListeningSpecificInfo]: { width: 700, height: 700 },
