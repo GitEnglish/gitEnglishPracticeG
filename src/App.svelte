@@ -6,6 +6,7 @@
   import type { ExerciseBlockState } from './lib/types';
   import { Difficulty, Tone, ExerciseType } from './lib/types';
   import { initActivityLogger, getActivityLogger } from './services/ActivityLogger';
+  import { EXERCISE_SIZE_OVERRIDES, DEFAULT_BLOCK_DIMENSIONS } from './lib/constants';
 
   $effect(() => {
     initActivityLogger('practice-genie', 'student_default');
@@ -150,11 +151,13 @@
       const type = typeStr as ExerciseType;
       let finalX = 0;
       let finalY = 0;
-      const width = 400;
-      const height = 350;
+
+      const dims = EXERCISE_SIZE_OVERRIDES[type] || DEFAULT_BLOCK_DIMENSIONS;
+      const width = dims.width;
+      const height = dims.height;
 
       if (dropX !== undefined && dropY !== undefined) {
-          finalX = Math.round(dropX - width/2); // Offset already handled by Whiteboard
+          finalX = Math.round(dropX - width/2);
           finalY = Math.round(dropY - height/2);
       } else {
           // Find free position logic equivalent to React version
