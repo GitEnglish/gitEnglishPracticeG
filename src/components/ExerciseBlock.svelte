@@ -66,6 +66,14 @@
   let currentSlide = $state(0);
   let generateAmount = $derived(quantity ?? calculateExerciseAmount(exerciseType, height));
 
+  // If the block is marked as generated (e.g. from local storage reload) but content is empty,
+  // revert it to un-generated so the user can see the generate button and prevent crashes.
+  $effect(() => {
+      if (isGenerated && (!content || content.length === 0)) {
+          onUpdate(id, { isGenerated: false });
+      }
+  });
+
 
   // Real generation via OpenRouter (DeepSeek) — see services/deepseekService.ts
   // Real generation via OpenRouter (DeepSeek) — see services/deepseekService.ts
