@@ -72,15 +72,27 @@
       };
   });
 
-  const handlePointerMove = (e: PointerEvent) => {
+  $effect(() => {
+      const handleWindowPointerMove = (e: PointerEvent) => {
+          if (draggedSidebarType) {
+              const mainElement = document.getElementById('whiteboard-main');
+              if (mainElement) {
+                  const rect = mainElement.getBoundingClientRect();
+                  ghostPos = {
+                      x: (e.clientX - rect.left - pan.x) / scale + 5000,
+                      y: (e.clientY - rect.top - pan.y) / scale + 5000
+                  };
+              }
+          }
+      };
+
       if (draggedSidebarType) {
-          const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-          ghostPos = {
-              x: (e.clientX - rect.left - pan.x) / scale + 5000,
-              y: (e.clientY - rect.top - pan.y) / scale + 5000
-          };
+          window.addEventListener('pointermove', handleWindowPointerMove);
       }
-  };
+      return () => window.removeEventListener('pointermove', handleWindowPointerMove);
+  });
+
+
 
 
   const handleMouseDown = (e: MouseEvent) => {
@@ -145,15 +157,7 @@
           return;
       }
 
-      e.preventDefault();
-      const exerciseType = e.dataTransfer?.getData('exercise-type');
-      if (exerciseType && onAddBlock) {
-          // Adjust drop coordinates based on current pan and scale
-          const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-          const x = (e.clientX - rect.left - pan.x) / scale + 5000;
-          const y = (e.clientY - rect.top - pan.y) / scale + 5000;
-          onAddBlock(exerciseType, Math.round(x), Math.round(y));
-      }
+
   };
 </script>
 
@@ -162,7 +166,7 @@
   id="whiteboard-main"
   onmousedown={handleMouseDown}
   onwheel={handleWheel}
-  onpointermove={handlePointerMove}
+
   class="flex-grow bg-transparent relative overflow-hidden font-sans h-full w-full {isPanning ? 'cursor-grabbing' : (isDrawingMode ? 'cursor-crosshair' : 'cursor-grab')}"
 >
   {#if blocks.length === 0}
