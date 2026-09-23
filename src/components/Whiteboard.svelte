@@ -73,23 +73,29 @@
   });
 
   $effect(() => {
-      const handleWindowPointerMove = (e: PointerEvent) => {
+      const handlePointerMove = (e: PointerEvent) => {
           if (draggedSidebarType) {
               const mainElement = document.getElementById('whiteboard-main');
               if (mainElement) {
                   const rect = mainElement.getBoundingClientRect();
                   ghostPos = {
-                      x: (e.clientX - rect.left - pan.x) / scale + 5000,
-                      y: (e.clientY - rect.top - pan.y) / scale + 5000
+                      x: (e.clientX - rect.left - pan.x) / scale - 5000,
+                      y: (e.clientY - rect.top - pan.y) / scale - 5000
                   };
               }
           }
       };
 
-      if (draggedSidebarType) {
-          window.addEventListener('pointermove', handleWindowPointerMove);
+      const mainElement = document.getElementById('whiteboard-main');
+      if (mainElement) {
+          mainElement.addEventListener('pointermove', handlePointerMove as EventListener);
       }
-      return () => window.removeEventListener('pointermove', handleWindowPointerMove);
+
+      return () => {
+          if (mainElement) {
+              mainElement.removeEventListener('pointermove', handlePointerMove as EventListener);
+          }
+      };
   });
 
 
@@ -157,7 +163,17 @@
           return;
       }
 
+      const type = e.dataTransfer?.getData('exercise-type');
+      if (type && onAddBlock) {
+          // New block dropped from sidebar
+          const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
 
+          // Calculate drop position taking into account pan and scale
+          const x = (e.clientX - rect.left - pan.x) / scale;
+          const y = (e.clientY - rect.top - pan.y) / scale;
+
+          onAddBlock(type, Math.round(x), Math.round(y));
+      }
   };
 </script>
 
@@ -166,7 +182,8 @@
   id="whiteboard-main"
   onmousedown={handleMouseDown}
   onwheel={handleWheel}
-
+  ondrop={handleDrop}
+  ondragover={(e) => e.preventDefault()}
   class="flex-grow bg-transparent relative overflow-hidden font-sans h-full w-full {isPanning ? 'cursor-grabbing' : (isDrawingMode ? 'cursor-crosshair' : 'cursor-grab')}"
 >
   {#if blocks.length === 0}

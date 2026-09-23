@@ -308,26 +308,17 @@ export const SINGLE_INSTANCE_TYPES = [
     ExerciseType.MoralDilemma, ExerciseType.PicturePrompt
 ];
 
-export const calculateExerciseAmount = (exerciseType: ExerciseType, height: number, width?: number): number => {
+export const calculateExerciseAmount = (exerciseType: ExerciseType, height: number): number => {
     if (SINGLE_INSTANCE_TYPES.includes(exerciseType)) return 1;
     const headerAndPaddingHeight = 70;
     const availableHeight = height - headerAndPaddingHeight;
     const templateHeight = TEMPLATE_HEIGHTS[exerciseType] || DEFAULT_TEMPLATE_HEIGHT;
     if (templateHeight <= 0) return 1;
-
-    // Fallback to vertical calculation if width isn't provided
-    if (!width) return Math.max(1, Math.floor(availableHeight / templateHeight));
-
-    // Area-based calculation: Assume standard item width is ~650px
-    const standardWidth = 650;
-    const itemArea = standardWidth * templateHeight;
-    const availableArea = width * availableHeight;
-
-    return Math.max(1, Math.floor(availableArea / itemArea));
+    return Math.max(1, Math.floor(availableHeight / templateHeight));
 };
 
-export const calculateExerciseDuration = (exerciseType: ExerciseType, height: number, manualAmount?: number, width?: number): number => {
-    const amount = manualAmount ?? calculateExerciseAmount(exerciseType, height, width);
+export const calculateExerciseDuration = (exerciseType: ExerciseType, height: number, manualAmount?: number): number => {
+    const amount = manualAmount ?? calculateExerciseAmount(exerciseType, height);
     const timing = ESTIMATED_TIME[exerciseType] || { base: 5, perItem: 1 };
     return Math.ceil(timing.base + (timing.perItem * (amount - 1)));
 };
