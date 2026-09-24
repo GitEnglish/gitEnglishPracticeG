@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { BookOpen, ChevronDown, Puzzle } from 'lucide-svelte';
+  import { BookOpen, ChevronDown, Puzzle, Settings as SettingsIcon, PenTool as PenToolIcon } from 'lucide-svelte';
   import { motion } from '@humanspeak/svelte-motion';
   import DifficultyMeter from '../lib/components/DifficultyMeter.svelte';
   import { EXERCISE_CATEGORIES, EXERCISE_PEDAGOGY, PEDAGOGY_COLORS } from '../lib/constants';
@@ -84,7 +84,12 @@
       onUpdateGrammarInclusionRate,
       onExportState,
       onImportState,
-      onClearBoard
+      onClearBoard,
+      onToggleSettings,
+      difficulty,
+      onCycleDifficulty,
+      isDrawingMode,
+      onToggleDrawingMode
   } = $props<{
       isSidebarOpen?: boolean;
       onAddExercise?: (type: string) => void;
@@ -99,6 +104,11 @@
       onExportState?: () => void;
       onImportState?: (e: Event) => void;
       onClearBoard?: () => void;
+      onToggleSettings?: () => void;
+      difficulty?: string;
+      onCycleDifficulty?: () => void;
+      isDrawingMode?: boolean;
+      onToggleDrawingMode?: () => void;
   }>();
 
   let isVocabOpen = $state(false);
@@ -180,19 +190,31 @@
   <div class="flex flex-col h-full overflow-hidden">
 
     <div class="px-6 pt-7 pb-6 border-b border-hairline/60">
-      <div class="flex items-center space-x-3">
+      <div class="flex items-center gap-3">
         <div class="h-8 w-8 rounded-lg bg-gradient-to-br from-citrine-300 via-accent to-citrine-700 p-1.5 flex items-center justify-center shadow-[0_0_12px_rgba(229,149,0,0.5)] border border-citrine-200/40 flex-shrink-0">
           <svg class="w-full h-full text-ink" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" viewBox="0 0 24 24">
             <circle cx="12" cy="12" r="9.5"></circle>
             <polygon fill="currentColor" points="12 4 14.5 10.5 20 12 14.5 13.5 12 20 9.5 13.5 4 12 9.5 10.5 12 4"></polygon>
           </svg>
         </div>
-        <div>
+        <div class="min-w-0">
           <div class="flex items-center">
             <span class="text-fossil-50 text-lg font-bold tracking-tight antialiased">
               gitEnglish<sup class="text-[9px] font-semibold tracking-widest text-accent ml-0.5">™</sup>
             </span>
           </div>
+        </div>
+        <!-- These four were the radial menu. The orb is gone; the functions stay. -->
+        <div class="ml-auto flex items-center gap-1.5">
+          <button onclick={onToggleSettings} class="p-2 rounded-lg text-fossil-400 hover:text-fossil-50 hover:bg-fossil-50/10 transition-all" title="Global settings" aria-label="Global settings">
+            <SettingsIcon class="w-4 h-4" />
+          </button>
+          <button onclick={onCycleDifficulty} class="px-2 py-1 rounded-lg border border-hairline text-[10px] font-bold tracking-widest text-accent hover:bg-fossil-50/10 transition-all whitespace-nowrap" title="Cycle difficulty (CEFR)" aria-label="Cycle difficulty">
+            {difficulty ?? 'B1'}
+          </button>
+          <button onclick={onToggleDrawingMode} class="p-2 rounded-lg transition-all {isDrawingMode ? 'text-accent bg-accent/15' : 'text-fossil-400 hover:text-fossil-50 hover:bg-fossil-50/10'}" title="Drawing mode" aria-pressed={isDrawingMode ?? false} aria-label="Toggle drawing mode">
+            <PenToolIcon class="w-4 h-4" />
+          </button>
         </div>
       </div>
     </div>
@@ -360,24 +382,23 @@
   </div>
 
 
-  <div class="p-4 border-t border-hairline/70 bg-black/60 space-y-1" data-purpose="project-actions">
-        <div class="px-3 pb-2 text-[10px] font-bold tracking-[0.2em] uppercase text-fossil-400">
-          Project Operations
-        </div>
-        <div class="flex flex-col gap-2">
-            <button onclick={onExportState} class="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-medium text-fossil-300 hover:text-fossil-50 hover:bg-fossil-50/[0.06] transition-all" aria-label="Export current project">
-                <DownloadIcon class="w-3.5 h-3.5 text-accent" /> <span>Export Project</span>
+  <div class="px-3 py-2.5 border-t border-hairline/70 bg-black/60" data-purpose="project-actions">
+        <div class="flex items-center justify-center gap-1.5">
+            <button onclick={onExportState} class="p-2 rounded-lg text-fossil-400 hover:text-fossil-50 hover:bg-fossil-50/10 transition-all" title="Export project (download a .json backup)" aria-label="Export project">
+                <DownloadIcon class="w-4 h-4" />
             </button>
-            <label class="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-medium text-fossil-300 hover:text-fossil-50 hover:bg-fossil-50/[0.06] transition-all cursor-pointer" aria-label="Import project from file">
-                <UploadIcon class="w-3.5 h-3.5 text-malachite-400" /> <span>Import Project</span>
+            <label class="p-2 rounded-lg text-fossil-400 hover:text-malachite-300 hover:bg-fossil-50/10 transition-all cursor-pointer" title="Import project (load a .json backup)" aria-label="Import project">
+                <UploadIcon class="w-4 h-4" />
                 <input type="file" accept=".json" onchange={onImportState} class="hidden" />
             </label>
-            <button onclick={onClearBoard} class="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-medium text-fossil-300 hover:text-cinnabar-400 hover:bg-fossil-50/[0.06] transition-all" aria-label="Clear all exercises from board">
-                <TrashIcon class="w-3.5 h-3.5" /> <span>Clear Board</span>
+            <button onclick={onClearBoard} class="p-2 rounded-lg text-fossil-400 hover:text-cinnabar-400 hover:bg-cinnabar-500/10 transition-all" title="Clear board" aria-label="Clear all exercises from board">
+                <TrashIcon class="w-4 h-4" />
             </button>
-             <button onclick={() => getActivityLogger()?.downloadLog()} class="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-medium text-fossil-300 hover:text-fossil-50 hover:bg-fossil-50/[0.06] transition-all" aria-label="Download session activity log">
-                <DownloadIcon class="w-3.5 h-3.5 text-accent" /> <span>Download Activity Log</span>
+            <span class="mx-1 h-5 w-px bg-hairline" aria-hidden="true"></span>
+            <button onclick={() => getActivityLogger()?.downloadLog()} class="p-2 rounded-lg text-fossil-600 hover:text-fossil-300 hover:bg-fossil-50/10 transition-all" title="Download telemetry log" aria-label="Download session activity log">
+                <DownloadIcon class="w-4 h-4" />
             </button>
+            <div class="ml-1 text-[10px] font-mono text-fossil-600 select-none">v2.1.0</div>
         </div>
   </div>
   </div>

@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { ExerciseBlockState } from '../lib/types';
   import { ExerciseType, Difficulty, Tone } from '../lib/types';
-  import { EXERCISE_PEDAGOGY, PEDAGOGY_COLORS, calculateExerciseAmount, SINGLE_INSTANCE_TYPES, DIFFICULTY_LEVELS, DIFFICULTY_LABELS, TONES } from '../lib/constants';
+  import { EXERCISE_PEDAGOGY, PEDAGOGY_COLORS, calculateExerciseAmount, calculateExerciseDuration, SINGLE_INSTANCE_TYPES, DIFFICULTY_LEVELS, DIFFICULTY_LABELS, TONES } from '../lib/constants';
   import { useDebounce } from '../hooks/useDebounce';
   import { useResponsiveScale } from '../hooks/useResponsiveScale';
   import { useAttentionTracker } from '../hooks/useAttentionTracker';
@@ -12,7 +12,7 @@
   import ExerciseTemplate from './ExerciseTemplate.svelte';
 
   // Icon Imports
-  import { Trash2, Settings, Play, X, ChevronLeft, ChevronRight, Wand2 } from 'lucide-svelte';
+  import { Trash2, Settings, X, ChevronLeft, ChevronRight, Wand2, RotateCcw } from 'lucide-svelte';
   import { motion } from '@humanspeak/svelte-motion';
   import Button from '../lib/components/Button.svelte';
   import Field from '../lib/components/Field.svelte';
@@ -67,6 +67,17 @@
   let isSettingsOpen = $state(false);
   let currentSlide = $state(0);
   let generateAmount = $derived(quantity ?? calculateExerciseAmount(exerciseType, height));
+
+  const estimatedDuration = $derived(calculateExerciseDuration(exerciseType, height, quantity));
+
+  const stop = (e: Event) => e.stopPropagation();
+  const handleQuantityChange = (val: string) => {
+      const n = parseInt(val);
+      onUpdate(id, { quantity: isNaN(n) || n < 1 ? undefined : n });
+  };
+  const handleRegenerate = () => { if (!isLoading) handleGenerate(); };
+  const handleEnterLive = (e: Event) => { stop(e); if (isGenerated) onEnterPresentation(); };
+  const handleExitLive = (e: Event) => { stop(e); onExitPresentation(); };
 
   // If the block is marked as generated (e.g. from local storage reload) but content is empty,
   // revert it to un-generated so the user can see the generate button and prevent crashes.
@@ -167,6 +178,32 @@
   // Calculate scaled positions for framer motion if whiteboard is zoomed
   let scaledX = $derived(x * scale);
   let scaledY = $derived(y * scale);
+
+  // Snap-to-content: after generation the card resizes itself to exactly fit
+  // its content, so it never scrolls. Ported from the pre-refactor block,
+  // which did this with a ResizeObserver, a 5px jitter guard and a 350px
+  // minimum width. Disabled while presenting or before generation.
+  let headerEl = $state<HTMLElement | null>(null);
+  let contentEl = $state<HTMLElement | null>(null);
+
+  $effect(() => {
+      if (!isGenerated || !contentEl || isPresenting || isResizing) return;
+      const observer = new ResizeObserver(() => {
+          const contentHeight = contentEl!.scrollHeight;
+          const contentWidth = contentEl!.scrollWidth;
+          const headerHeight = headerEl?.offsetHeight || 0;
+          // body padding (p-5 top+bottom = 40) + card border
+          const chromeV = 40 + 2;
+          const chromeH = 40 + 2;
+          const desiredHeight = Math.max(150, headerHeight + contentHeight + chromeV);
+          const desiredWidth = Math.max(350, contentWidth + chromeH);
+          if (Math.abs(desiredHeight - height) > 5 || Math.abs(desiredWidth - width) > 5) {
+              onUpdate(id, { height: desiredHeight, width: desiredWidth });
+          }
+      });
+      observer.observe(contentEl);
+      return () => observer.disconnect();
+  });
 
   // Resize State
   let isResizing = $state(false);
@@ -277,67 +314,121 @@
         <div class="absolute -bottom-1 -right-1 w-4 h-4 cursor-nwse-resize z-50 hover:bg-accent/30 rounded" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'se')} role="separator" tabindex="-1"></div>
     {/if}
 
-    <!-- Header -->
+    <!-- Header — ported from the pre-refactor block. The title column is
+         min-w-0 flex-1 with truncate so it can never push into the controls,
+         and every control stops the drag-capture workaround on pointerdown. -->
     <!-- svelte-ignore a11y_no_static_element_interactions
          stopPointer only stops svelte-motion from capturing the pointer so the
          buttons inside stay clickable. It adds no behaviour of its own, so a
          role here would misrepresent the element to assistive tech. -->
-    <div class="px-7 py-5 flex items-center justify-between border-b border-fossil-200 bg-surface-sunken/60" style="touch-action: none;" onpointerdown={stopPointer}>
-        <div class="flex items-center min-w-[140px] pointer-events-none">
-            <h2 class="text-base font-bold tracking-tight text-ink flex items-center gap-2">
-                {exerciseType}
-                {#if isLoading}
-                    <span class="animate-spin text-xs">...</span>
-                {/if}
-            </h2>
+    <div bind:this={headerEl} class="px-6 py-3.5 flex items-center justify-between gap-3 border-b border-hairline bg-chrome text-ink-invert flex-shrink-0 relative z-10" style="touch-action: none;" onpointerdown={stopPointer}>
+        <div class="flex items-center gap-4 min-w-0 flex-1">
+            {#if isPresenting}
+                <Button variant="ghost" size="icon" onpointerdown={stop} onclick={handleExitLive} title="Exit Live Mode" class="text-fossil-400">
+                    <X class="w-6 h-6" />
+                </Button>
+            {/if}
+            <div class="flex items-center gap-3 min-w-0">
+                <h3 class="font-bold text-lg tracking-wide truncate select-none {isPresenting ? 'text-2xl' : ''}">{exerciseType}</h3>
+                <span class="text-[10px] px-2 py-1 uppercase tracking-widest font-bold bg-black/40 text-fossil-400 rounded-full border border-hairline select-none whitespace-nowrap hidden sm:inline">{pedagogy}</span>
+                <span class="text-[10px] px-2 py-1 font-bold bg-black/30 text-fossil-300 rounded-full border border-hairline select-none items-center gap-1 whitespace-nowrap hidden md:flex" title="Estimated completion time">
+                    <span>⏱</span> ~{estimatedDuration}m
+                </span>
+            </div>
         </div>
 
-        <div class="flex-1 flex justify-center">
-            {#if !isGenerated && !isLoading}
-                <Button variant="primary" size="md" onclick={handleGenerate} title="Generate" class="px-4">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"></path></svg>
-                    <span>Generate ({generateAmount})</span>
+        <div class="flex items-center gap-2 flex-shrink-0 relative z-50">
+            {#if isPresenting && content.length > 1}
+                <div class="flex items-center gap-3 mr-2 border-r border-hairline pr-3">
+                    <span class="text-sm font-mono font-bold text-fossil-400">{currentSlide + 1} / {content.length}</span>
+                    <Button variant="subtle" size="icon" onpointerdown={stop} onclick={(e) => { stop(e); currentSlide = Math.max(0, currentSlide - 1); }} disabled={currentSlide === 0} aria-label="Previous item">
+                        <ChevronLeft class="w-5 h-5" />
+                    </Button>
+                    <Button variant="subtle" size="icon" onpointerdown={stop} onclick={(e) => { stop(e); currentSlide = Math.min(content.length - 1, currentSlide + 1); }} disabled={currentSlide >= content.length - 1} aria-label="Next item">
+                        <ChevronRight class="w-5 h-5" />
+                    </Button>
+                </div>
+            {/if}
+
+            {#if !isPresenting && !isGenerated && !isSingleInstance}
+                <div class="flex items-center bg-black/40 rounded-lg px-2 py-1 border {quantity ? 'border-accent' : 'border-hairline'} transition-colors" onpointerdown={stopPointer}>
+                    <span class="text-[10px] font-bold uppercase mr-1.5 {quantity ? 'text-accent' : 'text-fossil-500'}">Qty</span>
+                    <input
+                        type="number" min="1" max="50"
+                        value={generateAmount}
+                        oninput={(e) => handleQuantityChange(e.currentTarget.value)}
+                        onpointerdown={stop}
+                        class="w-7 bg-transparent text-center text-xs font-bold text-ink-invert outline-none appearance-none"
+                        title="Manually set amount (overrides auto-size)"
+                    />
+                </div>
+            {/if}
+
+            {#if !isPresenting && isGenerated}
+                <button
+                    onpointerdown={stop} onclick={handleEnterLive}
+                    class="px-3 py-1.5 rounded-full bg-cinnabar-600 text-fossil-50 font-bold hover:bg-cinnabar-500 transition-all shadow-lift active:scale-95 flex items-center gap-2 whitespace-nowrap"
+                    title="Start Live Mode"
+                >
+                    <span class="w-2 h-2 rounded-full bg-fossil-50 animate-pulse"></span>
+                    <span class="text-xs uppercase tracking-wider">Live</span>
+                </button>
+            {/if}
+
+            {#if !isPresenting}
+                {#if isGenerated}
+                    <Button variant="ghost" size="icon" onpointerdown={stop} onclick={(e) => { stop(e); handleRegenerate(); }} title="Regenerate" class="text-accent hover:bg-accent/15">
+                        <RotateCcw class="w-4 h-4" />
+                    </Button>
+                {:else if !isLoading}
+                    <Button variant="primary" size="sm" onpointerdown={stop} onclick={(e) => { stop(e); handleGenerate(); }} title="Generate" class="px-3 py-1.5">
+                        <Wand2 class="h-3.5 w-3.5" />
+                        <span>Generate</span>
+                    </Button>
+                {/if}
+                <Button variant="ghost" size="icon" onpointerdown={stop} onclick={(e) => { stop(e); isSettingsOpen = !isSettingsOpen; }} title="Settings" class={isSettingsOpen ? 'bg-fossil-50/15 text-ink-invert' : 'text-fossil-400'}>
+                    <Settings class="w-4 h-4" />
+                </Button>
+                <Button variant="danger" size="icon" onpointerdown={stop} onclick={(e) => { stop(e); onRemove(id); }} title="Remove" class="text-cinnabar-400">
+                    <Trash2 class="w-4 h-4" />
                 </Button>
             {/if}
         </div>
-
-        <div class="flex items-center space-x-3 min-w-[140px] justify-end relative z-50">
-            <Button variant="ghost" size="icon" onclick={() => isSettingsOpen = !isSettingsOpen} title="Settings" class="text-fossil-400 hover:text-ink hover:bg-fossil-100">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"></path><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"></path></svg>
-            </Button>
-            <Button variant="danger" size="icon" onclick={() => onRemove(id)} title="Remove" class="text-fossil-400">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"></path></svg>
-            </Button>
-        </div>
     </div>
-
-    <!-- Body — see the note on the header: stopPointer is a drag-capture workaround, not behaviour. -->
-    <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div class="flex-grow flex flex-col bg-fossil-50 overflow-hidden relative w-full h-full" onpointerdown={stopPointer}>
-        {#if isSettingsOpen}
-            <div class="absolute inset-0 bg-fossil-50/95 backdrop-blur-sm z-10 p-5 overflow-y-auto font-casual">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-bold text-fossil-800 text-lg flex items-center gap-2">
-                        <Settings class="w-5 h-5 text-fossil-500" />
-                        Configuration
-                    </h3>
-                    <Button variant="ghost" size="icon" onclick={() => isSettingsOpen = false} class="text-fossil-500">
-                        <X class="w-5 h-5" />
-                    </Button>
-                </div>
-                <div class="space-y-4">
-                    <Field label="Theme">
-                        {#snippet children(fid)}
-                            <input
-                                id={fid}
-                                type="text"
-                                value={theme}
-                                oninput={(e) => handleUpdateSetting({theme: e.currentTarget.value})}
-                                class="w-full p-2 border border-fossil-300 rounded focus:ring focus:ring-accent outline-none"
-                            />
-                        {/snippet}
-                    </Field>
-                </div>
+        {#if isSettingsOpen && !isPresenting}
+            <div class="p-3 border-b border-rule bg-surface grid grid-cols-2 gap-3 flex-shrink-0 relative z-10" onpointerdown={stopPointer}>
+                <label class="sr-only" for="block-difficulty-{id}">Block difficulty</label>
+                <select
+                    id="block-difficulty-{id}"
+                    value={difficulty}
+                    onchange={(e) => handleUpdateSetting({difficulty: e.currentTarget.value as Difficulty})}
+                    class="appearance-none text-xs font-bold text-ink-muted p-2 rounded-lg border border-fossil-300 bg-surface-raised w-full outline-none focus:ring-2 focus:ring-accent cursor-pointer select-chevron pr-7"
+                >
+                    {#each DIFFICULTY_LEVELS as d}
+                        <option value={d}>{DIFFICULTY_LABELS[d]}</option>
+                    {/each}
+                </select>
+                <label class="sr-only" for="block-tone-{id}">Block tone</label>
+                <select
+                    id="block-tone-{id}"
+                    value={tone}
+                    onchange={(e) => handleUpdateSetting({tone: e.currentTarget.value as Tone})}
+                    class="appearance-none text-xs font-bold text-ink-muted p-2 rounded-lg border border-fossil-300 bg-surface-raised w-full outline-none focus:ring-2 focus:ring-accent cursor-pointer select-chevron pr-7"
+                >
+                    {#each TONES as tn}
+                        <option value={tn}>{tn}</option>
+                    {/each}
+                </select>
+                <label class="sr-only" for="block-theme-{id}">Block theme</label>
+                <input
+                    id="block-theme-{id}"
+                    type="text"
+                    class="col-span-2 text-xs font-bold text-ink-muted p-2 rounded-lg border border-fossil-300 bg-surface-raised w-full outline-none focus:ring-2 focus:ring-accent placeholder:text-ink-faint"
+                    placeholder="Theme — e.g. Travel, Business"
+                    value={theme}
+                    oninput={(e) => handleUpdateSetting({theme: e.currentTarget.value})}
+                />
             </div>
         {/if}
 
@@ -358,7 +449,7 @@
                 </div>
             </div>
         {:else}
-            <div class="content-wrapper h-full flex flex-col">
+            <div class="content-wrapper flex flex-col" bind:this={contentEl}>
                 {#if content.length > 1}
                     <div class="flex items-center justify-between mb-2 text-xs font-bold text-fossil-500 flex-shrink-0">
                         <button class="p-1 rounded hover:bg-fossil-100 disabled:opacity-30" onclick={() => currentSlide = Math.max(0, currentSlide - 1)} disabled={currentSlide === 0} aria-label="Previous item">

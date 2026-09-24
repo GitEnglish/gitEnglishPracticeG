@@ -1,7 +1,6 @@
 <script lang="ts">
   import Sidebar from './components/Sidebar.svelte';
   import Whiteboard from './components/Whiteboard.svelte';
-    import RadialMenu from './components/RadialMenu.svelte';
   import GlobalSettings from './components/GlobalSettings.svelte';
   import type { ExerciseBlockState } from './lib/types';
   import { Difficulty, Tone, ExerciseType } from './lib/types';
@@ -237,15 +236,10 @@
 
 <div class="h-screen w-screen flex font-sans antialiased overflow-hidden bg-shell">
 
-  <RadialMenu
-      difficulty={globalDifficulty}
-      onToggleSettings={() => isGlobalSettingsOpen = true}
-      onToggleSidebar={() => isSidebarOpen = !isSidebarOpen}
-      onExportState={handleExportState}
-      onCycleDifficulty={cycleDifficulty}
-      isDrawingMode={isDrawingMode}
-      onToggleDrawingMode={() => isDrawingMode = !isDrawingMode}
-  />
+  <!-- The floating radial menu is gone. Its four functions live in the
+       sidebar header: settings, difficulty cycle, export, drawing mode. -->
+  
+
 
 
   <Sidebar
@@ -262,6 +256,11 @@
     onExportState={handleExportState}
     onImportState={handleImportState}
     onClearBoard={handleClearBoard}
+    onToggleSettings={() => isGlobalSettingsOpen = true}
+    difficulty={globalDifficulty}
+    onCycleDifficulty={cycleDifficulty}
+    isDrawingMode={isDrawingMode}
+    onToggleDrawingMode={() => isDrawingMode = !isDrawingMode}
   />
 
 
