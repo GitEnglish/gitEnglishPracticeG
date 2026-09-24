@@ -66,7 +66,11 @@
 
   let { id, x, y, width, height, zIndex, exerciseType, difficulty, tone, theme, focusVocabulary, inclusionRate, focusGrammar, grammarInclusionRate, isGenerated, quantity } = $derived(blockState);
 
-  let content = $state<any[]>([]);
+  // Content lives in the block state, not in component memory. It used to be
+  // local $state, which meant a reload (and the JSON export) lost every
+  // generated question. Content is only ever assigned wholesale, never
+  // mutated, so deriving it from the block is safe.
+  let content = $derived<any[]>(blockState.content ?? []);
   let isLoading = $state(false);
   let isSettingsOpen = $state(false);
   let currentSlide = $state(0);
@@ -175,13 +179,12 @@
         const amount = quantity ?? calculateExerciseAmount(exerciseType, height);
         const result = await generateExercise(exerciseType, difficulty, tone, theme, amount, focusVocabulary, inclusionRate, focusGrammar, grammarInclusionRate);
         if (Array.isArray(result)) {
-            content = result;
-            onUpdate(id, { isGenerated: true });
+            onUpdate(id, { isGenerated: true, content: result });
         } else {
-            content = [result]; // { error } payload
+            onUpdate(id, { content: [result] }); // { error } payload
         }
     } catch (e) {
-        content = [{ error: 'Generation failed: ' + (e instanceof Error ? e.message : String(e)) }];
+        onUpdate(id, { content: [{ error: 'Generation failed: ' + (e instanceof Error ? e.message : String(e)) }] });
     } finally {
         isLoading = false;
     }

@@ -70,6 +70,12 @@ export interface ExerciseBlockState {
   grammarInclusionRate: number;
   isGenerated: boolean;
   quantity?: number;
+  /**
+   * The generated questions. Stored on the block so a reload and the
+   * standalone HTML export both carry the actual practice content, rather
+   * than only the settings needed to regenerate it.
+   */
+  content?: any[];
   // This helps track the current interaction/activity for logging purposes
   // E.g., for a FITB exercise with 5 items, this could be the ID of the current item
   currentFocusItemId?: string;
