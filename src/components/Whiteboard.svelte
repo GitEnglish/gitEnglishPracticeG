@@ -36,6 +36,7 @@
   }>();
 
   let scale = $state(1);
+  let isSpacePressed = $state(false);
   let pan = $state({ x: 0, y: 0 });
   let isPanning = $state(false);
   let lastMousePos = $state({ x: 0, y: 0 });
@@ -117,17 +118,41 @@
     if (isPanning) isPanning = false;
   };
 
+  // Multiplicative zoom toward the cursor. Ported from legacy. Range 0.1..4
+  // was 0.2..3 there, widened at the low end so you can zoom way out to drop blocks.
   const handleWheel = (e: WheelEvent) => {
-      // Allow zooming if holding ctrl or meta key
-      if (e.ctrlKey || e.metaKey) {
-          e.preventDefault();
-          const zoomSensitivity = 0.001;
-          const delta = -e.deltaY * zoomSensitivity;
-          const newScale = Math.min(Math.max(0.2, scale + delta), 3);
-          scale = newScale;
-      }
+      e.preventDefault();
+      const main = document.getElementById('whiteboard-main');
+      if (!main) return;
+      const rect = main.getBoundingClientRect();
+      const factor = Math.exp(-e.deltaY * 0.001);
+      const next = Math.min(Math.max(0.1, scale * factor), 4);
+      // Keep the world point under the cursor stationary as we zoom.
+      const worldX = (e.clientX - rect.left - pan.x) / scale;
+      const worldY = (e.clientY - rect.top - pan.y) / scale;
+      pan = { x: e.clientX - rect.left - worldX * next, y: e.clientY - rect.top - worldY * next };
+      scale = next;
   };
 
+  // Spacebar = "hand tool". Tracked here so mouse-pan treats space-held left-click
+  // the same as middle-click pan. Ported from the legacy whiteboard.
+  $effect(() => {
+      const handleKeyDown = (e: KeyboardEvent) => {
+          if (e.code === 'Space' && e.target === document.body) {
+              e.preventDefault();
+              isSpacePressed = true;
+          }
+      };
+      const handleKeyUp = (e: KeyboardEvent) => {
+          if (e.code === 'Space') isSpacePressed = false;
+      };
+      window.addEventListener('keydown', handleKeyDown);
+      window.addEventListener('keyup', handleKeyUp);
+      return () => {
+          window.removeEventListener('keydown', handleKeyDown);
+          window.removeEventListener('keyup', handleKeyUp);
+      };
+  });
   // Setup window listeners for pan/zoom
   $effect(() => {
     window.addEventListener('mouseup', handleMouseUp);
@@ -175,6 +200,7 @@
   id="whiteboard-main"
   onmousedown={handleMouseDown}
   onwheel={handleWheel}
+  oncontextmenu={(e) => e.preventDefault()}
   ondrop={handleDrop}
   ondragover={(e) => e.preventDefault()}
   class="flex-grow bg-transparent relative overflow-hidden font-sans h-full w-full {isPanning ? 'cursor-grabbing' : (isDrawingMode ? 'cursor-crosshair' : 'cursor-grab')}"

@@ -95,31 +95,31 @@
    app by editing this block only.
    ========================================================================== */
 @theme inline {
-  --color-shell: var(--color-fossil-950);     /* app canvas                       */
-  --color-chrome: var(--color-fossil-900);    /* sidebar, radial menu             */
-  --color-chrome-raised: var(--color-fossil-800);
-  --color-hairline: var(--color-fossil-700);  /* borders on dark                  */
-  --color-surface: var(--color-fossil-50);    /* exercise blocks, cards, modals   */
-  --color-surface-sunken: var(--color-fossil-100);
-  --color-surface-raised: #ffffff;
-  --color-rule: var(--color-fossil-200);      /* borders on light                 */
+  --color-shell: oklch(12.9% 0.022 46);            /* app canvas                       */
+  --color-chrome: oklch(20.8% 0.033 48);           /* sidebar, radial menu             */
+  --color-chrome-raised: oklch(27.9% 0.050 50);
+  --color-hairline: oklch(37.2% 0.066 52);        /* borders on dark                  */
+  --color-surface: oklch(98.4% 0.014 78);         /* exercise blocks, cards, modals   */
+  --color-surface-sunken: oklch(96.8% 0.022 76);
+  --color-surface-raised: oklch(100% 0 0);
+  --color-rule: oklch(92.9% 0.032 74);            /* borders on light                 */
 
-  --color-ink: var(--color-fossil-950);       /* text on light                    */
-  --color-ink-muted: var(--color-fossil-600);
-  --color-ink-faint: var(--color-fossil-500);
-  --color-ink-invert: var(--color-fossil-50); /* text on dark                     */
-  --color-ink-invert-muted: var(--color-fossil-300);
-  --color-ink-invert-faint: var(--color-fossil-400);
+  --color-ink: oklch(12.9% 0.022 46);              /* text on light                    */
+  --color-ink-muted: oklch(44.6% 0.079 55);
+  --color-ink-faint: oklch(55.4% 0.083 60);
+  --color-ink-invert: oklch(98.4% 0.014 78);      /* text on dark                     */
+  --color-ink-invert-muted: oklch(86.9% 0.045 70);
+  --color-ink-invert-faint: oklch(70.4% 0.064 66);
 
-  --color-accent: var(--color-citrine-400);
-  --color-accent-hover: var(--color-citrine-300);
-  --color-accent-ink: var(--color-fossil-950);
-  --color-accent-muted: var(--color-citrine-600);
+  --color-accent: oklch(81.5% 0.148 90);
+  --color-accent-hover: oklch(86.0% 0.120 91);
+  --color-accent-ink: oklch(12.9% 0.022 46);
+  --color-accent-muted: oklch(57.5% 0.140 85);
 
-  --color-danger: var(--color-cinnabar-500);
-  --color-danger-surface: var(--color-cinnabar-300);
-  --color-success: var(--color-malachite-500);
-  --color-success-surface: var(--color-malachite-300);
+  --color-danger: oklch(66.0% 0.180 32);
+  --color-danger-surface: oklch(81.5% 0.110 30);
+  --color-success: oklch(66.0% 0.158 158);
+  --color-success-surface: oklch(81.5% 0.075 148);
 }
 
 /* ============================================================================
