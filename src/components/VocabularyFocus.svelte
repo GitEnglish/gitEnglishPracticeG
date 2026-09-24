@@ -38,7 +38,7 @@
   <button onclick={() => isOpen = !isOpen} class="w-full flex justify-between items-center p-4 text-left bg-fossil-800/50 hover:bg-fossil-800 transition-colors focus:outline-none">
       <div class="flex items-center">
           <div class="w-5 h-5 mr-2 text-citrine-400 font-bold flex items-center justify-center">Aa</div>
-          <span class="font-bold text-citrine-100 text-sm tracking-wide">Vocabulary Focus</span>
+          <span class="font-semibold text-citrine-100 text-[15px] tracking-tight">Vocabulary Focus</span>
       </div>
       <ChevronDown class={`w-4 h-4 text-citrine-500/70 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
   </button>
@@ -51,7 +51,7 @@
                       bind:value={inputValue}
                       onkeydown={(e) => e.key === 'Enter' && handleAddVocab()}
                       placeholder="Add target word..."
-                      class="w-full bg-fossil-950 text-citrine-50 border border-fossil-700 rounded-md shadow-sm px-3 py-1.5 text-xs focus:ring-1 focus:ring-citrine-500 focus:border-citrine-500 focus:outline-none placeholder-fossil-600 font-serif"
+                      class="w-full bg-fossil-950 text-citrine-50 border border-fossil-700 rounded-md shadow-sm px-3 py-2 text-sm font-medium focus:ring-1 focus:ring-citrine-500 focus:border-citrine-500 focus:outline-none placeholder-fossil-600 font-serif"
                       aria-label="Add target vocabulary word"
                   />
                   <button onclick={handleAddVocab} class="bg-citrine-500 text-fossil-900 font-bold p-1.5 rounded-md hover:bg-citrine-400 transition-colors shadow" aria-label="Add word">
@@ -61,7 +61,7 @@
               {#if focusVocabulary.length > 0}
                   <div class="mt-3 flex flex-wrap gap-2">
                       {#each focusVocabulary as v}
-                          <span class="flex items-center bg-citrine-500/20 text-citrine-200 text-xs font-semibold px-2.5 py-1 rounded-full border border-citrine-500/40 shadow-sm">
+                          <span class="flex items-center bg-citrine-500/20 text-citrine-200 text-sm font-semibold px-2.5 py-1 rounded-full border border-citrine-500/40 shadow-sm">
                               {v}
                               <button onclick={() => handleRemoveVocab(v)} class="ml-1.5 text-citrine-400 hover:text-fossil-50" aria-label={`Remove ${v}`}>
                                   <XCircle class="w-3.5 h-3.5"/>
@@ -72,7 +72,7 @@
               {/if}
           </div>
           <div>
-              <div class="flex justify-between text-xs font-bold text-citrine-500/70 mb-1.5">
+              <div class="flex justify-between text-sm font-semibold text-citrine-500/80 mb-1.5">
                   <span>Inclusion Rate</span>
                   <span class="text-citrine-400">{inclusionRate}%</span>
               </div>

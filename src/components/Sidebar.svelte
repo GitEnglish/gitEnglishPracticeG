@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { BookOpen, ChevronDown, Puzzle, Settings as SettingsIcon, PenTool as PenToolIcon } from 'lucide-svelte';
+  import { BookOpen, ChevronDown, Puzzle, Settings as SettingsIcon, PenTool as PenToolIcon, Info as InfoIcon } from 'lucide-svelte';
   import { motion } from '@humanspeak/svelte-motion';
   import DifficultyMeter from '../lib/components/DifficultyMeter.svelte';
   import { EXERCISE_CATEGORIES, EXERCISE_PEDAGOGY, PEDAGOGY_COLORS } from '../lib/constants';
@@ -324,12 +324,18 @@
                                   </div>
                                   <div class="flex items-center space-x-2">
                                       {@render difficultyIndicator(info.difficultyRating)}
+                                      <!-- The pedagogy chip that used to sit here repeated the
+                                           group name on every row (PPP under PPP, C-R under
+                                           C-R). The category header already says it, so the text
+                                           is gone. The trigger stays, as an icon, because it is
+                                           what opens the about panel. -->
                                       <button
                                           onclick={(e) => toggleInfo(e, type)}
-                                          class="text-sm font-sans font-medium tracking-wide text-fossil-400 border border-fossil-50/10 rounded px-1.5 py-0.5 hover:text-fossil-50 hover:border-fossil-50/30 transition-colors z-20"
+                                          class="p-1 rounded text-fossil-400 hover:text-fossil-50 transition-colors z-20"
                                           title="About this exercise"
+                                          aria-label="About {displayName}"
                                       >
-                                          {pedagogy}
+                                          <InfoIcon class="w-3.5 h-3.5" />
                                       </button>
                                   </div>
                               </motion.div>
