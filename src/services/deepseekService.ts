@@ -16,7 +16,15 @@ import { ExerciseType, Difficulty, Tone } from '../lib/types';
  *   - OPENROUTER_BASE_URL (optional; default `https://openrouter.ai/api/v1`)
  */
 
-export const OPENROUTER_BASE_URL: string = process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1';
+// Trailing slashes are stripped: a base URL of `https://host/api/v1/` used to
+// build `https://host/api/v1//chat/completions`, which 404s. The browser then
+// reports "Failed to fetch" rather than the status, because the 404 carries no
+// CORS headers — so a stray slash looked exactly like a dead button.
+const normaliseBaseUrl = (url: string): string => url.replace(/\/+$/, '');
+
+export const OPENROUTER_BASE_URL: string = normaliseBaseUrl(
+  process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1'
+);
 export const OPENROUTER_MODEL: string = process.env.OPENROUTER_MODEL || 'xiaomi/mimo-v2.6-flash';
 // Backend-only auth: no client-side key entry UI. The key comes from
 // .env (local) or Railway variables (production) at build time.
