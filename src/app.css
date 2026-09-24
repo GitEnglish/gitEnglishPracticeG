@@ -147,14 +147,11 @@
 /* ============================================================================
    BASE
    ========================================================================== */
+/* No global ::-webkit-scrollbar styling. The legacy app referenced a
+   `custom-scrollbar-light` class that was never defined, so scrollbars fell
+   back to the browser default and stayed out of the way. Styling them
+   globally painted a visible bar down the edge of every card. */
+
 @layer base {
   html, body { height: 100%; }
-
-  ::-webkit-scrollbar { width: 4px; height: 4px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb {
-    background: oklch(37.2% 0.066 52 / 0.5);
-    border-radius: 9999px;
-  }
-  ::-webkit-scrollbar-thumb:hover { background: var(--color-accent-muted); }
 }
