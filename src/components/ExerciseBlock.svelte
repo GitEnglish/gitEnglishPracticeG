@@ -392,7 +392,7 @@
          stopPointer only stops svelte-motion from capturing the pointer so the
          buttons inside stay clickable. It adds no behaviour of its own, so a
          role here would misrepresent the element to assistive tech. -->
-    <div bind:this={headerEl} class="px-6 py-3.5 flex items-center justify-between gap-3 border-b border-hairline bg-chrome text-ink-invert flex-shrink-0 relative z-10" style="touch-action: none;" onpointerdown={stopPointer}>
+    <div bind:this={headerEl} class="px-6 py-3.5 flex items-center justify-between gap-3 border-b border-hairline bg-chrome text-ink-invert flex-shrink-0 relative z-10 font-ui" style="touch-action: none;" onpointerdown={stopPointer}>
         <div class="flex items-center gap-4 min-w-0 flex-1">
             {#if isPresenting}
                 <Button variant="ghost" size="icon" onpointerdown={stop} onclick={handleExitLive} title="Exit Live Mode" class="text-fossil-400">
@@ -400,9 +400,9 @@
                 </Button>
             {/if}
             <div class="flex items-center gap-3 min-w-0">
-                <h3 class="font-bold text-lg tracking-wide truncate select-none {isPresenting ? 'text-2xl' : ''}">{exerciseType}</h3>
-                <span class="text-[10px] px-2 py-1 uppercase tracking-widest font-bold bg-black/40 text-fossil-400 rounded-full border border-hairline select-none whitespace-nowrap hidden sm:inline">{pedagogy}</span>
-                <span class="text-[10px] px-2 py-1 font-bold bg-black/30 text-fossil-300 rounded-full border border-hairline select-none items-center gap-1 whitespace-nowrap hidden md:flex" title="Estimated completion time">
+                <h3 class="font-semibold text-lg tracking-tight truncate select-none {isPresenting ? 'text-2xl' : ''}">{exerciseType}</h3>
+                <span class="text-[10px] px-2 py-1 uppercase tracking-widest font-semibold bg-black/40 text-fossil-400 rounded-full border border-hairline select-none whitespace-nowrap hidden sm:inline">{pedagogy}</span>
+                <span class="text-[10px] px-2 py-1 font-semibold bg-black/30 text-fossil-300 rounded-full border border-hairline select-none items-center gap-1 whitespace-nowrap hidden md:flex" title="Estimated completion time">
                     <span>⏱</span> ~{estimatedDuration}m
                 </span>
             </div>
@@ -411,7 +411,7 @@
         <div class="flex items-center gap-2 flex-shrink-0 relative z-50">
             {#if isPresenting && content.length > 1}
                 <div class="flex items-center gap-3 mr-2 border-r border-hairline pr-3">
-                    <span class="text-sm font-mono font-bold text-fossil-400">{currentSlide + 1} / {content.length}</span>
+                    <span class="text-sm font-mono font-medium text-fossil-400">{currentSlide + 1} / {content.length}</span>
                     <Button variant="subtle" size="icon" onpointerdown={stop} onclick={(e) => { stop(e); currentSlide = Math.max(0, currentSlide - 1); }} disabled={currentSlide === 0} aria-label="Previous item">
                         <ChevronLeft class="w-5 h-5" />
                     </Button>
@@ -423,13 +423,13 @@
 
             {#if !isPresenting && !isGenerated && !isSingleInstance}
                 <div class="flex items-center bg-black/40 rounded-lg px-2 py-1 border {quantity ? 'border-accent' : 'border-hairline'} transition-colors" onpointerdown={stopPointer}>
-                    <span class="text-[10px] font-bold uppercase mr-1.5 {quantity ? 'text-accent' : 'text-fossil-500'}">Qty</span>
+                    <span class="text-[10px] font-semibold uppercase mr-1.5 {quantity ? 'text-accent' : 'text-fossil-500'}">Qty</span>
                     <input
                         type="number" min="1" max="50"
                         value={generateAmount}
                         oninput={(e) => handleQuantityChange(e.currentTarget.value)}
                         onpointerdown={stop}
-                        class="w-7 bg-transparent text-center text-xs font-bold text-ink-invert outline-none appearance-none"
+                        class="w-7 bg-transparent text-center text-xs font-semibold text-ink-invert outline-none appearance-none"
                         title="Manually set amount (overrides auto-size)"
                     />
                 </div>
@@ -438,7 +438,7 @@
             {#if !isPresenting && isGenerated}
                 <button
                     onpointerdown={stop} onclick={handleEnterLive}
-                    class="px-3 py-1.5 rounded-full bg-cinnabar-600 text-fossil-50 font-bold hover:bg-cinnabar-500 transition-all shadow-lift active:scale-95 flex items-center gap-2 whitespace-nowrap"
+                    class="px-3 py-1.5 rounded-full bg-cinnabar-600 text-fossil-50 font-semibold hover:bg-cinnabar-500 transition-all shadow-lift active:scale-95 flex items-center gap-2 whitespace-nowrap"
                     title="Start Live Mode"
                 >
                     <span class="w-2 h-2 rounded-full bg-fossil-50 animate-pulse"></span>
@@ -474,7 +474,7 @@
                     id="block-difficulty-{id}"
                     value={difficulty}
                     onchange={(e) => handleUpdateSetting({difficulty: e.currentTarget.value as Difficulty})}
-                    class="appearance-none text-xs font-bold text-ink-muted p-2 rounded-lg border border-fossil-300 bg-surface-raised w-full outline-none focus:ring-2 focus:ring-accent cursor-pointer select-chevron pr-7"
+                    class="appearance-none text-xs font-medium text-ink-muted p-2 rounded-lg border border-fossil-300 bg-surface-raised w-full outline-none focus:ring-2 focus:ring-accent cursor-pointer select-chevron pr-7"
                 >
                     {#each DIFFICULTY_LEVELS as d}
                         <option value={d}>{DIFFICULTY_LABELS[d]}</option>
@@ -485,7 +485,7 @@
                     id="block-tone-{id}"
                     value={tone}
                     onchange={(e) => handleUpdateSetting({tone: e.currentTarget.value as Tone})}
-                    class="appearance-none text-xs font-bold text-ink-muted p-2 rounded-lg border border-fossil-300 bg-surface-raised w-full outline-none focus:ring-2 focus:ring-accent cursor-pointer select-chevron pr-7"
+                    class="appearance-none text-xs font-medium text-ink-muted p-2 rounded-lg border border-fossil-300 bg-surface-raised w-full outline-none focus:ring-2 focus:ring-accent cursor-pointer select-chevron pr-7"
                 >
                     {#each TONES as tn}
                         <option value={tn}>{tn}</option>
@@ -495,7 +495,7 @@
                 <input
                     id="block-theme-{id}"
                     type="text"
-                    class="col-span-2 text-xs font-bold text-ink-muted p-2 rounded-lg border border-fossil-300 bg-surface-raised w-full outline-none focus:ring-2 focus:ring-accent placeholder:text-ink-faint"
+                    class="col-span-2 text-xs font-medium text-ink-muted p-2 rounded-lg border border-fossil-300 bg-surface-raised w-full outline-none focus:ring-2 focus:ring-accent placeholder:text-ink-faint"
                     placeholder="Theme — e.g. Travel, Business"
                     value={theme}
                     oninput={(e) => handleUpdateSetting({theme: e.currentTarget.value})}
@@ -515,14 +515,14 @@
         {:else if isLoading}
             <div class="h-full flex items-center justify-center">
                 <div class="flex flex-col items-center gap-3">
-                    <div class="w-8 h-8 border-4 border-fossil-200 border-t-blue-500 rounded-full animate-spin"></div>
-                    <span class="text-sm font-bold text-fossil-500 animate-pulse">Designing lesson...</span>
+                    <div class="w-8 h-8 border-4 border-fossil-200 border-t-accent rounded-full animate-spin"></div>
+                    <span class="text-sm font-medium text-fossil-500 animate-pulse">Designing lesson...</span>
                 </div>
             </div>
         {:else}
             <div class="content-wrapper flex flex-col" bind:this={contentEl}>
                 {#if content.length > 1}
-                    <div class="flex items-center justify-between mb-2 text-xs font-bold text-fossil-500 flex-shrink-0">
+                    <div class="flex items-center justify-between mb-2 text-xs font-medium text-fossil-500 flex-shrink-0">
                         <button class="p-1 rounded hover:bg-fossil-100 disabled:opacity-30" onclick={() => currentSlide = Math.max(0, currentSlide - 1)} disabled={currentSlide === 0} aria-label="Previous item">
                             <ChevronLeft class="w-4 h-4" />
                         </button>

@@ -184,7 +184,7 @@
   initial={false}
   animate={{ x: isSidebarOpen ? 0 : "-100%" }}
   transition={{ type: "spring", stiffness: 400, damping: 40 }}
-  class="w-80 flex-shrink-0 bg-chrome border-r border-hairline/50 text-fossil-300 flex flex-col justify-between relative z-30 panel-frosted will-change-transform h-screen lg:static lg:translate-x-0 font-sans"
+  class="w-80 flex-shrink-0 bg-chrome border-r border-hairline/50 text-fossil-300 flex flex-col justify-between relative z-30 panel-frosted will-change-transform h-screen lg:static lg:translate-x-0 font-ui"
 >
 
   <div class="flex flex-col h-full overflow-hidden">
@@ -199,7 +199,7 @@
         </div>
         <div class="min-w-0">
           <div class="flex items-center">
-            <span class="text-fossil-50 text-lg font-bold tracking-tight antialiased">
+            <span class="text-fossil-50 text-lg font-semibold tracking-tight antialiased">
               gitEnglish<sup class="text-[9px] font-semibold tracking-widest text-accent ml-0.5">™</sup>
             </span>
           </div>
@@ -209,7 +209,7 @@
           <button onclick={onToggleSettings} class="p-2 rounded-lg text-fossil-400 hover:text-fossil-50 hover:bg-fossil-50/10 transition-all" title="Global settings" aria-label="Global settings">
             <SettingsIcon class="w-4 h-4" />
           </button>
-          <button onclick={onCycleDifficulty} class="px-2 py-1 rounded-lg border border-hairline text-[10px] font-bold tracking-widest text-accent hover:bg-fossil-50/10 transition-all whitespace-nowrap" title="Cycle difficulty (CEFR)" aria-label="Cycle difficulty">
+          <button onclick={onCycleDifficulty} class="px-2 py-1 rounded-lg border border-hairline text-[10px] font-semibold tracking-widest text-accent hover:bg-fossil-50/10 transition-all whitespace-nowrap" title="Cycle difficulty (CEFR)" aria-label="Cycle difficulty">
             {difficulty ?? 'B1'}
           </button>
           <button onclick={onToggleDrawingMode} class="p-2 rounded-lg transition-all {isDrawingMode ? 'text-accent bg-accent/15' : 'text-fossil-400 hover:text-fossil-50 hover:bg-fossil-50/10'}" title="Drawing mode" aria-pressed={isDrawingMode ?? false} aria-label="Toggle drawing mode">
@@ -224,7 +224,7 @@
       <div data-purpose="sidebar-group">
           <button
             onclick={() => isConfigOpen = !isConfigOpen}
-            class="w-full flex items-center justify-between px-3 py-2 text-[11px] font-bold tracking-[0.16em] uppercase text-fossil-400 hover:text-fossil-50 transition-colors"
+            class="w-full flex items-center justify-between px-3 py-2 text-xs font-bold tracking-[0.1em] uppercase text-fossil-400 hover:text-fossil-50 transition-colors"
           >
               <span class="flex items-center space-x-2">
                 <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
@@ -251,7 +251,7 @@
       </div>
 
       <div class="pb-8 space-y-3" data-purpose="exercise-library-group">
-          <div class="px-3 text-[11px] font-bold tracking-[0.16em] uppercase text-fossil-400">Exercise Library</div>
+          <div class="px-3 text-xs font-bold tracking-[0.1em] uppercase text-fossil-400">Exercise Library</div>
 
           {#each EXERCISE_CATEGORIES as category}
             {@const catColors = PEDAGOGY_COLORS[category.name] || PEDAGOGY_COLORS['Default']}
@@ -262,7 +262,7 @@
               >
                   <div class="flex items-center space-x-2.5">
                       <BookOpen class="w-4 h-4 {catColors.textOnDark} transition-colors" />
-                      <span class="text-sm font-semibold text-fossil-50 tracking-[-0.01em]">{category.name}</span>
+                      <span class="text-sm font-medium text-fossil-50 tracking-[-0.01em]">{category.name}</span>
                   </div>
                   <ChevronDown class="w-3.5 h-3.5 text-fossil-400 transition-transform duration-200 {openCategory === category.name ? 'rotate-180' : ''}" />
               </button>
@@ -340,7 +340,7 @@
                                             opacity-0 group-hover:opacity-100 invisible group-hover:visible
                                             transition-all duration-200 z-50 translate-y-2 group-hover:translate-y-0 pointer-events-none">
                                   <div class="absolute top-4 -left-2 w-4 h-4 bg-fossil-900 border-b border-l border-fossil-700 transform rotate-45"></div>
-                                  <h4 class="font-bold {colors.textOnDark} text-base mb-1.5">{info.name}</h4>
+                                  <h4 class="font-semibold {colors.textOnDark} text-base mb-1.5">{info.name}</h4>
                                   <div class="flex items-center gap-2 mb-3">
                                       <span class="text-xs px-2 py-0.5 rounded-full border {colors.border} {colors.bgOnDark} {colors.textOnDark} bg-opacity-50">{pedagogy}</span>
                                       <span class="text-xs text-fossil-500">•</span>
@@ -358,7 +358,7 @@
                               <div class="grid transition-all duration-300 ease-in-out overflow-hidden {expandedInfo === type ? 'grid-rows-[1fr] opacity-100 mt-2 mb-3' : 'grid-rows-[0fr] opacity-0'}">
                                   <div class="min-h-0 bg-fossil-900 border-l-2 border-{colors.border.replace('border-', '')} rounded-r-lg overflow-hidden shadow-2xl ml-2">
                                       <div class="p-3.5">
-                                          <h4 class="font-bold text-accent text-sm mb-1.5">{info.name}</h4>
+                                          <h4 class="font-semibold text-accent text-sm mb-1.5">{info.name}</h4>
                                           <div class="flex items-center gap-2 mb-2">
                                               <span class="text-[10px] px-1.5 py-0.5 rounded border {colors.border} {colors.textOnDark} bg-fossil-800">{pedagogy}</span>
                                               <span class="text-xs text-fossil-500">•</span>
