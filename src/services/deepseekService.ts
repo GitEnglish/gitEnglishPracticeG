@@ -16,15 +16,24 @@ import { ExerciseType, Difficulty, Tone } from '../lib/types';
  *   - OPENROUTER_BASE_URL (optional; default `https://openrouter.ai/api/v1`)
  */
 
-// Trailing slashes are stripped: a base URL of `https://host/api/v1/` used to
-// build `https://host/api/v1//chat/completions`, which 404s. The browser then
-// reports "Failed to fetch" rather than the status, because the 404 carries no
-// CORS headers — so a stray slash looked exactly like a dead button.
-const normaliseBaseUrl = (url: string): string => url.replace(/\/+$/, '');
+// The endpoint is built defensively so a misconfigured variable cannot break
+// generation again:
+//   - a trailing slash would produce `.../v1//chat/completions` (404)
+//   - a variable that already includes `/chat/completions` would otherwise
+//     have it appended twice
+// Either mistake produced a 404 with no CORS headers, which the browser
+// reports as "TypeError: Failed to fetch" -- indistinguishable from a dead
+// button. Normalising here means the value can be set either way.
+const CHAT_PATH = '/chat/completions';
+const normaliseBaseUrl = (url: string): string => {
+    const trimmed = url.trim().replace(/\/+$/, '');
+    return trimmed.endsWith(CHAT_PATH) ? trimmed.slice(0, -CHAT_PATH.length) : trimmed;
+};
 
 export const OPENROUTER_BASE_URL: string = normaliseBaseUrl(
-  process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1'
+    process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1'
 );
+export const OPENROUTER_ENDPOINT: string = `${OPENROUTER_BASE_URL}${CHAT_PATH}`;
 export const OPENROUTER_MODEL: string = process.env.OPENROUTER_MODEL || 'xiaomi/mimo-v2.6-flash';
 // Backend-only auth: no client-side key entry UI. The key comes from
 // .env (local) or Railway variables (production) at build time.
@@ -238,7 +247,7 @@ const chatCompletion = async (messages: ChatMessage[], jsonMode: boolean): Promi
   };
   if (jsonMode) body.response_format = { type: 'json_object' };
 
-  const response = await fetch(`${OPENROUTER_BASE_URL}/chat/completions`, {
+  const response = await fetch(OPENROUTER_ENDPOINT, {
     method: 'POST',
     headers,
     body: JSON.stringify(body),
