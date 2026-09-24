@@ -7,6 +7,16 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
   return {
     base: './',
+    build: {
+      rollupOptions: {
+        input: {
+          main: 'index.html',
+          // Motion study page for the deck menu, so the motion can be judged on
+          // the deployed site rather than only on a local dev server.
+          deck: 'deck-demo.html',
+        },
+      },
+    },
     server: {
       port: 3000,
       host: '0.0.0.0',
