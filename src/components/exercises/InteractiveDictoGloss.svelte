@@ -28,19 +28,19 @@
     <div class="p-3 rounded-2xl transition-all duration-300 {colors.chip.bg} border-2 {colors.chip.border}">
         <div class="flex justify-between items-center mb-2">
             <span class="text-xs font-bold uppercase opacity-60">Source Text</span>
-            <button onclick={() => showText = !showText} class="px-3 py-1 rounded-lg text-xs font-bold text-white transition-all hover:brightness-110 {buttonBg}">
+            <button onclick={() => showText = !showText} class="px-3 py-1 rounded-lg text-xs font-bold text-fossil-50 transition-all hover:brightness-110 {buttonBg}">
                 {showText ? 'Hide' : 'Show'}
             </button>
         </div>
         {#if showText}
-            <p class="text-lg italic p-3 bg-white/80 rounded-xl shadow-sm font-playful leading-relaxed">{exercise.text}</p>
+            <p class="text-lg italic p-3 bg-fossil-50/80 rounded-xl shadow-sm font-playful leading-relaxed">{exercise.text}</p>
         {:else}
             <div class="h-24 flex items-center justify-center italic opacity-50 bg-black/5 rounded-xl">Text Hidden</div>
         {/if}
     </div>
     <textarea
         rows={4}
-        class="mt-4 w-full p-3 rounded-xl border-2 {colors.chip.border} bg-white text-slate-900 focus:ring-2 focus:ring-slate-300 outline-none transition-all resize-none shadow-inner"
+        class="mt-4 w-full p-3 rounded-xl border-2 {colors.chip.border} bg-fossil-50 text-fossil-900 focus:ring-2 focus:ring-fossil-300 outline-none transition-all resize-none shadow-inner"
         placeholder="Reconstruct the text here from memory..."
         value={response}
         oninput={(e) => {

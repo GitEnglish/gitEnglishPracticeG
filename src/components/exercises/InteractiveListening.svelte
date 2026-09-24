@@ -3,6 +3,7 @@
   import FeedbackSection from './FeedbackSection.svelte';
   import SpeakerWaveIcon from '../icons/SpeakerWaveIcon.svelte';
   import { checkAnswerWithAI } from '../../services/aiService';
+  import Field from '../../lib/components/Field.svelte';
 
   let { exercise, colors } = $props<{
     exercise: IListeningSpecificInfoExercise;
@@ -23,26 +24,28 @@
 
 <div class="text-base font-casual {colors.textOnLight}">
     <h4 class="font-playful text-xl mb-2">{exercise.title}</h4>
-    <div class="mb-6 p-4 rounded-2xl bg-slate-800 text-slate-200 shadow-lg relative overflow-hidden">
+    <div class="mb-6 p-4 rounded-2xl bg-fossil-800 text-fossil-200 shadow-lg relative overflow-hidden">
         <div class="absolute top-0 right-0 p-2 opacity-10"><SpeakerWaveIcon class="w-24 h-24" /></div>
-        <p class="font-bold text-xs uppercase text-slate-400 mb-2">Transcript</p>
+        <p class="font-bold text-xs uppercase text-fossil-400 mb-2">Transcript</p>
         <p class="italic text-lg font-playful leading-relaxed">"{exercise.audioText}"</p>
     </div>
     <div class="space-y-4">
         {#each exercise.questions as q, i}
-            <div>
-                <label class="block text-sm font-bold mb-2 text-slate-700">{q.question}</label>
-                <input
-                    type="text"
-                    class="w-full p-2 rounded-xl border-2 {colors.chip.border} bg-white text-slate-900 focus:ring-2 focus:ring-slate-300 outline-none"
-                    placeholder="Answer..."
-                    value={answers[i] || ''}
-                    oninput={(e) => {
-                        answers[i] = e.currentTarget.value;
-                        feedback = null;
-                    }}
-                />
-            </div>
+            <Field label={q.question} class="normal-case tracking-normal font-sans">
+                {#snippet children(fid)}
+                    <input
+                        id={fid}
+                        type="text"
+                        class="w-full p-2 rounded-xl border-2 {colors.chip.border} bg-fossil-50 text-fossil-900 focus:ring-2 focus:ring-accent outline-none"
+                        placeholder="Answer..."
+                        value={answers[i] || ''}
+                        oninput={(e) => {
+                            answers[i] = e.currentTarget.value;
+                            feedback = null;
+                        }}
+                    />
+                {/snippet}
+            </Field>
         {/each}
     </div>
     <div class="mt-4">

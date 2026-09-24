@@ -46,9 +46,9 @@
 
 <div class="text-base font-casual {colors.textOnLight}">
     <p class="mb-2 font-bold opacity-70 text-sm uppercase">Build the sentence</p>
-    <div class="min-h-[4rem] p-3 rounded-2xl border-4 flex flex-wrap gap-2 items-center transition-colors mb-4 border-dashed border-slate-300 bg-slate-50">
+    <div class="min-h-[4rem] p-3 rounded-2xl border-4 flex flex-wrap gap-2 items-center transition-colors mb-4 border-dashed border-fossil-300 bg-fossil-50">
         {#if solution.length === 0}
-            <span class="text-slate-400 italic text-sm w-full text-center">Click words below...</span>
+            <span class="text-fossil-400 italic text-sm w-full text-center">Click words below...</span>
         {/if}
         {#each solution as w (w.id)}
              <Chip
@@ -59,15 +59,15 @@
         {/each}
     </div>
 
-    <div class="flex flex-wrap gap-2 p-3 bg-slate-100 rounded-2xl border-2 border-slate-200">
+    <div class="flex flex-wrap gap-2 p-3 bg-fossil-100 rounded-2xl border-2 border-fossil-200">
         {#if bank.length === 0}
-             <span class="text-slate-400 italic text-sm w-full text-center">All words used.</span>
+             <span class="text-fossil-400 italic text-sm w-full text-center">All words used.</span>
         {/if}
         {#each bank as w (w.id)}
              <Chip
                 text={w.word}
                 onclick={() => addToSolution(w)}
-                chipColors={{ bg: 'bg-white', text: 'text-slate-800', border: 'border-slate-300' }}
+                chipColors={{ bg: 'bg-fossil-50', text: 'text-fossil-800', border: 'border-fossil-300' }}
             />
         {/each}
     </div>

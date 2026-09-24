@@ -33,7 +33,7 @@
                 userInput = e.currentTarget.value;
                 feedback = null;
             }}
-            class="flex-grow p-2 rounded-xl border-2 {colors.chip.border} bg-white text-slate-900 focus:ring-2 focus:ring-slate-300 outline-none transition-all font-bold"
+            class="flex-grow p-2 rounded-xl border-2 {colors.chip.border} bg-fossil-50 text-fossil-900 focus:ring-2 focus:ring-fossil-300 outline-none transition-all font-bold"
             placeholder="Type correct form..."
         />
     </div>

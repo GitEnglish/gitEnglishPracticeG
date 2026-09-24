@@ -180,13 +180,13 @@
   class="flex-grow bg-transparent relative overflow-hidden font-sans h-full w-full {isPanning ? 'cursor-grabbing' : (isDrawingMode ? 'cursor-crosshair' : 'cursor-grab')}"
 >
   {#if blocks.length === 0}
-  <div class="absolute inset-0 flex flex-col justify-center items-center text-center text-slate-500 pointer-events-none p-4 z-0 select-none">
-      <Wand2 size={64} class="text-slate-400" />
+  <div class="absolute inset-0 flex flex-col justify-center items-center text-center text-fossil-500 pointer-events-none p-4 z-0 select-none">
+      <Wand2 size={64} class="text-fossil-400" />
       <h2 class="text-2xl font-bold mt-4">Welcome to the Practice Genie!</h2>
       <p class="mt-2 text-lg">Your infinite whiteboard is empty.</p>
       <p class="mt-1">Drag an exercise from the sidebar to anywhere on the canvas.</p>
       <p class="mt-4 text-sm opacity-70">
-          <span class="bg-slate-300/50 px-2 py-1 rounded">Click & Drag</span> empty space to pan • <span class="bg-slate-300/50 px-2 py-1 rounded">Cmd+Scroll</span> to zoom
+          <span class="bg-fossil-200 text-ink-muted px-2 py-1 rounded font-medium">Click &amp; Drag</span> empty space to pan • <span class="bg-fossil-200 text-ink-muted px-2 py-1 rounded font-medium">Cmd+Scroll</span> to zoom
       </p>
   </div>
   {/if}
@@ -227,15 +227,15 @@
             style="left: {ghostPos.x}px; top: {ghostPos.y}px; transform: translate(-50%, -50%);"
         >
             <!-- A placeholder to represent the exact shape/size of the block being dragged -->
-            <div class="rounded-2xl shadow-lg border-4 border-slate-400 bg-white" style="width: {dims.width}px; height: {dims.height}px;">
-                <div class="p-3 border-b-4 border-slate-400 bg-slate-100 font-bold text-center">{draggedSidebarType}</div>
-                <div class="p-4 text-center text-slate-500 opacity-70">Drop to add</div>
+            <div class="rounded-2xl shadow-lg border-4 border-fossil-400 bg-fossil-50" style="width: {dims.width}px; height: {dims.height}px;">
+                <div class="p-3 border-b-4 border-fossil-400 bg-fossil-100 font-bold text-center">{draggedSidebarType}</div>
+                <div class="p-4 text-center text-fossil-500 opacity-70">Drop to add</div>
             </div>
         </div>
     {/if}
   </div>
 
   {#if presentingBlockId !== null}
-      <div class="fixed inset-0 bg-slate-900/90 z-50 transition-opacity flex items-center justify-center pointer-events-none"></div>
+      <div class="fixed inset-0 bg-fossil-900/90 z-50 transition-opacity flex items-center justify-center pointer-events-none"></div>
   {/if}
 </main>

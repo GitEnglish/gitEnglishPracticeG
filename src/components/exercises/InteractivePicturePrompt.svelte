@@ -2,6 +2,7 @@
   import type { IPicturePromptExercise } from '../../lib/types';
   import FeedbackSection from './FeedbackSection.svelte';
   import { checkAnswerWithAI } from '../../services/aiService';
+  import Field from '../../lib/components/Field.svelte';
 
   let { exercise, colors } = $props<{
     exercise: IPicturePromptExercise;
@@ -22,20 +23,24 @@
 
 <div class="text-base font-casual {colors.textOnLight}">
   <h4 class="font-playful text-xl mb-2">{exercise.title}</h4>
-  <div class="bg-black/5 p-2 rounded-2xl border-2 border-dashed border-slate-300 mb-4">
+  <div class="bg-black/5 p-2 rounded-2xl border-2 border-dashed border-fossil-300 mb-4">
       <img src={exercise.imageUrl} alt={exercise.prompt} class="w-full h-auto max-h-[300px] rounded-xl object-contain shadow-sm mx-auto" />
   </div>
-  <label class="font-bold mb-2 block text-sm uppercase opacity-70">Your Questions</label>
-  <textarea
-    rows={3}
-    class="w-full p-3 rounded-xl border-2 {colors.chip.border} bg-white text-slate-900 focus:ring-2 focus:ring-slate-300 outline-none transition-all resize-none shadow-inner"
-    placeholder="Write 3-5 questions about the scene..."
-    value={response}
-    oninput={(e) => {
-        response = e.currentTarget.value;
-        feedback = null;
-    }}
-  ></textarea>
+  <Field label="Your Questions" class="normal-case tracking-normal font-sans">
+    {#snippet children(fid)}
+      <textarea
+        id={fid}
+        rows={3}
+        class="w-full p-3 rounded-xl border-2 {colors.chip.border} bg-fossil-50 text-fossil-900 focus:ring-2 focus:ring-accent outline-none transition-all resize-none shadow-inner"
+        placeholder="Write 3-5 questions about the scene..."
+        value={response}
+        oninput={(e) => {
+            response = e.currentTarget.value;
+            feedback = null;
+        }}
+      ></textarea>
+    {/snippet}
+  </Field>
   <div class="mt-4">
     {#if response.length > 5}
         <FeedbackSection

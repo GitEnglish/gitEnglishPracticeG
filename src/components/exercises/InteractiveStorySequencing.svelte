@@ -46,7 +46,7 @@
 
 <div class="text-base font-casual {colors.textOnLight}">
     <h4 class="font-playful text-xl mb-2">{exercise.title}</h4>
-    <ul class="space-y-2 border-4 border-dashed p-2 rounded-2xl transition-colors {status === 'correct' ? 'border-green-500 bg-green-50' : status === 'incorrect' ? 'border-red-500 bg-red-50' : 'border-transparent'}">
+    <ul class="space-y-2 border-4 border-dashed p-2 rounded-2xl transition-colors {status === 'correct' ? 'border-malachite-500 bg-malachite-50' : status === 'incorrect' ? 'border-cinnabar-500 bg-cinnabar-50' : 'border-transparent'}">
         {#each parts as part, i}
             <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
             <li
@@ -55,11 +55,11 @@
                 ondragenter={(e) => handleDragEnter(e, i)}
                 ondragend={handleDragEnd}
                 ondragover={(e) => e.preventDefault()}
-                class="p-3 rounded-xl cursor-grab active:cursor-grabbing bg-white border-2 {colors.chip.border} shadow-sm hover:shadow-md transition-all"
+                class="p-3 rounded-xl cursor-grab active:cursor-grabbing bg-fossil-50 border-2 {colors.chip.border} shadow-sm hover:shadow-md transition-all"
             >
-               <span class="font-bold mr-2 text-slate-500">{i+1}.</span> {part}
+               <span class="font-bold mr-2 text-fossil-500">{i+1}.</span> {part}
             </li>
         {/each}
     </ul>
-     <button onclick={checkAnswer} class="w-full mt-3 p-2.5 rounded-xl font-bold text-white shadow-sm hover:shadow-md transition-all active:scale-95 bg-slate-700">Check Order</button>
+     <button onclick={checkAnswer} class="w-full mt-3 p-2.5 rounded-xl font-bold text-fossil-50 shadow-sm hover:shadow-md transition-all active:scale-95 bg-fossil-700">Check Order</button>
 </div>

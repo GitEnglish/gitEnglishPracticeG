@@ -53,11 +53,11 @@
         <h4 class="font-playful text-xl mb-3">{exercise.title}</h4>
     {/if}
 
-    <div class="bg-white/50 p-4 rounded-xl border border-slate-200 mb-4 text-sm whitespace-pre-wrap text-slate-800 shadow-sm flex-shrink-0">
+    <div class="bg-fossil-50/50 p-4 rounded-xl border border-fossil-200 mb-4 text-sm whitespace-pre-wrap text-fossil-800 shadow-sm flex-shrink-0">
         {#if 'promptA' in exercise}
             <div class="grid grid-cols-2 gap-4">
-                <div class="bg-white p-3 rounded-lg border shadow-sm"><strong>A:</strong> {exercise.promptA}</div>
-                <div class="bg-white p-3 rounded-lg border shadow-sm"><strong>B:</strong> {exercise.promptB}</div>
+                <div class="bg-fossil-50 p-3 rounded-lg border shadow-sm"><strong>A:</strong> {exercise.promptA}</div>
+                <div class="bg-fossil-50 p-3 rounded-lg border shadow-sm"><strong>B:</strong> {exercise.promptB}</div>
             </div>
         {:else}
             {promptText}
@@ -67,7 +67,7 @@
     <p class="font-bold mb-2 opacity-80 uppercase text-xs tracking-wider">{instruction}</p>
 
     <textarea
-        class="w-full flex-grow min-h-[150px] p-4 rounded-xl border-2 {colors.chip.border} bg-white text-slate-900 focus:ring-2 focus:ring-slate-300 outline-none transition-all resize-none shadow-inner"
+        class="w-full flex-grow min-h-[150px] p-4 rounded-xl border-2 {colors.chip.border} bg-fossil-50 text-fossil-900 focus:ring-2 focus:ring-fossil-300 outline-none transition-all resize-none shadow-inner"
         placeholder="Type your response here..."
         value={response}
         oninput={(e) => {

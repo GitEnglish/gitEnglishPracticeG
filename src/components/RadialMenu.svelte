@@ -70,8 +70,8 @@
             isOpen = !isOpen;
             if (isOpen && onToggleSidebar) onToggleSidebar();
         }}
-        class="w-14 h-14 rounded-full shadow-xl flex items-center justify-center transition-all duration-300 z-[102] border-4 border-white/20 backdrop-blur-sm ring-1 ring-black/5
-               {isOpen ? 'bg-blue-800 text-white rotate-90 scale-110' : 'bg-blue-600 text-white hover:bg-blue-700 hover:scale-105 hover:shadow-blue-500/30'}"
+        class="w-14 h-14 rounded-full shadow-xl flex items-center justify-center transition-all duration-300 z-[102] border-4 border-fossil-50/20 backdrop-blur-sm ring-1 ring-black/5
+               {isOpen ? 'bg-accent text-accent-ink rotate-90 scale-110' : 'bg-chrome-raised text-fossil-200 hover:bg-accent hover:text-accent-ink hover:scale-105 hover:shadow-accent/30'}"
         aria-label="Open Menu"
     >
         {#if isOpen}
@@ -89,8 +89,8 @@
                 isOpen = false;
             }}
             style={getStyle(index, menuItems.length)}
-            class="absolute w-10 h-10 bg-white text-blue-800 rounded-full shadow-lg border border-slate-200
-                   flex items-center justify-center transition-all duration-300 hover:bg-blue-50 hover:text-blue-600 hover:scale-110"
+            class="absolute w-10 h-10 bg-fossil-50 text-ink rounded-full shadow-lg border border-fossil-200
+                   flex items-center justify-center transition-all duration-300 hover:bg-accent hover:text-accent-ink hover:scale-110"
             title={item.label}
         >
             {#if item.icon}
@@ -102,7 +102,7 @@
 
     <!-- Label tooltip -->
     {#if !isOpen && isHovered}
-         <div class="absolute top-16 text-[10px] font-bold uppercase tracking-widest text-slate-600 bg-white/90 px-2 py-1 rounded-md shadow-sm border border-slate-100 animate-in fade-in slide-in-from-top-1">
+         <div class="absolute top-16 text-[10px] font-bold uppercase tracking-widest text-fossil-600 bg-fossil-50/90 px-2 py-1 rounded-md shadow-sm border border-fossil-100 animate-in fade-in slide-in-from-top-1">
              Menu
          </div>
     {/if}

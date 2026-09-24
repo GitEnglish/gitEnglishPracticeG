@@ -25,7 +25,7 @@
         {/if}
     </button>
     {#if feedback}
-        <div class="p-4 rounded-xl text-sm font-medium {feedback.startsWith('Correct') || feedback.startsWith('Perfect') ? 'bg-green-100 text-green-900 border border-green-200' : 'bg-red-100 text-red-900 border border-red-200'}">
+        <div class="p-4 rounded-xl text-sm font-medium {feedback.startsWith('Correct') || feedback.startsWith('Perfect') ? 'bg-malachite-100 text-malachite-900 border border-malachite-200' : 'bg-cinnabar-100 text-cinnabar-900 border border-cinnabar-200'}">
             {feedback}
         </div>
     {/if}

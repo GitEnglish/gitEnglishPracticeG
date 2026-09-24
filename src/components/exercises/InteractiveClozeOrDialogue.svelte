@@ -48,7 +48,7 @@
             <select
                 value={answers[index] || ''}
                 onchange={(e) => handleChange(index, e.currentTarget.value)}
-                class="mx-1 px-2 py-1 rounded-lg border-2 {colors.chip.border} {colors.chip.bg} {colors.chip.text} text-sm font-bold align-middle focus:ring-2 focus:ring-slate-300 outline-none cursor-pointer appearance-none"
+                class="mx-1 px-2 py-1 rounded-lg border-2 {colors.chip.border} {colors.chip.bg} {colors.chip.text} text-sm font-bold align-middle focus:ring-2 focus:ring-fossil-300 outline-none cursor-pointer appearance-none"
             >
                 <option value="">...</option>
                 {#each exercise.wordBank as word}

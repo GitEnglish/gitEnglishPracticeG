@@ -3,20 +3,20 @@
   let { rating } = $props<{ rating: string }>();
 
   let colorClass = $derived(
-    rating === Difficulty.A1 ? 'text-emerald-500' :
-    rating === Difficulty.A2 ? 'text-emerald-500' :
-    rating === Difficulty.B1 ? 'text-yellow-500' :
-    rating === Difficulty.B2 ? 'text-yellow-500' :
-    rating === Difficulty.C1 ? 'text-red-500' :
-    rating === Difficulty.C2 ? 'text-red-600' :
-    rating === Difficulty.Suffering ? 'text-red-700' : 'text-slate-400'
+    rating === Difficulty.A1 ? 'text-malachite-500' :
+    rating === Difficulty.A2 ? 'text-malachite-500' :
+    rating === Difficulty.B1 ? 'text-citrine-500' :
+    rating === Difficulty.B2 ? 'text-citrine-500' :
+    rating === Difficulty.C1 ? 'text-cinnabar-500' :
+    rating === Difficulty.C2 ? 'text-cinnabar-600' :
+    rating === Difficulty.Suffering ? 'text-cinnabar-700' : 'text-fossil-400'
   );
 
   let labelClass = $derived(
-    rating === Difficulty.A1 || rating === Difficulty.A2 ? 'bg-emerald-100 text-emerald-700 border-emerald-200' :
-    rating === Difficulty.B1 || rating === Difficulty.B2 ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
-    rating === Difficulty.C1 || rating === Difficulty.C2 ? 'bg-red-100 text-red-700 border-red-200' :
-    rating === Difficulty.Suffering ? 'bg-red-200 text-red-800 border-red-300' : 'bg-slate-100 text-slate-700 border-slate-200'
+    rating === Difficulty.A1 || rating === Difficulty.A2 ? 'bg-malachite-100 text-malachite-700 border-malachite-200' :
+    rating === Difficulty.B1 || rating === Difficulty.B2 ? 'bg-citrine-100 text-citrine-700 border-citrine-200' :
+    rating === Difficulty.C1 || rating === Difficulty.C2 ? 'bg-cinnabar-100 text-cinnabar-700 border-cinnabar-200' :
+    rating === Difficulty.Suffering ? 'bg-cinnabar-200 text-cinnabar-800 border-cinnabar-300' : 'bg-fossil-100 text-fossil-700 border-fossil-200'
   );
 </script>
 

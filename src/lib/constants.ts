@@ -163,84 +163,39 @@ type ColorScheme = {
   textOnLight: string;
   border: string;
   shadow: string;
-  chip: { bg: string; text: string; border: string; };
+  chip: { bg: string; text: string; border: string };
   bgOnDark: string;
 };
 
-// PROFESSIONAL BUSINESS Palette - adapted for WCAG AA on #fffbf0 (warm paper) background
+/**
+ * One scheme for every pedagogy group.
+ *
+ * This used to carry eight different colourways keyed by teaching approach.
+ * Two problems: the class names it referenced (`primary-blue-400`,
+ * `accent-green-300`, ...) were never real Tailwind colours and silently
+ * rendered as nothing, and giving each group its own hue fought the single
+ * accent for attention. Groups are now told apart by their label and position
+ * in the sidebar, which is all the reader needs.
+ */
+const GROUP_SCHEME: ColorScheme = {
+  textOnDark: 'text-ink-invert-muted',
+  textOnLight: 'text-ink-muted',
+  border: 'border-hairline',
+  shadow: '',
+  chip: { bg: 'bg-chrome-raised', text: 'text-ink-invert-muted', border: 'border-hairline' },
+  bgOnDark: 'bg-chrome-raised',
+};
+
 export const PEDAGOGY_COLORS: Record<string, ColorScheme> = {
-  'PPP': {
-    textOnDark: 'text-primary-blue-300', // Confident blue on dark
-    textOnLight: 'text-primary-blue-800', // Darker blue on paper for contrast
-    border: 'border-primary-blue-400',
-    shadow: 'shadow-primary-blue-500/30',
-    chip: { bg: 'bg-primary-blue-50', text: 'text-primary-blue-900', border: 'border-primary-blue-300' },
-    bgOnDark: 'bg-primary-blue-900/40'
-  },
-  'Input': {
-    textOnDark: 'text-secondary-purple-300', // Creative purple on dark
-    textOnLight: 'text-secondary-purple-800', // Darker purple on paper for contrast
-    border: 'border-secondary-purple-400',
-    shadow: 'shadow-secondary-purple-500/30',
-    chip: { bg: 'bg-secondary-purple-50', text: 'text-secondary-purple-900', border: 'border-secondary-purple-300' },
-    bgOnDark: 'bg-secondary-purple-900/40'
-  },
-  'Lexis': {
-    textOnDark: 'text-accent-green-300', // Growth green on dark
-    textOnLight: 'text-accent-green-800', // Darker green on paper for contrast
-    border: 'border-accent-green-400',
-    shadow: 'shadow-accent-green-500/30',
-    chip: { bg: 'bg-accent-green-50', text: 'text-accent-green-900', border: 'border-accent-green-300' },
-    bgOnDark: 'bg-accent-green-900/40'
-  },
-  'Skills': {
-    textOnDark: 'text-neutral-gray-300', // Professional gray on dark
-    textOnLight: 'text-neutral-gray-800', // Darker gray on paper for contrast
-    border: 'border-neutral-gray-400',
-    shadow: 'shadow-neutral-gray-500/30',
-    chip: { bg: 'bg-neutral-gray-50', text: 'text-neutral-gray-900', border: 'border-neutral-gray-300' },
-    bgOnDark: 'bg-neutral-gray-900/40'
-  },
-  'TBLT': {
-    textOnDark: 'text-warm-orange-300', // Warm orange on dark (from Creative palette as Accent)
-    textOnLight: 'text-warm-orange-800', // Darker orange on paper
-    border: 'border-warm-orange-400',
-    shadow: 'shadow-warm-orange-500/30',
-    chip: { bg: 'bg-warm-orange-50', text: 'text-warm-orange-900', border: 'border-warm-orange-300' },
-    bgOnDark: 'bg-warm-orange-900/40'
-  },
-  'Social English': {
-    textOnDark: 'text-calm-teal-300', // Calm teal on dark (from Trust palette as Primary)
-    textOnLight: 'text-calm-teal-800', // Darker teal on paper
-    border: 'border-calm-teal-400',
-    shadow: 'shadow-calm-teal-500/30',
-    chip: { bg: 'bg-calm-teal-50', text: 'text-calm-teal-900', border: 'border-calm-teal-300' },
-    bgOnDark: 'bg-calm-teal-900/40'
-  },
-  'C-R': {
-    textOnDark: 'text-fresh-lime-300', // Fresh lime on dark (from Creative palette as Accent)
-    textOnLight: 'text-fresh-lime-800', // Darker lime on paper
-    border: 'border-fresh-lime-400',
-    shadow: 'shadow-fresh-lime-500/30',
-    chip: { bg: 'bg-fresh-lime-50', text: 'text-fresh-lime-900', border: 'border-fresh-lime-300' },
-    bgOnDark: 'bg-fresh-lime-900/40'
-  },
-  'Production': {
-    textOnDark: 'text-innovation-pink-300', // Innovation pink on dark (from Tech palette)
-    textOnLight: 'text-innovation-pink-800', // Darker pink on paper
-    border: 'border-innovation-pink-400',
-    shadow: 'shadow-innovation-pink-500/30',
-    chip: { bg: 'bg-innovation-pink-50', text: 'text-innovation-pink-900', border: 'border-innovation-pink-300' },
-    bgOnDark: 'bg-innovation-pink-900/40'
-  },
-  'Default': { // Fallback, uses slate for professionalism
-    textOnDark: 'text-slate-300',
-    textOnLight: 'text-slate-900',
-    border: 'border-slate-400',
-    shadow: 'shadow-slate-500/30',
-    chip: { bg: 'bg-slate-50', text: 'text-slate-900', border: 'border-slate-300' },
-    bgOnDark: 'bg-slate-900/40'
-  }
+  'PPP': GROUP_SCHEME,
+  'Input': GROUP_SCHEME,
+  'Lexis': GROUP_SCHEME,
+  'Skills': GROUP_SCHEME,
+  'TBLT': GROUP_SCHEME,
+  'Social English': GROUP_SCHEME,
+  'C-R': GROUP_SCHEME,
+  'Production': GROUP_SCHEME,
+  'Default': GROUP_SCHEME,
 };
 
 export const TEMPLATE_HEIGHTS: Partial<Record<ExerciseType, number>> = {

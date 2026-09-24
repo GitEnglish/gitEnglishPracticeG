@@ -14,6 +14,8 @@
   // Icon Imports
   import { Trash2, Settings, Play, X, ChevronLeft, ChevronRight, Wand2 } from 'lucide-svelte';
   import { motion } from '@humanspeak/svelte-motion';
+  import Button from '../lib/components/Button.svelte';
+  import Field from '../lib/components/Field.svelte';
 
   // Exercise Components (Dynamically Rendered)
   import InteractiveFITB from './exercises/InteractiveFITB.svelte';
@@ -255,29 +257,33 @@
         }
     }}
     onmousedown={() => onFocus(id)}
-    class="bg-white rounded-[22px] shadow-card-academic border academic-card-border overflow-hidden transition-all duration-300 hover:shadow-2xl flex flex-col will-change-transform {isPresenting ? 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] scale-150 !rounded-none !border-0 w-screen h-screen' : 'absolute cursor-grab active:cursor-grabbing'}"
+    class="bg-fossil-50 rounded-[22px] shadow-card border panel-outline-light overflow-hidden transition-all duration-300 hover:shadow-2xl flex flex-col will-change-transform {isPresenting ? 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] scale-150 !rounded-none !border-0 w-screen h-screen' : 'absolute cursor-grab active:cursor-grabbing'}"
     style="left: {x}px; top: {y}px; width: {isPresenting ? '900px' : width + 'px'}; height: {isPresenting ? 'auto' : height + 'px'}; min-height: {isPresenting ? 'auto' : '150px'}; z-index: {isPresenting ? 9999 : zIndex};"
 >
     <!-- Top Gradient Bar -->
-    <div class="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-[#E59500] to-transparent"></div>
+    <div class="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-accent to-transparent"></div>
 
     <!-- Resize Handles -->
     {#if !isPresenting}
-        <div class="absolute top-0 left-0 w-full h-2 cursor-ns-resize z-50 hover:bg-blue-500/20" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'n')} role="separator" aria-orientation="horizontal" tabindex="-1"></div>
-        <div class="absolute bottom-0 left-0 w-full h-2 cursor-ns-resize z-50 hover:bg-blue-500/20" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 's')} role="separator" aria-orientation="horizontal" tabindex="-1"></div>
-        <div class="absolute top-0 left-0 w-2 h-full cursor-ew-resize z-50 hover:bg-blue-500/20" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'w')} role="separator" aria-orientation="vertical" tabindex="-1"></div>
-        <div class="absolute top-0 right-0 w-2 h-full cursor-ew-resize z-50 hover:bg-blue-500/20" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'e')} role="separator" aria-orientation="vertical" tabindex="-1"></div>
+        <div class="absolute top-0 left-0 w-full h-2 cursor-ns-resize z-50 hover:bg-accent/20" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'n')} role="separator" aria-orientation="horizontal" tabindex="-1"></div>
+        <div class="absolute bottom-0 left-0 w-full h-2 cursor-ns-resize z-50 hover:bg-accent/20" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 's')} role="separator" aria-orientation="horizontal" tabindex="-1"></div>
+        <div class="absolute top-0 left-0 w-2 h-full cursor-ew-resize z-50 hover:bg-accent/20" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'w')} role="separator" aria-orientation="vertical" tabindex="-1"></div>
+        <div class="absolute top-0 right-0 w-2 h-full cursor-ew-resize z-50 hover:bg-accent/20" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'e')} role="separator" aria-orientation="vertical" tabindex="-1"></div>
 
-        <div class="absolute top-0 left-0 w-4 h-4 cursor-nwse-resize z-50 hover:bg-blue-500/20" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'nw')} role="separator" tabindex="-1"></div>
-        <div class="absolute top-0 right-0 w-4 h-4 cursor-nesw-resize z-50 hover:bg-blue-500/20" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'ne')} role="separator" tabindex="-1"></div>
-        <div class="absolute bottom-0 left-0 w-4 h-4 cursor-nesw-resize z-50 hover:bg-blue-500/20" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'sw')} role="separator" tabindex="-1"></div>
-        <div class="absolute bottom-0 right-0 w-4 h-4 cursor-nwse-resize z-50 hover:bg-blue-500/20" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'se')} role="separator" tabindex="-1"></div>
+        <div class="absolute top-0 left-0 w-4 h-4 cursor-nwse-resize z-50 hover:bg-accent/20" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'nw')} role="separator" tabindex="-1"></div>
+        <div class="absolute top-0 right-0 w-4 h-4 cursor-nesw-resize z-50 hover:bg-accent/20" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'ne')} role="separator" tabindex="-1"></div>
+        <div class="absolute bottom-0 left-0 w-4 h-4 cursor-nesw-resize z-50 hover:bg-accent/20" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'sw')} role="separator" tabindex="-1"></div>
+        <div class="absolute bottom-0 right-0 w-4 h-4 cursor-nwse-resize z-50 hover:bg-accent/20" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'se')} role="separator" tabindex="-1"></div>
     {/if}
 
     <!-- Header -->
-    <div class="px-7 py-5 flex items-center justify-between border-b border-slate-200 bg-[#F7FAFC]/60" style="touch-action: none;" onpointerdown={stopPointer}>
+    <!-- svelte-ignore a11y_no_static_element_interactions
+         stopPointer only stops svelte-motion from capturing the pointer so the
+         buttons inside stay clickable. It adds no behaviour of its own, so a
+         role here would misrepresent the element to assistive tech. -->
+    <div class="px-7 py-5 flex items-center justify-between border-b border-fossil-200 bg-surface-sunken/60" style="touch-action: none;" onpointerdown={stopPointer}>
         <div class="flex items-center min-w-[140px] pointer-events-none">
-            <h2 class="text-base font-bold tracking-tight text-[#0D1322] flex items-center gap-2">
+            <h2 class="text-base font-bold tracking-tight text-ink flex items-center gap-2">
                 {exerciseType}
                 {#if isLoading}
                     <span class="animate-spin text-xs">...</span>
@@ -287,46 +293,56 @@
 
         <div class="flex-1 flex justify-center">
             {#if !isGenerated && !isLoading}
-                <button onclick={handleGenerate} class="inline-flex items-center justify-center space-x-1.5 px-4 py-1.5 rounded-lg bg-gradient-to-r from-[#E59500] to-[#D97706] hover:from-[#F59E0B] hover:to-[#E59500] text-[#0D1322] font-bold text-xs tracking-tight shadow-jewel-gold hover:shadow-glow-gold transition-all active:scale-[0.98]" title="Generate">
-                    <svg class="w-3.5 h-3.5 text-[#0D1322]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"></path></svg>
+                <Button variant="primary" size="md" onclick={handleGenerate} title="Generate" class="px-4">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"></path></svg>
                     <span>Generate ({generateAmount})</span>
-                </button>
+                </Button>
             {/if}
         </div>
 
         <div class="flex items-center space-x-3 min-w-[140px] justify-end relative z-50">
-            <button onclick={() => isSettingsOpen = !isSettingsOpen} class="p-1.5 text-slate-400 hover:text-[#0D1322] hover:bg-slate-100 rounded-lg transition-colors" title="Settings">
+            <Button variant="ghost" size="icon" onclick={() => isSettingsOpen = !isSettingsOpen} title="Settings" class="text-fossil-400 hover:text-ink hover:bg-fossil-100">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"></path><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"></path></svg>
-            </button>
-            <button onclick={() => onRemove(id)} class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors" title="Remove">
+            </Button>
+            <Button variant="danger" size="icon" onclick={() => onRemove(id)} title="Remove" class="text-fossil-400">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"></path></svg>
-            </button>
+            </Button>
         </div>
     </div>
 
-    <!-- Body -->
-    <div class="flex-grow flex flex-col bg-white overflow-hidden relative w-full h-full" onpointerdown={stopPointer}>
+    <!-- Body — see the note on the header: stopPointer is a drag-capture workaround, not behaviour. -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div class="flex-grow flex flex-col bg-fossil-50 overflow-hidden relative w-full h-full" onpointerdown={stopPointer}>
         {#if isSettingsOpen}
-            <div class="absolute inset-0 bg-white/95 backdrop-blur-sm z-10 p-5 overflow-y-auto font-casual">
+            <div class="absolute inset-0 bg-fossil-50/95 backdrop-blur-sm z-10 p-5 overflow-y-auto font-casual">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
-                        <Settings class="w-5 h-5 text-slate-500" />
+                    <h3 class="font-bold text-fossil-800 text-lg flex items-center gap-2">
+                        <Settings class="w-5 h-5 text-fossil-500" />
                         Configuration
                     </h3>
-                    <button onclick={() => isSettingsOpen = false} class="p-1 rounded hover:bg-slate-100 text-slate-500"><X class="w-5 h-5" /></button>
+                    <Button variant="ghost" size="icon" onclick={() => isSettingsOpen = false} class="text-fossil-500">
+                        <X class="w-5 h-5" />
+                    </Button>
                 </div>
                 <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Theme</label>
-                        <input type="text" value={theme} oninput={(e) => handleUpdateSetting({theme: e.currentTarget.value})} class="w-full p-2 border border-slate-300 rounded focus:ring focus:ring-blue-200 outline-none" />
-                    </div>
+                    <Field label="Theme">
+                        {#snippet children(fid)}
+                            <input
+                                id={fid}
+                                type="text"
+                                value={theme}
+                                oninput={(e) => handleUpdateSetting({theme: e.currentTarget.value})}
+                                class="w-full p-2 border border-fossil-300 rounded focus:ring focus:ring-accent outline-none"
+                            />
+                        {/snippet}
+                    </Field>
                 </div>
             </div>
         {/if}
 
         {#if !isGenerated && !isLoading}
 
-<div class="h-full flex flex-col p-7 bg-white overflow-y-auto custom-scrollbar-light space-y-4">
+<div class="h-full flex flex-col p-7 bg-fossil-50 overflow-y-auto custom-scrollbar-light space-y-4">
     <div class="w-full flex-grow space-y-4 max-w-2xl mx-auto flex flex-col justify-start">
         {#each Array(generateAmount) as _, i}
             <ExerciseTemplate type={exerciseType} index={i} />
@@ -336,30 +352,30 @@
         {:else if isLoading}
             <div class="h-full flex items-center justify-center">
                 <div class="flex flex-col items-center gap-3">
-                    <div class="w-8 h-8 border-4 border-slate-200 border-t-blue-500 rounded-full animate-spin"></div>
-                    <span class="text-sm font-bold text-slate-500 animate-pulse">Designing lesson...</span>
+                    <div class="w-8 h-8 border-4 border-fossil-200 border-t-blue-500 rounded-full animate-spin"></div>
+                    <span class="text-sm font-bold text-fossil-500 animate-pulse">Designing lesson...</span>
                 </div>
             </div>
         {:else}
             <div class="content-wrapper h-full flex flex-col">
                 {#if content.length > 1}
-                    <div class="flex items-center justify-between mb-2 text-xs font-bold text-slate-500 flex-shrink-0">
-                        <button class="p-1 rounded hover:bg-slate-100 disabled:opacity-30" onclick={() => currentSlide = Math.max(0, currentSlide - 1)} disabled={currentSlide === 0} aria-label="Previous item">
+                    <div class="flex items-center justify-between mb-2 text-xs font-bold text-fossil-500 flex-shrink-0">
+                        <button class="p-1 rounded hover:bg-fossil-100 disabled:opacity-30" onclick={() => currentSlide = Math.max(0, currentSlide - 1)} disabled={currentSlide === 0} aria-label="Previous item">
                             <ChevronLeft class="w-4 h-4" />
                         </button>
                         <span>{currentSlide + 1} / {content.length}</span>
-                        <button class="p-1 rounded hover:bg-slate-100 disabled:opacity-30" onclick={() => currentSlide = Math.min(content.length - 1, currentSlide + 1)} disabled={currentSlide >= content.length - 1} aria-label="Next item">
+                        <button class="p-1 rounded hover:bg-fossil-100 disabled:opacity-30" onclick={() => currentSlide = Math.min(content.length - 1, currentSlide + 1)} disabled={currentSlide >= content.length - 1} aria-label="Next item">
                             <ChevronRight class="w-4 h-4" />
                         </button>
                     </div>
                 {/if}
                 <div class="flex-grow overflow-y-auto p-5 custom-scrollbar-light h-full w-full">
                     {#if activeItem?.error}
-                        <div class="p-4 bg-red-50 text-red-600 rounded-xl border border-red-200 text-sm">{activeItem.error}</div>
+                        <div class="p-4 bg-cinnabar-50 text-cinnabar-600 rounded-xl border border-cinnabar-200 text-sm">{activeItem.error}</div>
                     {:else if ActiveExercise}
                         <ActiveExercise exercise={mapItemForRenderer(activeItem)} {colors} />
                     {:else if activeItem}
-                        <pre class="text-xs whitespace-pre-wrap text-slate-600 bg-slate-50 p-3 rounded">{JSON.stringify(activeItem, null, 2)}</pre>
+                        <pre class="text-xs whitespace-pre-wrap text-fossil-600 bg-fossil-50 p-3 rounded">{JSON.stringify(activeItem, null, 2)}</pre>
                     {/if}
                 </div>
             </div>

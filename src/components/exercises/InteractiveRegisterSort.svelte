@@ -43,8 +43,8 @@
     <h4 class="font-playful text-xl mb-2">{exercise.title}</h4>
 
     {#if unclassified.length > 0}
-         <div class="p-3 border-2 border-dashed border-slate-300 rounded-2xl mb-4 bg-slate-50">
-            <h5 class="font-bold text-xs uppercase text-slate-400 mb-2">Bank</h5>
+         <div class="p-3 border-2 border-dashed border-fossil-300 rounded-2xl mb-4 bg-fossil-50">
+            <h5 class="font-bold text-xs uppercase text-fossil-400 mb-2">Bank</h5>
             <div class="flex flex-wrap gap-2">
                 {#each unclassified as phrase}
                     <Chip
@@ -64,12 +64,12 @@
             <div
                 ondrop={(e) => handleDrop(e, category)}
                 ondragover={(e) => e.preventDefault()}
-                class="min-h-[120px] p-4 rounded-xl border-2 transition-all border-slate-200 bg-white"
+                class="min-h-[120px] p-4 rounded-xl border-2 transition-all border-fossil-200 bg-fossil-50"
             >
-                <h5 class="font-bold border-b border-slate-100 pb-2 mb-3 text-center">{category}</h5>
+                <h5 class="font-bold border-b border-fossil-100 pb-2 mb-3 text-center">{category}</h5>
                 <div class="flex flex-col gap-2">
                     {#each classified[category] || [] as phrase}
-                        <div class="p-2 bg-slate-100 rounded-lg text-sm shadow-sm text-center font-medium border border-slate-200">
+                        <div class="p-2 bg-fossil-100 rounded-lg text-sm shadow-sm text-center font-medium border border-fossil-200">
                             {phrase}
                         </div>
                     {/each}

@@ -34,16 +34,16 @@
   };
 </script>
 
-<div class="mb-4 bg-slate-900/50 rounded-xl ring-1 ring-slate-700 overflow-hidden font-casual">
-  <button onclick={() => isOpen = !isOpen} class="w-full flex justify-between items-center p-4 text-left bg-slate-800/50 hover:bg-slate-800 transition-colors focus:outline-none">
+<div class="mb-4 bg-fossil-900/50 rounded-xl ring-1 ring-fossil-700 overflow-hidden font-casual">
+  <button onclick={() => isOpen = !isOpen} class="w-full flex justify-between items-center p-4 text-left bg-fossil-800/50 hover:bg-fossil-800 transition-colors focus:outline-none">
       <div class="flex items-center">
-          <div class="w-5 h-5 mr-2 text-yellow-400 font-bold flex items-center justify-center">Aa</div>
-          <span class="font-bold text-yellow-100 text-sm tracking-wide">Vocabulary Focus</span>
+          <div class="w-5 h-5 mr-2 text-citrine-400 font-bold flex items-center justify-center">Aa</div>
+          <span class="font-bold text-citrine-100 text-sm tracking-wide">Vocabulary Focus</span>
       </div>
-      <ChevronDown class={`w-4 h-4 text-yellow-500/70 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+      <ChevronDown class={`w-4 h-4 text-citrine-500/70 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
   </button>
   {#if isOpen}
-      <div class="p-3 border-t border-slate-700 space-y-4 bg-slate-900/30">
+      <div class="p-3 border-t border-fossil-700 space-y-4 bg-fossil-900/30">
           <div>
               <div class="flex gap-2">
                   <input
@@ -51,19 +51,19 @@
                       bind:value={inputValue}
                       onkeydown={(e) => e.key === 'Enter' && handleAddVocab()}
                       placeholder="Add target word..."
-                      class="w-full bg-slate-950 text-yellow-50 border border-slate-700 rounded-md shadow-sm px-3 py-1.5 text-xs focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none placeholder-slate-600 font-serif"
+                      class="w-full bg-fossil-950 text-citrine-50 border border-fossil-700 rounded-md shadow-sm px-3 py-1.5 text-xs focus:ring-1 focus:ring-citrine-500 focus:border-citrine-500 focus:outline-none placeholder-fossil-600 font-serif"
                       aria-label="Add target vocabulary word"
                   />
-                  <button onclick={handleAddVocab} class="bg-yellow-500 text-slate-900 font-bold p-1.5 rounded-md hover:bg-yellow-400 transition-colors shadow" aria-label="Add word">
+                  <button onclick={handleAddVocab} class="bg-citrine-500 text-fossil-900 font-bold p-1.5 rounded-md hover:bg-citrine-400 transition-colors shadow" aria-label="Add word">
                       <Plus class="w-4 h-4" />
                   </button>
               </div>
               {#if focusVocabulary.length > 0}
                   <div class="mt-3 flex flex-wrap gap-2">
                       {#each focusVocabulary as v}
-                          <span class="flex items-center bg-yellow-500/20 text-yellow-200 text-xs font-semibold px-2.5 py-1 rounded-full border border-yellow-500/40 shadow-sm">
+                          <span class="flex items-center bg-citrine-500/20 text-citrine-200 text-xs font-semibold px-2.5 py-1 rounded-full border border-citrine-500/40 shadow-sm">
                               {v}
-                              <button onclick={() => handleRemoveVocab(v)} class="ml-1.5 text-yellow-400 hover:text-white" aria-label={`Remove ${v}`}>
+                              <button onclick={() => handleRemoveVocab(v)} class="ml-1.5 text-citrine-400 hover:text-fossil-50" aria-label={`Remove ${v}`}>
                                   <XCircle class="w-3.5 h-3.5"/>
                               </button>
                           </span>
@@ -72,9 +72,9 @@
               {/if}
           </div>
           <div>
-              <div class="flex justify-between text-xs font-bold text-yellow-500/70 mb-1.5">
+              <div class="flex justify-between text-xs font-bold text-citrine-500/70 mb-1.5">
                   <span>Inclusion Rate</span>
-                  <span class="text-yellow-400">{inclusionRate}%</span>
+                  <span class="text-citrine-400">{inclusionRate}%</span>
               </div>
               <input
                   type="range"
@@ -83,7 +83,7 @@
                   step="10"
                   value={inclusionRate}
                   oninput={handleInclusionRateChange}
-                  class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer range-thumb-yellow shadow-inner"
+                  class="w-full h-1.5 bg-fossil-700 rounded-lg appearance-none cursor-pointer range-thumb-yellow shadow-inner"
                   aria-label="Vocabulary inclusion rate slider"
               />
           </div>

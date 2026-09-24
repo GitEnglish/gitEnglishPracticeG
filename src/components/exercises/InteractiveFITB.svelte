@@ -33,7 +33,7 @@
       <span
           ondrop={handleDrop}
           ondragover={(e) => e.preventDefault()}
-          class="inline-flex items-center justify-center min-w-[100px] h-8 mx-1 px-2 border-b-2 border-dashed rounded-lg text-center align-baseline transition-all font-semibold {status === 'correct' ? 'bg-green-100 border-green-500 text-green-900 ring-2 ring-green-200' : status === 'incorrect' ? 'bg-red-100 border-red-500 text-red-900 ring-2 ring-red-200' : `${colors.chip.bg} ${colors.chip.border}`}"
+          class="inline-flex items-center justify-center min-w-[100px] h-8 mx-1 px-2 border-b-2 border-dashed rounded-lg text-center align-baseline transition-all font-semibold {status === 'correct' ? 'bg-malachite-100 border-malachite-500 text-malachite-900 ring-2 ring-malachite-200' : status === 'incorrect' ? 'bg-cinnabar-100 border-cinnabar-500 text-cinnabar-900 ring-2 ring-cinnabar-200' : `${colors.chip.bg} ${colors.chip.border}`}"
       >
           {#if droppedWord}
               {droppedWord}

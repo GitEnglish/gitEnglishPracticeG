@@ -44,10 +44,10 @@
                 {@const match = matches[promptIndex]}
                 {@const isSelected = selectedPrompt === promptIndex}
                 {@const buttonClass = match
-                    ? (match.isCorrect ? 'bg-green-100 text-green-900 border-green-500' : 'bg-red-100 text-red-900 border-red-500')
+                    ? (match.isCorrect ? 'bg-malachite-100 text-malachite-900 border-malachite-500' : 'bg-cinnabar-100 text-cinnabar-900 border-cinnabar-500')
                     : isSelected
-                        ? `bg-slate-700 text-white border-transparent scale-105 shadow-md`
-                        : `bg-white border-2 ${colors.chip.border} ${colors.chip.text}`}
+                        ? `bg-fossil-700 text-fossil-50 border-transparent scale-105 shadow-md`
+                        : `bg-fossil-50 border-2 ${colors.chip.border} ${colors.chip.text}`}
 
                 <button
                     onclick={() => handleSelectPrompt(promptIndex)}
@@ -64,7 +64,7 @@
                 <button
                     onclick={() => handleSelectAnswer(answerIndex)}
                     disabled={isMatched || selectedPrompt === null}
-                    class="w-full p-3 rounded-xl text-sm font-medium border-2 transition-all {isMatched ? 'opacity-30 bg-slate-100 border-slate-200 cursor-not-allowed text-slate-400' : selectedPrompt !== null ? 'hover:scale-105 hover:shadow-md hover:border-slate-400 cursor-pointer bg-white border-dashed border-slate-300 text-slate-800' : 'bg-white border-slate-200 text-slate-500 cursor-not-allowed'}"
+                    class="w-full p-3 rounded-xl text-sm font-medium border-2 transition-all {isMatched ? 'opacity-30 bg-fossil-100 border-fossil-200 cursor-not-allowed text-fossil-400' : selectedPrompt !== null ? 'hover:scale-105 hover:shadow-md hover:border-fossil-400 cursor-pointer bg-fossil-50 border-dashed border-fossil-300 text-fossil-800' : 'bg-fossil-50 border-fossil-200 text-fossil-500 cursor-not-allowed'}"
                 >
                     {answer}
                 </button>
