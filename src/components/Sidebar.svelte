@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { BookOpen, ChevronDown, Puzzle, Settings as SettingsIcon, PenTool as PenToolIcon } from 'lucide-svelte';
+  import { BookOpen, ChevronDown, Puzzle, Settings as SettingsIcon, PenTool as PenToolIcon, Info as InfoIcon } from 'lucide-svelte';
   import { motion } from '@humanspeak/svelte-motion';
   import DifficultyMeter from '../lib/components/DifficultyMeter.svelte';
   import { EXERCISE_CATEGORIES, EXERCISE_PEDAGOGY, PEDAGOGY_COLORS } from '../lib/constants';
@@ -326,10 +326,11 @@
                                       {@render difficultyIndicator(info.difficultyRating)}
                                       <button
                                           onclick={(e) => toggleInfo(e, type)}
-                                          class="text-sm font-sans font-medium tracking-wide text-fossil-400 border border-fossil-50/10 rounded px-1.5 py-0.5 hover:text-fossil-50 hover:border-fossil-50/30 transition-colors z-20"
+                                          class="p-1 rounded text-fossil-400 hover:text-fossil-50 transition-colors z-20"
                                           title="About this exercise"
+                                          aria-label="About {displayName}"
                                       >
-                                          {pedagogy}
+                                          <InfoIcon class="w-3.5 h-3.5" />
                                       </button>
                                   </div>
                               </motion.div>
