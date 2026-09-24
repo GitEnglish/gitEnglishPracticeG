@@ -354,6 +354,7 @@
     aria-roledescription="exercise block"
     drag={!isPresenting && !isResizing}
     dragMomentum={false}
+    dragSnapToOrigin={true}
     dragElastic={0}
     onDragStart={() => {
         if (!isPresenting && !isResizing) {
