@@ -42,6 +42,7 @@
   let lastMousePos = $state({ x: 0, y: 0 });
 
   let draggedSidebarType = $state<string | null>(null);
+  let snapLines: { axis: 'x' | 'y'; position: number; start: number; end: number }[] = $state([]);
   let ghostPos = $state({ x: 0, y: 0 });
 
   $effect(() => {
@@ -243,9 +244,21 @@
         {onNextSlide}
         {onPrevSlide}
         {scale}
+        allBlocks={blocks}
+        onSnapLines={(l) => (snapLines = l)}
       />
     {/each}
 
+    {#each snapLines as line, i (i)}
+        <div
+            class="absolute pointer-events-none bg-cinnabar-500/70 z-[60]"
+            style={
+                line.axis === 'x'
+                    ? `left:${line.position}px;top:${line.start}px;width:${1/scale}px;height:${line.end - line.start}px;`
+                    : `top:${line.position}px;left:${line.start}px;height:${1/scale}px;width:${line.end - line.start}px;`
+            }
+        />
+    {/each}
     {#if draggedSidebarType}
         {@const dims = EXERCISE_SIZE_OVERRIDES[draggedSidebarType as ExerciseType] || DEFAULT_BLOCK_DIMENSIONS}
         <div

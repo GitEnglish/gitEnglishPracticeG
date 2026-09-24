@@ -36,6 +36,8 @@
 
   let {
     blockState,
+    allBlocks = [],
+    onSnapLines = (_lines: { axis: 'x' | 'y'; position: number; start: number; end: number }[]) => {},
     onUpdate,
     onRemove,
     onFocus,
@@ -58,6 +60,8 @@
     onNextSlide: () => void;
     onPrevSlide: () => void;
     scale?: number;
+    allBlocks?: { x: number; y: number; width: number; height: number; id: number }[];
+    onSnapLines?: (lines: { axis: 'x' | 'y'; position: number; start: number; end: number }[]) => void;
   }>();
 
   let { id, x, y, width, height, zIndex, exerciseType, difficulty, tone, theme, focusVocabulary, inclusionRate, focusGrammar, grammarInclusionRate, isGenerated, quantity } = $derived(blockState);
@@ -67,6 +71,53 @@
   let isSettingsOpen = $state(false);
   let currentSlide = $state(0);
   let generateAmount = $derived(quantity ?? calculateExerciseAmount(exerciseType, height));
+
+  // Snap-to-align — ported from legacy Whiteboard. While the block is being
+  // dragged, the nearest block edge within 10px (in world coordinates) pulls
+  // the move to align, and the matched axis is rendered as a red guide line.
+  const SNAP_THRESHOLD = 10;
+  function computeSnap(deltaX: number, deltaY: number) {
+    const wDelta = deltaX / scale;
+    const hDelta = deltaY / scale;
+    const nx = x + wDelta, ny = y + hDelta;
+    let snappedX = nx, snappedY = ny;
+    const lines: { axis: 'x' | 'y'; position: number; start: number; end: number }[] = [];
+    const myV = [nx, nx + width / 2, nx + width];
+    const myH = [ny, ny + height / 2, ny + height];
+    let bestV: { d: number; vp: number; i: number } | null = null;
+    for (const b of allBlocks) {
+      if (b.id === id) continue;
+      for (const vp of [b.x, b.x + b.width / 2, b.x + b.width]) {
+        for (let i = 0; i < myV.length; i++) {
+          const d = Math.abs(myV[i] - vp);
+          if (d < SNAP_THRESHOLD && (!bestV || d < bestV.d)) {
+            bestV = { d, vp, i };
+          }
+        }
+      }
+    }
+    if (bestV) {
+      snappedX = bestV!.vp - (bestV!.i * (width / 2));
+      lines.push({ axis: 'x', position: bestV!.vp, start: ny - 100, end: ny + height + 100 });
+    }
+    let bestH: { d: number; hp: number; i: number } | null = null;
+    for (const b of allBlocks) {
+      if (b.id === id) continue;
+      for (const hp of [b.y, b.y + b.height / 2, b.y + b.height]) {
+        for (let i = 0; i < myH.length; i++) {
+          const d = Math.abs(myH[i] - hp);
+          if (d < SNAP_THRESHOLD && (!bestH || d < bestH.d)) {
+            bestH = { d, hp, i };
+          }
+        }
+      }
+    }
+    if (bestH) {
+      snappedY = bestH!.hp - (bestH!.i * (height / 2));
+      lines.push({ axis: 'y', position: bestH!.hp, start: snappedX - 100, end: snappedX + width + 100 });
+    }
+    return { snappedX, snappedY, lines };
+  }
 
   const estimatedDuration = $derived(calculateExerciseDuration(exerciseType, height, quantity));
 
@@ -78,6 +129,18 @@
   const handleRegenerate = () => { if (!isLoading) handleGenerate(); };
   const handleEnterLive = (e: Event) => { stop(e); if (isGenerated) onEnterPresentation(); };
   const handleExitLive = (e: Event) => { stop(e); onExitPresentation(); };
+
+  // Arrow-key slide nav in presentation mode — ported from legacy
+  $effect(() => {
+      if (!isPresenting) return;
+      const onKey = (e: KeyboardEvent) => {
+          if (e.key === 'ArrowRight') onNextSlide();
+          else if (e.key === 'ArrowLeft') onPrevSlide();
+          else if (e.key === 'Escape') onExitPresentation();
+      };
+      window.addEventListener('keydown', onKey);
+      return () => window.removeEventListener('keydown', onKey);
+  });
 
   // If the block is marked as generated (e.g. from local storage reload) but content is empty,
   // revert it to un-generated so the user can see the generate button and prevent crashes.
@@ -284,15 +347,23 @@
     onDragStart={() => {
         if (!isPresenting && !isResizing) {
             onFocus(id);
+            onSnapLines([]);
         }
     }}
+    onDrag={(e: PointerEvent, info: any) => {
+        if (isPresenting || isResizing) return;
+        const { snappedX, snappedY, lines } = computeSnap(info.offset.x, info.offset.y);
+        onSnapLines(lines);
+        // soft-correct the visual transform during the drag
+        const dx = (snappedX - x) * scale - info.offset.x;
+        const dy = (snappedY - y) * scale - info.offset.y;
+        if (dx || dy) info.offset.x += dx, info.offset.y += dy;
+    }}
     onDragEnd={(e: PointerEvent, info: any) => {
-        if (!isPresenting && !isResizing) {
-            // Apply the drag offset, scaled to the whiteboard's zoom level
-            const newX = x + (info.offset.x / scale);
-            const newY = y + (info.offset.y / scale);
-            onUpdate(id, { x: Math.round(newX), y: Math.round(newY) });
-        }
+        if (isPresenting || isResizing) return;
+        const { snappedX, snappedY } = computeSnap(info.offset.x, info.offset.y);
+        onSnapLines([]);
+        onUpdate(id, { x: Math.round(snappedX), y: Math.round(snappedY) });
     }}
     onmousedown={() => onFocus(id)}
     class="bg-fossil-50 rounded-[22px] shadow-card border panel-outline-light overflow-hidden transition-shadow duration-200 hover:shadow-2xl flex flex-col will-change-transform {isResizing ? 'select-none' : ''} {isPresenting ? 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] scale-150 !rounded-none !border-0 w-screen h-screen' : 'absolute cursor-grab active:cursor-grabbing'}"
