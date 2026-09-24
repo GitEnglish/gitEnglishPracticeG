@@ -232,6 +232,12 @@
   };
 
   let pedagogy = $derived((EXERCISE_PEDAGOGY as Record<string, string>)[exerciseType] || 'Default');
+  // The type names carry their pedagogy in parens ("Dicto-Gloss (C-R)") and the
+  // header prints the pedagogy chip right behind the title, so strip a trailing
+  // "(<pedagogy>)" from the displayed title. Anything else in parens stays.
+  let displayTitle = $derived(
+    exerciseType.endsWith(`(${pedagogy})`) ? exerciseType.split('(')[0].trim() : exerciseType
+  );
   let colors: any = $derived((PEDAGOGY_COLORS as Record<string, any>)[pedagogy] || (PEDAGOGY_COLORS as Record<string, any>)['Default']);
   let isSingleInstance = $derived(SINGLE_INSTANCE_TYPES.includes(exerciseType));
 
@@ -400,8 +406,8 @@
                 </Button>
             {/if}
             <div class="flex items-center gap-3 min-w-0">
-                <h3 class="font-semibold text-lg tracking-tight truncate select-none {isPresenting ? 'text-2xl' : ''}">{exerciseType}</h3>
-                <span class="text-sm px-2 py-1 uppercase tracking-widest font-semibold bg-black/40 text-fossil-400 rounded-full border border-hairline select-none whitespace-nowrap hidden sm:inline">{pedagogy}</span>
+                <h3 class="font-semibold text-lg tracking-tight truncate select-none {isPresenting ? 'text-2xl' : ''}">{displayTitle}</h3>
+                <span class="text-sm px-2 py-1 uppercase tracking-widest font-semibold bg-black/40 text-fossil-300 rounded-full border border-hairline select-none whitespace-nowrap hidden sm:inline">{pedagogy}</span>
                 <span class="text-sm px-2 py-1 font-semibold bg-black/30 text-fossil-300 rounded-full border border-hairline select-none items-center gap-1 whitespace-nowrap hidden md:flex" title="Estimated completion time">
                     <span>⏱</span> ~{estimatedDuration}m
                 </span>
@@ -411,7 +417,7 @@
         <div class="flex items-center gap-2 flex-shrink-0 relative z-50">
             {#if isPresenting && content.length > 1}
                 <div class="flex items-center gap-3 mr-2 border-r border-hairline pr-3">
-                    <span class="text-sm font-mono font-medium text-fossil-400">{currentSlide + 1} / {content.length}</span>
+                    <span class="text-sm font-mono font-medium text-fossil-300">{currentSlide + 1} / {content.length}</span>
                     <Button variant="subtle" size="icon" onpointerdown={stop} onclick={(e) => { stop(e); currentSlide = Math.max(0, currentSlide - 1); }} disabled={currentSlide === 0} aria-label="Previous item">
                         <ChevronLeft class="w-5 h-5" />
                     </Button>
@@ -423,7 +429,7 @@
 
             {#if !isPresenting && !isGenerated && !isSingleInstance}
                 <div class="flex items-center bg-black/40 rounded-lg px-2 py-1 border {quantity ? 'border-accent' : 'border-hairline'} transition-colors" onpointerdown={stopPointer}>
-                    <span class="text-sm font-semibold uppercase mr-1.5 {quantity ? 'text-accent' : 'text-fossil-500'}">Qty</span>
+                    <span class="text-sm font-semibold uppercase mr-1.5 {quantity ? 'text-accent' : 'text-fossil-300'}">Qty</span>
                     <input
                         type="number" min="1" max="50"
                         value={generateAmount}
@@ -457,7 +463,7 @@
                         <span>Generate</span>
                     </Button>
                 {/if}
-                <Button variant="ghost" size="icon" onpointerdown={stop} onclick={(e) => { stop(e); isSettingsOpen = !isSettingsOpen; }} title="Settings" class={isSettingsOpen ? 'bg-fossil-50/15 text-ink-invert' : 'text-fossil-400'}>
+                <Button variant="ghost" size="icon" onpointerdown={stop} onclick={(e) => { stop(e); isSettingsOpen = !isSettingsOpen; }} title="Settings" class={isSettingsOpen ? 'bg-fossil-50/15 text-ink-invert' : 'text-fossil-300'}>
                     <Settings class="w-4 h-4" />
                 </Button>
                 <Button variant="danger" size="icon" onpointerdown={stop} onclick={(e) => { stop(e); onRemove(id); }} title="Remove" class="text-cinnabar-400">

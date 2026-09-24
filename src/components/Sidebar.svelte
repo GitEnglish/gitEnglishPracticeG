@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { BookOpen, ChevronDown, Puzzle, Settings as SettingsIcon, PenTool as PenToolIcon, Info as InfoIcon } from 'lucide-svelte';
+  import { BookOpen, ChevronDown, Puzzle, Settings as SettingsIcon, PenTool as PenToolIcon } from 'lucide-svelte';
   import { motion } from '@humanspeak/svelte-motion';
   import DifficultyMeter from '../lib/components/DifficultyMeter.svelte';
   import { EXERCISE_CATEGORIES, EXERCISE_PEDAGOGY, PEDAGOGY_COLORS } from '../lib/constants';
@@ -326,11 +326,10 @@
                                       {@render difficultyIndicator(info.difficultyRating)}
                                       <button
                                           onclick={(e) => toggleInfo(e, type)}
-                                          class="p-1 rounded text-fossil-400 hover:text-fossil-50 transition-colors z-20"
+                                          class="text-sm font-sans font-medium tracking-wide text-fossil-400 border border-fossil-50/10 rounded px-1.5 py-0.5 hover:text-fossil-50 hover:border-fossil-50/30 transition-colors z-20"
                                           title="About this exercise"
-                                          aria-label="About {displayName}"
                                       >
-                                          <InfoIcon class="w-3.5 h-3.5" />
+                                          {pedagogy}
                                       </button>
                                   </div>
                               </motion.div>
@@ -341,7 +340,7 @@
                                             opacity-0 group-hover:opacity-100 invisible group-hover:visible
                                             transition-all duration-200 z-50 translate-y-2 group-hover:translate-y-0 pointer-events-none">
                                   <div class="absolute top-4 -left-2 w-4 h-4 bg-fossil-900 border-b border-l border-fossil-700 transform rotate-45"></div>
-                                  <h4 class="font-semibold {colors.textOnDark} text-base mb-1.5">{info.name}</h4>
+                                  <h4 class="font-semibold {colors.textOnDark} text-base mb-1.5">{info.name.endsWith(`(${pedagogy})`) ? info.name.split('(')[0].trim() : info.name}</h4>
                                   <div class="flex items-center gap-2 mb-3">
                                       <span class="text-xs px-2 py-0.5 rounded-full border {colors.border} {colors.bgOnDark} {colors.textOnDark} bg-opacity-50">{pedagogy}</span>
                                       <span class="text-xs text-fossil-500">•</span>
@@ -359,7 +358,7 @@
                               <div class="grid transition-all duration-300 ease-in-out overflow-hidden {expandedInfo === type ? 'grid-rows-[1fr] opacity-100 mt-2 mb-3' : 'grid-rows-[0fr] opacity-0'}">
                                   <div class="min-h-0 bg-fossil-900 border-l-2 border-{colors.border.replace('border-', '')} rounded-r-lg overflow-hidden shadow-2xl ml-2">
                                       <div class="p-3.5">
-                                          <h4 class="font-semibold text-accent text-sm mb-1.5">{info.name}</h4>
+                                          <h4 class="font-semibold text-accent text-sm mb-1.5">{info.name.endsWith(`(${pedagogy})`) ? info.name.split('(')[0].trim() : info.name}</h4>
                                           <div class="flex items-center gap-2 mb-2">
                                               <span class="text-sm px-1.5 py-0.5 rounded border {colors.border} {colors.textOnDark} bg-fossil-800">{pedagogy}</span>
                                               <span class="text-xs text-fossil-500">•</span>

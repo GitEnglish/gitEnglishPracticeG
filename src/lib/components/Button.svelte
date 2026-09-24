@@ -20,7 +20,7 @@
 
   const VARIANTS: Record<Variant, string> = {
     primary:
-      'bg-accent text-accent-ink hover:bg-accent-hover active:brightness-95 shadow-accent font-bold',
+      'bg-accent-hover text-fossil-50 hover:bg-accent active:brightness-95 shadow-accent font-semibold',
     ghost:
       'bg-transparent text-fossil-200 hover:bg-fossil-50/10 active:bg-fossil-50/15',
     danger:
@@ -30,7 +30,7 @@
   };
 
   const SIZES: Record<Size, string> = {
-    sm: 'text-[11px] px-2.5 py-1 rounded-md gap-1.5',
+    sm: 'text-xs px-2.5 py-1 rounded-md gap-1.5',
     md: 'text-xs px-3.5 py-1.5 rounded-control gap-2',
     icon: 'p-1.5 rounded-control',
   };
