@@ -3,162 +3,154 @@
 /* ============================================================================
    gitEnglish Practice Genie — design tokens
    ----------------------------------------------------------------------------
-   PETRIFIED WOOD. Warm stone neutrals, one vivid mineral accent.
+   COLOUR SOURCE OF TRUTH
+   gitEnglishDD/gitenglish-admin/src/lib/utils/palette.ts
 
-   The colour namespace is seeded with `--color-*: initial`, which DELETES
-   Tailwind's entire default palette. Nothing compiles unless it is listed
-   below. That is deliberate: it is impossible to reach for `bg-slate-700`
-   or `text-blue-500` in this codebase. If you need a colour, add it here.
+   THE NEUTRAL is extrapolated from that palette, not invented:
+     hue 236  = Opaline Sky #C0D6E4's own hue
+     chroma 0.014 = #E2E8F0's chroma, the lowest value in the palette
+   A neutral is a hue with the colour taken out. Blue at 0.014 chroma reads
+   as grey-blue; the same construction at hue 55 is what produced the brown
+   ramp (chroma 0.05-0.09, 3-6x too much colour, in the orange sector).
 
-   fossil  = every neutral. Same lightness ladder as the old slate scale, so
-             the migration was a pure recolour (ΔL = 0.000 at all 11 steps).
-   citrine = the accent. CTAs, focus rings, active state. Nothing else.
-   cinnabar= errors and wrong answers.
-   malachite = correct answers and success.
+   Every accent below is a literal hex from the palette file.
+   `--color-*: initial` clears Tailwind's defaults, so nothing outside this
+   file can be reached for by accident.
    ========================================================================== */
 
 @theme {
   --color-*: initial;
 
-  /* ---- fossil: warm stone neutrals ---- */
-  --color-fossil-50: oklch(98.4% 0.014 78);   /* #FFF9F0 */
-  --color-fossil-100: oklch(96.8% 0.022 76);  /* #FDF3E5 */
-  --color-fossil-200: oklch(92.9% 0.032 74);  /* #F5E5D1 */
-  --color-fossil-300: oklch(86.9% 0.045 70);  /* #E8CFB5 */
-  --color-fossil-400: oklch(70.4% 0.064 66);  /* #BE9771 */
-  --color-fossil-500: oklch(55.4% 0.083 60);  /* #996539 */
-  --color-fossil-600: oklch(44.6% 0.079 55);  /* #784621 */
-  --color-fossil-700: oklch(37.2% 0.066 52);  /* #5D351A */
-  --color-fossil-800: oklch(27.9% 0.050 50);  /* #3D200F */
-  --color-fossil-900: oklch(20.8% 0.033 48);  /* #241309 */
-  --color-fossil-950: oklch(12.9% 0.022 46);  /* #0E0502 */
+  /* ---- the neutral: Opaline Sky hue, bodyText chroma, in shades ---- */
+  --color-fossil-50: #f2fcff;
+  --color-fossil-100: #e9f4fa;
+  --color-fossil-200: #dbe5eb;
+  --color-fossil-300: #c7d1d7;
+  --color-fossil-400: #97a0a6;
+  --color-fossil-500: #6d767c;
+  --color-fossil-600: #51595f;
+  --color-fossil-700: #3a4248;
+  --color-fossil-800: #252d31;
+  --color-fossil-900: #131b1f;
+  --color-fossil-950: #080e13;
 
-  /* ---- citrine: the one vivid accent ---- */
-  --color-citrine-50: oklch(98.0% 0.030 95);
-  --color-citrine-100: oklch(95.0% 0.055 94);
-  --color-citrine-200: oklch(90.5% 0.090 92);
-  --color-citrine-300: oklch(86.0% 0.120 91);
-  --color-citrine-400: oklch(81.5% 0.148 90);
-  --color-citrine-500: oklch(73.5% 0.155 88);
-  --color-citrine-600: oklch(57.5% 0.140 85);
-  --color-citrine-700: oklch(48.0% 0.115 80);
-  --color-citrine-800: oklch(38.5% 0.085 72);
-  --color-citrine-900: oklch(28.5% 0.055 65);
-  --color-citrine-950: oklch(18.5% 0.032 60);
+  /* ---- gold: palette gold #E5C309, CTA orange #E3570B ---- */
+  --color-citrine-50: #fef9e7;
+  --color-citrine-100: #fdf0c4;
+  --color-citrine-200: #fbe28c;
+  --color-citrine-300: #f8d354;
+  --color-citrine-400: #e5c309;
+  --color-citrine-500: #e3570b;
+  --color-citrine-600: #c1440a;
+  --color-citrine-700: #9a3708;
+  --color-citrine-800: #7a2d0b;
+  --color-citrine-900: #65270e;
+  --color-citrine-950: #3a1206;
 
-  /* ---- cinnabar: errors ---- */
-    --color-cinnabar-50: oklch(97.1% 0.014 32);
-  --color-cinnabar-100: oklch(93.6% 0.031 31);
-  --color-cinnabar-200: oklch(88.5% 0.059 30);
-  --color-cinnabar-300: oklch(81.5% 0.110 30); /* #FDAA9B  10.1:1 on shell */
-  --color-cinnabar-400: oklch(73.5% 0.150 30); /* #F9816F  7.5:1 on shell */
-  --color-cinnabar-500: oklch(66.0% 0.180 32); /* #EB5E45  5.5:1 on shell */
-  --color-cinnabar-600: oklch(57.5% 0.170 33); /* #C9472E  4.4:1 on card  */
-  --color-cinnabar-700: oklch(48.0% 0.140 35); /* #9D381F  6.5:1 on card  */
-  --color-cinnabar-800: oklch(38.5% 0.100 38); /* #6F2C17  9.6:1 on card  */
-  --color-cinnabar-900: oklch(39.6% 0.055 38);
-  --color-cinnabar-950: oklch(25.8% 0.030 40);
+  /* ---- Signal Red #E00501 ---- */
+  --color-cinnabar-50: #fde8e7;
+  --color-cinnabar-100: #fbc9c7;
+  --color-cinnabar-200: #f79a96;
+  --color-cinnabar-300: #f3655e;
+  --color-cinnabar-400: #e82a22;
+  --color-cinnabar-500: #e00501;
+  --color-cinnabar-600: #c10401;
+  --color-cinnabar-700: #9e0301;
+  --color-cinnabar-800: #7f0503;
+  --color-cinnabar-900: #680705;
+  --color-cinnabar-950: #3d0202;
 
-  /* ---- malachite: correct ---- */
-  --color-malachite-50: oklch(97.9% 0.022 150);
-  --color-malachite-100: oklch(95.0% 0.038 150);
-  --color-malachite-200: oklch(90.5% 0.058 149);
-  --color-malachite-300: oklch(81.5% 0.075 148);
-  --color-malachite-400: oklch(73.5% 0.100 155);
-  --color-malachite-500: oklch(66.0% 0.158 158); /* #14AD6E  6.4:1 on shell */
-  --color-malachite-600: oklch(57.5% 0.140 155);
-  --color-malachite-700: oklch(48.0% 0.110 150); /* 5.8:1 on card */
-  --color-malachite-800: oklch(38.5% 0.075 148);
-  --color-malachite-900: oklch(37.8% 0.042 150);
-  --color-malachite-950: oklch(26.2% 0.024 152);
+  /* ---- Chromium Emerald #50C878 ---- */
+  --color-malachite-50: #eaf9f0;
+  --color-malachite-100: #d2f1df;
+  --color-malachite-200: #a6e3c2;
+  --color-malachite-300: #6fd3a1;
+  --color-malachite-400: #50c878;
+  --color-malachite-500: #2fa65f;
+  --color-malachite-600: #21864c;
+  --color-malachite-700: #1c6b3f;
+  --color-malachite-800: #185534;
+  --color-malachite-900: #16452d;
+  --color-malachite-950: #08271a;
+
+  /* ---- the rest of the palette, so it is reachable ---- */
+  --color-mandarin-400: #ff6b35;  /* Burnt Mandarin — brand */
+  --color-teal-400: #21ffb0;      /* Neon Teal */
+  --color-violet-400: #ca55ff;    /* Light Violet */
+  --color-lichen-400: #dce62c;    /* Lichen */
 
   --color-white: #ffffff;
-  --color-black: #000000;
 
-  /* ---- type ---- */
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
-  /* ---- radius ---- */
   --radius-card: 14px;
   --radius-control: 7px;
 
-  /* ---- elevation: warm-tinted, never neutral grey ---- */
-  --shadow-card: 0 2px 4px oklch(12.9% 0.02 46 / 0.05), 0 18px 40px -18px oklch(12.9% 0.02 46 / 0.35);
-  --shadow-lift: 0 4px 10px -2px oklch(12.9% 0.02 46 / 0.12), 0 24px 48px -16px oklch(12.9% 0.02 46 / 0.28);
-  --shadow-accent: 0 2px 10px -1px oklch(73.5% 0.155 88 / 0.45);
+  /* elevation: neutral blue-grey, chroma matched to the ramp */
+  --shadow-card: 0 2px 4px oklch(29% 0.014 236 / 0.06), 0 18px 40px -18px oklch(29% 0.014 236 / 0.20);
+  --shadow-lift: 0 4px 10px -2px oklch(29% 0.014 236 / 0.10), 0 24px 48px -16px oklch(29% 0.014 236 / 0.18);
+  --shadow-accent: 0 2px 10px -1px oklch(63% 0.188 42 / 0.30);
 }
 
 /* ============================================================================
    SEMANTIC LAYER
-   Components reference these roles, never a raw ramp step. Re-theme the whole
-   app by editing this block only.
+   Light shell. Dark ink. Accents only where the palette says accents go.
    ========================================================================== */
 @theme inline {
-  --color-shell: oklch(12.9% 0.022 46);            /* app canvas                       */
-  --color-chrome: oklch(20.8% 0.033 48);           /* sidebar, radial menu             */
-  --color-chrome-raised: oklch(27.9% 0.050 50);
-  --color-hairline: oklch(37.2% 0.066 52);        /* borders on dark                  */
-  --color-surface: oklch(98.4% 0.014 78);         /* exercise blocks, cards, modals   */
-  --color-surface-sunken: oklch(96.8% 0.022 76);
-  --color-surface-raised: oklch(100% 0 0);
-  --color-rule: oklch(92.9% 0.032 74);            /* borders on light                 */
+  --color-shell: #f2fcff;            /* app background                     */
+  --color-chrome: #e9f4fa;           /* sidebar                            */
+  --color-chrome-raised: #dbe5eb;   /* sidebar headers                    */
+  --color-hairline: #c7d1d7;         /* borders                            */
+  --color-surface: #ffffff;          /* exercise blocks, cards, modals     */
+  --color-surface-sunken: #f2fcff;
+  --color-surface-raised: #ffffff;
+  --color-rule: #c7d1d7;
 
-  --color-ink: oklch(12.9% 0.022 46);              /* text on light                    */
-  --color-ink-muted: oklch(44.6% 0.079 55);
-  --color-ink-faint: oklch(55.4% 0.083 60);
-  --color-ink-invert: oklch(98.4% 0.014 78);      /* text on dark                     */
-  --color-ink-invert-muted: oklch(86.9% 0.045 70);
-  --color-ink-invert-faint: oklch(70.4% 0.064 66);
+  --color-ink: #131b1f;
+  --color-ink-muted: #51595f;
+  --color-ink-faint: #6d767c;
+  --color-ink-invert: #131b1f;
+  --color-ink-invert-muted: #51595f;
+  --color-ink-invert-faint: #6d767c;
 
-  --color-accent: oklch(81.5% 0.148 90);
-  --color-accent-hover: oklch(86.0% 0.120 91);
-  --color-accent-ink: oklch(12.9% 0.022 46);
-  --color-accent-muted: oklch(57.5% 0.140 85);
+  --color-accent: #e3570b;           /* CTA — palette CTA orange, 4.68:1 on ink */
+  --color-accent-hover: #c1440a;
+  --color-accent-ink: #131b1f;       /* 4.68:1 — not white, white is 3.73:1 */
+  --color-accent-muted: #f8d354;
 
-  --color-danger: oklch(66.0% 0.180 32);
-  --color-danger-surface: oklch(81.5% 0.110 30);
-  --color-success: oklch(66.0% 0.158 158);
-  --color-success-surface: oklch(81.5% 0.075 148);
+  --color-danger: #c10401;           /* Signal Red, darkened for text      */
+  --color-danger-surface: #fbc9c7;
+  --color-success: #21864c;          /* Chromium Emerald, darkened for text*/
+  --color-success-surface: #d2f1df;
 }
 
 /* ============================================================================
-   COMPOSITES — the few things worth naming
+   COMPOSITES
    ========================================================================== */
 @layer components {
-  /* the whiteboard's dot field */
   .canvas-grid {
-    background-color: var(--color-surface-sunken);
-    background-image: radial-gradient(oklch(44.6% 0.079 55 / 0.18) 1.15px, transparent 1.15px);
+    background-color: var(--color-shell);
+    background-image: radial-gradient(oklch(46% 0.014 236 / 0.15) 1.15px, transparent 1.15px);
     background-size: 24px 24px;
   }
 
-  /* translucent panel over the canvas */
   .panel-frosted {
-    background-color: oklch(20.8% 0.033 48 / 0.98);
+    background-color: rgb(255 255 255 / 0.94);
     backdrop-filter: blur(28px) saturate(180%);
     -webkit-backdrop-filter: blur(28px) saturate(180%);
   }
 
-  .panel-outline { border: 1px solid oklch(37.2% 0.066 52 / 0.6); }
+  .panel-outline { border: 1px solid var(--color-hairline); }
   .panel-outline-light { border: 1px solid var(--color-rule); }
 
-  /* native select, styled to match the inputs — custom chevron, no UA chrome */
   .select-chevron {
-    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23996539' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2351595f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 8px center;
     background-size: 14px;
   }
 }
-
-/* ============================================================================
-   BASE
-   ========================================================================== */
-/* No global ::-webkit-scrollbar styling. The legacy app referenced a
-   `custom-scrollbar-light` class that was never defined, so scrollbars fell
-   back to the browser default and stayed out of the way. Styling them
-   globally painted a visible bar down the edge of every card. */
 
 @layer base {
   html, body { height: 100%; }
