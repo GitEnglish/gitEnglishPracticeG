@@ -16,10 +16,6 @@
     setTheme,
     totalTime,
     onClose,
-    makerApiKey,
-    setMakerApiKey,
-    checkerApiKey,
-    setCheckerApiKey,
     makerTemperature,
     setMakerTemperature,
     checkerTemperature,
@@ -33,10 +29,6 @@
     setTheme: (t: string) => void;
     totalTime: number;
     onClose: () => void;
-    makerApiKey: string;
-    setMakerApiKey: (k: string) => void;
-    checkerApiKey: string;
-    setCheckerApiKey: (k: string) => void;
     makerTemperature: number;
     setMakerTemperature: (t: number) => void;
     checkerTemperature: number;
@@ -114,35 +106,7 @@
                 />
             </div>
 
-
-            <div class="grid grid-cols-2 gap-4">
-                <div class="space-y-2">
-                    <label for="maker-apikey" class="flex items-center text-xs font-bold text-slate-700 uppercase tracking-wide font-casual">
-                        Maker API Key
-                    </label>
-                    <input
-                        id="maker-apikey"
-                        type="password"
-                        value={makerApiKey}
-                        oninput={(e) => setMakerApiKey(e.currentTarget.value)}
-                        placeholder="sk-..."
-                        class="w-full bg-slate-50 text-slate-900 font-medium border border-slate-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder-slate-500 font-casual"
-                    />
-                </div>
-                <div class="space-y-2">
-                    <label for="checker-apikey" class="flex items-center text-xs font-bold text-slate-700 uppercase tracking-wide font-casual">
-                        Checker API Key
-                    </label>
-                    <input
-                        id="checker-apikey"
-                        type="password"
-                        value={checkerApiKey}
-                        oninput={(e) => setCheckerApiKey(e.currentTarget.value)}
-                        placeholder="sk-..."
-                        class="w-full bg-slate-50 text-slate-900 font-medium border border-slate-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all placeholder-slate-500 font-casual"
-                    />
-                </div>
-            </div>
+            <!-- AI keys are backend-only (.env / Railway). No client-side key entry UI. -->
 
             <div class="grid grid-cols-2 gap-4">
                 <div class="space-y-2">

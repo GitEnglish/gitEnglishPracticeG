@@ -134,6 +134,18 @@
   let openCategory: string | null = $state('PPP');
   let expandedInfo: string | null = $state(null);
 
+  // Timestamp of the last svelte-motion drag end on an exercise card.
+  // Releasing a drag fires a synthetic browser `click` on the card
+  // (pointerdown + pointerup happened there), which would trigger the
+  // card's `onclick` AND the drop handler — double-adding the block.
+  // Clicks within this window after a drag end are swallowed.
+  let lastDragEndTime = 0;
+  const CLICK_AFTER_DRAG_GUARD_MS = 150;
+
+  const suppressClickAfterDrag = () => {
+      return Date.now() - lastDragEndTime < CLICK_AFTER_DRAG_GUARD_MS;
+  };
+
   const toggleInfo = (e: Event, type: string) => {
       e.stopPropagation();
       expandedInfo = expandedInfo === type ? null : type;
@@ -248,41 +260,45 @@
                           {@const displayName = type.split('(')[0].trim()}
                           {@const SpecificIcon = EXERCISE_ICONS[type] || PencilSquareIcon}
                           <div class="relative group">
-                              <motion.div
-                                  drag={true}
-                                  dragSnapToOrigin={true}
-                                  dragElastic={0.2}
-                                  role="button"
-                                  tabindex="0"
-                                  onclick={() => {
-                                      onAddExercise && onAddExercise(type);
-                                  }}
-                                  onkeydown={(e: KeyboardEvent) => {
-                                      if (e.key === 'Enter' || e.key === ' ') {
-                                          e.preventDefault();
-                                          onAddExercise && onAddExercise(type);
-                                      }
-                                  }}
-                                  onDragStart={() => {
-                                      window.dispatchEvent(new CustomEvent('sidebar-drag-start', { detail: { type } }));
-                                  }}
-                                  onDragEnd={(e: PointerEvent, info: any) => {
-                                      window.dispatchEvent(new CustomEvent('sidebar-drag-end'));
+                                <motion.div
+                                    drag={true}
+                                    dragSnapToOrigin={true}
+                                    dragElastic={0.2}
+                                    role="button"
+                                    tabindex="0"
+                                    onclick={() => {
+                                        // A drag release synthesises a click on this card;
+                                        // only treat it as "add exercise" when it's a real click.
+                                        if (suppressClickAfterDrag()) return;
+                                        onAddExercise && onAddExercise(type);
+                                    }}
+                                    onkeydown={(e: KeyboardEvent) => {
+                                        if (e.key === 'Enter' || e.key === ' ') {
+                                            e.preventDefault();
+                                            onAddExercise && onAddExercise(type);
+                                        }
+                                    }}
+                                    onDragStart={() => {
+                                        window.dispatchEvent(new CustomEvent('sidebar-drag-start', { detail: { type } }));
+                                    }}
+                                    onDragEnd={(e: PointerEvent, info: any) => {
+                                        lastDragEndTime = Date.now();
+                                        window.dispatchEvent(new CustomEvent('sidebar-drag-end'));
 
-                                      const sidebarElement = document.querySelector('aside');
-                                      if (sidebarElement) {
-                                          const sidebarRect = sidebarElement.getBoundingClientRect();
-                                          if (e.clientX > sidebarRect.right) {
-                                              window.dispatchEvent(new CustomEvent('sidebar-item-dropped', {
-                                                  detail: {
-                                                      type,
-                                                      clientX: e.clientX,
-                                                      clientY: e.clientY
-                                                  }
-                                              }));
-                                          }
-                                      }
-                                  }}
+                                        const sidebarElement = document.querySelector('aside');
+                                        if (sidebarElement) {
+                                            const sidebarRect = sidebarElement.getBoundingClientRect();
+                                            if (e.clientX > sidebarRect.right) {
+                                                window.dispatchEvent(new CustomEvent('sidebar-item-dropped', {
+                                                    detail: {
+                                                        type,
+                                                        clientX: e.clientX,
+                                                        clientY: e.clientY
+                                                    }
+                                                }));
+                                            }
+                                        }
+                                    }}
                                   class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-white/[0.04] cursor-grab active:cursor-grabbing transition-all z-50 relative group"
                                   aria-label={`Add ${type} exercise`}
                               >

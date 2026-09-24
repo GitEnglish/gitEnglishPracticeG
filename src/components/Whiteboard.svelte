@@ -73,29 +73,22 @@
   });
 
   $effect(() => {
-      const handlePointerMove = (e: PointerEvent) => {
-          if (draggedSidebarType) {
-              const mainElement = document.getElementById('whiteboard-main');
-              if (mainElement) {
-                  const rect = mainElement.getBoundingClientRect();
-                  ghostPos = {
-                      x: (e.clientX - rect.left - pan.x) / scale - 5000,
-                      y: (e.clientY - rect.top - pan.y) / scale - 5000
-                  };
-              }
-          }
+      // Listen on `window`, not on `whiteboard-main`: svelte-motion sets
+      // pointer capture on the sidebar card during a drag, so pointermove
+      // events are retargeted to the card and never reach `mainElement`.
+      const handleWindowPointerMove = (e: PointerEvent) => {
+          if (!draggedSidebarType) return;
+          const mainElement = document.getElementById('whiteboard-main');
+          if (!mainElement) return;
+          const rect = mainElement.getBoundingClientRect();
+          ghostPos = {
+              x: (e.clientX - rect.left - pan.x) / scale + 5000,
+              y: (e.clientY - rect.top - pan.y) / scale + 5000
+          };
       };
 
-      const mainElement = document.getElementById('whiteboard-main');
-      if (mainElement) {
-          mainElement.addEventListener('pointermove', handlePointerMove as EventListener);
-      }
-
-      return () => {
-          if (mainElement) {
-              mainElement.removeEventListener('pointermove', handlePointerMove as EventListener);
-          }
-      };
+      window.addEventListener('pointermove', handleWindowPointerMove);
+      return () => window.removeEventListener('pointermove', handleWindowPointerMove);
   });
 
 

@@ -17,9 +17,11 @@ import { ExerciseType, Difficulty, Tone } from '../lib/types';
  */
 
 export const OPENROUTER_BASE_URL: string = process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1';
-export const OPENROUTER_MODEL: string = process.env.OPENROUTER_MODEL || 'deepseek/deepseek-chat';
+export const OPENROUTER_MODEL: string = process.env.OPENROUTER_MODEL || 'xiaomi/mimo-v2.6-flash';
+// Backend-only auth: no client-side key entry UI. The key comes from
+// .env (local) or Railway variables (production) at build time.
 const getApiKey = (): string | undefined => {
-  return localStorage.getItem('deepseek_maker_api_key') || localStorage.getItem('deepseek_checker_api_key') || process.env.OPENROUTER_API_KEY || process.env.DEEPSEEK_API_KEY;
+  return process.env.OPENROUTER_API_KEY || process.env.DEEPSEEK_API_KEY;
 };
 
 // ---------------------------------------------------------------------------

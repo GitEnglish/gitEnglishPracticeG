@@ -6,7 +6,7 @@
   import type { ExerciseBlockState } from './lib/types';
   import { Difficulty, Tone, ExerciseType } from './lib/types';
   import { initActivityLogger, getActivityLogger } from './services/ActivityLogger';
-  import { EXERCISE_SIZE_OVERRIDES, DEFAULT_BLOCK_DIMENSIONS } from './lib/constants';
+  import { EXERCISE_SIZE_OVERRIDES, DEFAULT_BLOCK_DIMENSIONS, calculateExerciseAmount } from './lib/constants';
 
   $effect(() => {
     initActivityLogger('practice-genie', 'student_default');
@@ -60,8 +60,6 @@
   $effect(() => { localStorage.setItem(THEME_KEY, globalTheme); });
   $effect(() => { localStorage.setItem(PATHS_KEY, JSON.stringify(paths)); });
 
-  let globalMakerApiKey = $state<string>(localStorage.getItem('deepseek_maker_api_key') || '');
-  let globalCheckerApiKey = $state<string>(localStorage.getItem('deepseek_checker_api_key') || '');
   let globalMakerTemperature = $state<number>(parseFloat(localStorage.getItem('deepseek_maker_temp') || '0.7'));
   let globalCheckerTemperature = $state<number>(parseFloat(localStorage.getItem('deepseek_checker_temp') || '0.2'));
 
@@ -202,8 +200,8 @@
           exerciseType: type,
           x: finalX,
           y: finalY,
-          width: 350,
-          height: 250,
+          width,
+          height,
           zIndex: maxZIndex + 1,
           difficulty: globalDifficulty,
           tone: globalTone,
@@ -212,7 +210,8 @@
           inclusionRate: globalInclusionRate,
           focusGrammar: [...globalFocusGrammar],
           grammarInclusionRate: globalGrammarInclusionRate,
-          isGenerated: false
+          isGenerated: false,
+          quantity: calculateExerciseAmount(type, height)
       };
       blocks = [...blocks, newBlock];
   };
@@ -277,18 +276,6 @@
         theme={globalTheme}
         setTheme={(t) => globalTheme = t}
         totalTime={blocks.reduce((acc, b) => acc + (b.quantity || 1), 0)}
-        makerApiKey={globalMakerApiKey}
-        setMakerApiKey={(k) => {
-            globalMakerApiKey = k;
-            localStorage.setItem('deepseek_maker_api_key', k);
-
-        }}
-        checkerApiKey={globalCheckerApiKey}
-        setCheckerApiKey={(k) => {
-            globalCheckerApiKey = k;
-            localStorage.setItem('deepseek_checker_api_key', k);
-
-        }}
         makerTemperature={globalMakerTemperature}
         setMakerTemperature={(t) => {
             globalMakerTemperature = t;

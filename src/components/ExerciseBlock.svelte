@@ -232,6 +232,7 @@
     aria-roledescription="exercise block"
     drag={!isPresenting && !isResizing}
     dragMomentum={false}
+    dragSnapToOrigin={true}
     dragElastic={0.2}
     whileHover={{ scale: isPresenting ? 1 : 1.01 }}
     whileTap={{ scale: isPresenting ? 1 : 0.99 }}
