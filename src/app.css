@@ -17,135 +17,55 @@
    malachite = correct answers and success.
    ========================================================================== */
 
-@theme {
-  --color-*: initial;
-
-  /* ---- fossil: warm stone neutrals ---- */
-  --color-fossil-50: oklch(98.4% 0.014 78);   /* #FFF9F0 */
-  --color-fossil-100: oklch(96.8% 0.022 76);  /* #FDF3E5 */
-  --color-fossil-200: oklch(92.9% 0.032 74);  /* #F5E5D1 */
-  --color-fossil-300: oklch(86.9% 0.045 70);  /* #E8CFB5 */
-  --color-fossil-400: oklch(70.4% 0.064 66);  /* #BE9771 */
-  --color-fossil-500: oklch(55.4% 0.083 60);  /* #996539 */
-  --color-fossil-600: oklch(44.6% 0.079 55);  /* #784621 */
-  --color-fossil-700: oklch(37.2% 0.066 52);  /* #5D351A */
-  --color-fossil-800: oklch(27.9% 0.050 50);  /* #3D200F */
-  --color-fossil-900: oklch(20.8% 0.033 48);  /* #241309 */
-  --color-fossil-950: oklch(12.9% 0.022 46);  /* #0E0502 */
-
-  /* ---- citrine: the one vivid accent ---- */
-  --color-citrine-50: oklch(98.0% 0.030 95);
-  --color-citrine-100: oklch(95.0% 0.055 94);
-  --color-citrine-200: oklch(90.5% 0.090 92);
-  --color-citrine-300: oklch(86.0% 0.120 91);
-  --color-citrine-400: oklch(81.5% 0.148 90);
-  --color-citrine-500: oklch(73.5% 0.155 88);
-  --color-citrine-600: oklch(57.5% 0.140 85);
-  --color-citrine-700: oklch(48.0% 0.115 80);
-  --color-citrine-800: oklch(38.5% 0.085 72);
-  --color-citrine-900: oklch(28.5% 0.055 65);
-  --color-citrine-950: oklch(18.5% 0.032 60);
-
-  /* ---- cinnabar: errors ---- */
-    --color-cinnabar-50: oklch(97.1% 0.014 32);
-  --color-cinnabar-100: oklch(93.6% 0.031 31);
-  --color-cinnabar-200: oklch(88.5% 0.059 30);
-  --color-cinnabar-300: oklch(81.5% 0.110 30); /* #FDAA9B  10.1:1 on shell */
-  --color-cinnabar-400: oklch(73.5% 0.150 30); /* #F9816F  7.5:1 on shell */
-  --color-cinnabar-500: oklch(66.0% 0.180 32); /* #EB5E45  5.5:1 on shell */
-  --color-cinnabar-600: oklch(57.5% 0.170 33); /* #C9472E  4.4:1 on card  */
-  --color-cinnabar-700: oklch(48.0% 0.140 35); /* #9D381F  6.5:1 on card  */
-  --color-cinnabar-800: oklch(38.5% 0.100 38); /* #6F2C17  9.6:1 on card  */
-  --color-cinnabar-900: oklch(39.6% 0.055 38);
-  --color-cinnabar-950: oklch(25.8% 0.030 40);
-
-  /* ---- malachite: correct ---- */
-  --color-malachite-50: oklch(97.9% 0.022 150);
-  --color-malachite-100: oklch(95.0% 0.038 150);
-  --color-malachite-200: oklch(90.5% 0.058 149);
-  --color-malachite-300: oklch(81.5% 0.075 148);
-  --color-malachite-400: oklch(73.5% 0.100 155);
-  --color-malachite-500: oklch(66.0% 0.158 158); /* #14AD6E  6.4:1 on shell */
-  --color-malachite-600: oklch(57.5% 0.140 155);
-  --color-malachite-700: oklch(48.0% 0.110 150); /* 5.8:1 on card */
-  --color-malachite-800: oklch(38.5% 0.075 148);
-  --color-malachite-900: oklch(37.8% 0.042 150);
-  --color-malachite-950: oklch(26.2% 0.024 152);
-
-  --color-white: #ffffff;
-  --color-black: #000000;
-
-  /* ---- type ---- */
-  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
-
-  /* ---- radius ---- */
-  --radius-card: 14px;
-  --radius-control: 7px;
-
-  /* ---- elevation: warm-tinted, never neutral grey ---- */
-  --shadow-card: 0 2px 4px oklch(12.9% 0.02 46 / 0.05), 0 18px 40px -18px oklch(12.9% 0.02 46 / 0.35);
-  --shadow-lift: 0 4px 10px -2px oklch(12.9% 0.02 46 / 0.12), 0 24px 48px -16px oklch(12.9% 0.02 46 / 0.28);
-  --shadow-accent: 0 2px 10px -1px oklch(73.5% 0.155 88 / 0.45);
-}
-
-/* ============================================================================
-   SEMANTIC LAYER
-   Components reference these roles, never a raw ramp step. Re-theme the whole
-   app by editing this block only.
-   ========================================================================== */
-@theme inline {
-  --color-shell: oklch(12.9% 0.022 46);            /* app canvas                       */
-  --color-chrome: oklch(20.8% 0.033 48);           /* sidebar, radial menu             */
-  --color-chrome-raised: oklch(27.9% 0.050 50);
-  --color-hairline: oklch(37.2% 0.066 52);        /* borders on dark                  */
-  --color-surface: oklch(98.4% 0.014 78);         /* exercise blocks, cards, modals   */
-  --color-surface-sunken: oklch(96.8% 0.022 76);
-  --color-surface-raised: oklch(100% 0 0);
-  --color-rule: oklch(92.9% 0.032 74);            /* borders on light                 */
-
-  --color-ink: oklch(12.9% 0.022 46);              /* text on light                    */
-  --color-ink-muted: oklch(44.6% 0.079 55);
-  --color-ink-faint: oklch(55.4% 0.083 60);
-  --color-ink-invert: oklch(98.4% 0.014 78);      /* text on dark                     */
-  --color-ink-invert-muted: oklch(86.9% 0.045 70);
-  --color-ink-invert-faint: oklch(70.4% 0.064 66);
-
-  --color-accent: oklch(81.5% 0.148 90);
-  --color-accent-hover: oklch(86.0% 0.120 91);
-  --color-accent-ink: oklch(12.9% 0.022 46);
-  --color-accent-muted: oklch(57.5% 0.140 85);
-
-  --color-danger: oklch(66.0% 0.180 32);
-  --color-danger-surface: oklch(81.5% 0.110 30);
-  --color-success: oklch(66.0% 0.158 158);
-  --color-success-surface: oklch(81.5% 0.075 148);
-}
+/* legacy palette restored verbatim from legacy_react: slate sidebar, white
+   card, gold (yellow-500) accent, emerald correct, red wrong.
+   The body element is the canvas; sidebar is the chrome; blocks are surfaces. */
+.bg-shell    { background-color: #0f172a; }   /* slate-900 — legacy main bg */
+.bg-chrome   { background-color: #1e293b; }   /* slate-800 — legacy sidebar */
+.bg-chrome-raised { background-color: #334155; } /* slate-700 */
+.border-hairline { border-color: #334155; }
+.bg-surface  { background-color: #ffffff; }   /* legacy block card */
+.bg-surface-sunken { background-color: #f8fafc; }
+.border-rule { border-color: #e2e8f0; }
+.text-ink         { color: #0f172a; }
+.text-ink-muted   { color: #475569; }
+.text-ink-faint   { color: #94a3b8; }
+.text-ink-invert         { color: #f1f5f9; }
+.text-ink-invert-muted   { color: #cbd5e1; }
+.text-ink-invert-faint   { color: #94a3b8; }
+.bg-accent       { background-color: #eab308; }   /* amber-500 — the legacy gold */
+.text-accent     { color: #eab308; }
+.text-accent-ink { color: #0f172a; }
+.bg-accent-muted { background-color: #ca8a04; }
+.bg-danger       { background-color: #b91c1c; }
+.text-danger     { color: #b91c1c; }
+.bg-success      { background-color: #059669; }
+.text-success    { color: #059669; }
 
 /* ============================================================================
    COMPOSITES — the few things worth naming
    ========================================================================== */
 @layer components {
-  /* the whiteboard's dot field */
+  /* legacy dot field: light cream paper with slate-grey dots */
   .canvas-grid {
-    background-color: var(--color-surface-sunken);
-    background-image: radial-gradient(oklch(44.6% 0.079 55 / 0.18) 1.15px, transparent 1.15px);
+    background-color: #fffbf0;
+    background-image: radial-gradient(rgba(100, 116, 139, 0.2) 1.15px, transparent 1.15px);
     background-size: 24px 24px;
   }
 
-  /* translucent panel over the canvas */
+  /* legacy sidebar overlay: frosted navy */
   .panel-frosted {
-    background-color: oklch(20.8% 0.033 48 / 0.98);
+    background-color: rgba(15, 23, 42, 0.98);
     backdrop-filter: blur(28px) saturate(180%);
     -webkit-backdrop-filter: blur(28px) saturate(180%);
   }
 
-  .panel-outline { border: 1px solid oklch(37.2% 0.066 52 / 0.6); }
+  .panel-outline { border: 1px solid #334155; }
   .panel-outline-light { border: 1px solid var(--color-rule); }
 
   /* native select, styled to match the inputs — custom chevron, no UA chrome */
   .select-chevron {
-    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23996539' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23eab308' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 8px center;
     background-size: 14px;
@@ -155,11 +75,6 @@
 /* ============================================================================
    BASE
    ========================================================================== */
-/* No global ::-webkit-scrollbar styling. The legacy app referenced a
-   `custom-scrollbar-light` class that was never defined, so scrollbars fell
-   back to the browser default and stayed out of the way. Styling them
-   globally painted a visible bar down the edge of every card. */
-
 @layer base {
-  html, body { height: 100%; }
+  html, body { height: 100%; font-family: 'Nunito', system-ui, sans-serif; }
 }
