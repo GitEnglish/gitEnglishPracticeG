@@ -158,12 +158,20 @@ type ColorScheme = {
  * accent for attention. Groups are now told apart by their label and position
  * in the sidebar, which is all the reader needs.
  */
+/**
+ * One scheme for every group.
+ *
+ * `chip.bg` was `bg-chrome-raised`, a dark sidebar token. Chips and the fill-in
+ * blank render inside the light card body, so every one of them came out as a
+ * dark box with dark text — the blank's "drop here" label sat at 1.96:1. The
+ * chip surface has to be light, because that is where it is drawn.
+ */
 const GROUP_SCHEME: ColorScheme = {
   textOnDark: 'text-ink-invert-muted',
-  textOnLight: 'text-ink-muted',
+  textOnLight: 'text-ink',
   border: 'border-hairline',
   shadow: '',
-  chip: { bg: 'bg-chrome-raised', text: 'text-ink-invert-muted', border: 'border-hairline' },
+  chip: { bg: 'bg-fossil-100', text: 'text-ink', border: 'border-fossil-300' },
   bgOnDark: 'bg-chrome-raised',
 };
 

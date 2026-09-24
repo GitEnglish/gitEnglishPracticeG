@@ -269,11 +269,16 @@
           const contentHeight = contentEl!.scrollHeight;
           const contentWidth = contentEl!.scrollWidth;
           const headerHeight = headerEl?.offsetHeight || 0;
-          // body padding (p-5 top+bottom = 40) + card border
-          const chromeV = 40 + 2;
-          const chromeH = 40 + 2;
-          const desiredHeight = Math.max(150, headerHeight + contentHeight + chromeV);
-          const desiredWidth = Math.max(350, contentWidth + chromeH);
+          // body padding (p-4 top+bottom = 32) + card border
+          const chromeV = 32 + 2;
+          const chromeH = 32 + 2;
+          // Grow to fit overflow, never shrink. Shrinking was a spiral: one
+          // question made a short card, and the short card then computed ONE
+          // question for the next generate, because the amount is derived from
+          // the height. The height is the user's setting and the count follows
+          // from it, so the card has to keep it.
+          const desiredHeight = Math.max(height, headerHeight + contentHeight + chromeV);
+          const desiredWidth = Math.max(width, contentWidth + chromeH);
           if (Math.abs(desiredHeight - height) > 5 || Math.abs(desiredWidth - width) > 5) {
               onUpdate(id, { height: desiredHeight, width: desiredWidth });
           }
@@ -539,26 +544,57 @@
             </div>
         {:else}
             <div class="content-wrapper flex flex-col" bind:this={contentEl}>
-                {#if content.length > 1}
-                    <div class="flex items-center justify-between mb-2 text-xs font-medium text-fossil-500 flex-shrink-0">
-                        <button class="p-1 rounded hover:bg-fossil-100 disabled:opacity-30" onclick={() => currentSlide = Math.max(0, currentSlide - 1)} disabled={currentSlide === 0} aria-label="Previous item">
-                            <ChevronLeft class="w-4 h-4" />
-                        </button>
-                        <span>{currentSlide + 1} / {content.length}</span>
-                        <button class="p-1 rounded hover:bg-fossil-100 disabled:opacity-30" onclick={() => currentSlide = Math.min(content.length - 1, currentSlide + 1)} disabled={currentSlide >= content.length - 1} aria-label="Next item">
-                            <ChevronRight class="w-4 h-4" />
-                        </button>
+                <!--
+                  The legacy rendered every generated question, stacked:
+                    <div className="space-y-8">{content.map((ex, i) => renderExercise(ex, i))}</div>
+                  and its `current / total` arrows lived inside the isPresenting
+                  branch, so they only ever appeared in presentation mode.
+
+                  This port was showing one item at a time in normal mode too,
+                  which left a 600px card holding a single 180px question and
+                  400px of empty space — the generated card no longer matched
+                  the shape of its own skeleton. Stacked again, filling the card.
+                -->
+                {#if isPresenting}
+                    {#if content.length > 1}
+                        <div class="flex items-center justify-between mb-2 text-sm font-medium text-fossil-500 flex-shrink-0">
+                            <button class="p-1 rounded hover:bg-fossil-100 disabled:opacity-30" onclick={() => currentSlide = Math.max(0, currentSlide - 1)} disabled={currentSlide === 0} aria-label="Previous item">
+                                <ChevronLeft class="w-4 h-4" />
+                            </button>
+                            <span>{currentSlide + 1} / {content.length}</span>
+                            <button class="p-1 rounded hover:bg-fossil-100 disabled:opacity-30" onclick={() => currentSlide = Math.min(content.length - 1, currentSlide + 1)} disabled={currentSlide >= content.length - 1} aria-label="Next item">
+                                <ChevronRight class="w-4 h-4" />
+                            </button>
+                        </div>
+                    {/if}
+                    <div class="flex-grow overflow-hidden p-4 h-full w-full">
+                        {#if activeItem?.error}
+                            <div class="p-4 bg-cinnabar-50 text-cinnabar-600 rounded-xl border border-cinnabar-200 text-sm">{activeItem.error}</div>
+                        {:else if ActiveExercise}
+                            <ActiveExercise exercise={mapItemForRenderer(activeItem)} {colors} />
+                        {:else if activeItem}
+                            <pre class="text-xs whitespace-pre-wrap text-fossil-600 bg-fossil-50 p-3 rounded">{JSON.stringify(activeItem, null, 2)}</pre>
+                        {/if}
+                    </div>
+                {:else}
+                    <div class="flex-grow overflow-y-auto p-4 h-full w-full">
+                        <div class="space-y-4 max-w-2xl mx-auto">
+                            {#each content as item, i (i)}
+                                {@const Item = EXERCISE_RENDERERS[exerciseType as ExerciseType]}
+                                <div class="border-b border-fossil-200 pb-4 last:border-b-0 last:pb-0">
+                                    <span class="text-xs font-semibold text-ink-muted select-none">{i + 1}.</span>
+                                    {#if item?.error}
+                                        <div class="p-3 bg-cinnabar-50 text-cinnabar-600 rounded-lg border border-cinnabar-200 text-sm">{item.error}</div>
+                                    {:else if Item}
+                                        <Item exercise={mapItemForRenderer(item)} {colors} />
+                                    {:else}
+                                        <pre class="text-xs whitespace-pre-wrap text-fossil-600 bg-fossil-50 p-3 rounded">{JSON.stringify(item, null, 2)}</pre>
+                                    {/if}
+                                </div>
+                            {/each}
+                        </div>
                     </div>
                 {/if}
-                <div class="flex-grow overflow-hidden p-5 h-full w-full">
-                    {#if activeItem?.error}
-                        <div class="p-4 bg-cinnabar-50 text-cinnabar-600 rounded-xl border border-cinnabar-200 text-sm">{activeItem.error}</div>
-                    {:else if ActiveExercise}
-                        <ActiveExercise exercise={mapItemForRenderer(activeItem)} {colors} />
-                    {:else if activeItem}
-                        <pre class="text-xs whitespace-pre-wrap text-fossil-600 bg-fossil-50 p-3 rounded">{JSON.stringify(activeItem, null, 2)}</pre>
-                    {/if}
-                </div>
             </div>
         {/if}
     </div>
