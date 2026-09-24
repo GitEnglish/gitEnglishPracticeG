@@ -140,7 +140,9 @@
 @layer components {
   .canvas-grid {
     background-color: var(--color-shell);
-    background-image: radial-gradient(oklch(46% 0.014 236 / 0.15) 1.15px, transparent 1.15px);
+    /* Dot field: a touch heavier than before — 0.15 -> 0.22 alpha, 1.15px ->
+       1.25px radius. Same hue and spacing, just more present. */
+    background-image: radial-gradient(oklch(42% 0.016 236 / 0.22) 1.25px, transparent 1.25px);
     background-size: 24px 24px;
   }
 
