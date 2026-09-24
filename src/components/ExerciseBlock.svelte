@@ -348,8 +348,6 @@
     dragMomentum={false}
     dragSnapToOrigin={true}
     dragElastic={0.2}
-    whileHover={{ scale: isPresenting ? 1 : 1.01 }}
-    whileTap={{ scale: isPresenting ? 1 : 0.99 }}
     onDragStart={() => {
         if (!isPresenting && !isResizing) {
             onFocus(id);
@@ -372,7 +370,7 @@
         onUpdate(id, { x: Math.round(snappedX), y: Math.round(snappedY) });
     }}
     onmousedown={() => onFocus(id)}
-    class="bg-fossil-50 rounded-[22px] shadow-card border panel-outline-light overflow-hidden transition-shadow duration-200 hover:shadow-2xl flex flex-col will-change-transform {isResizing ? 'select-none' : ''} {isPresenting ? 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] scale-150 !rounded-none !border-0 w-screen h-screen' : 'absolute cursor-grab active:cursor-grabbing'}"
+    class="bg-fossil-50 rounded-[22px] shadow-card border panel-outline-light overflow-hidden transition-shadow duration-150 hover:shadow-lift flex flex-col {isResizing ? 'select-none' : ''} {isPresenting ? 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] scale-150 !rounded-none !border-0 w-screen h-screen' : 'absolute cursor-grab active:cursor-grabbing'}"
     style="left: {x}px; top: {y}px; width: {isPresenting ? '900px' : width + 'px'}; height: {isPresenting ? 'auto' : height + 'px'}; min-height: {isPresenting ? 'auto' : '150px'}; z-index: {isPresenting ? 9999 : zIndex};"
 >
     <!-- Top Gradient Bar -->

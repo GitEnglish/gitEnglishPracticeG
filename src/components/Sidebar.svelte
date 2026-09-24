@@ -338,7 +338,7 @@
                               <div class="absolute left-full top-0 ml-4 w-72
                                             p-4 rounded-xl bg-fossil-900 border border-fossil-700 shadow-2xl
                                             opacity-0 group-hover:opacity-100 invisible group-hover:visible
-                                            transition-all duration-200 z-50 translate-y-2 group-hover:translate-y-0 pointer-events-none">
+                                            transition-opacity duration-150 z-50 pointer-events-none">
                                   <div class="absolute top-4 -left-2 w-4 h-4 bg-fossil-900 border-b border-l border-fossil-700 transform rotate-45"></div>
                                   <h4 class="font-semibold {colors.textOnDark} text-base mb-1.5">{info.name.endsWith(`(${pedagogy})`) ? info.name.split('(')[0].trim() : info.name}</h4>
                                   <div class="flex items-center gap-2 mb-3">
