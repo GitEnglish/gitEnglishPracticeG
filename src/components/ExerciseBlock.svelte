@@ -413,7 +413,7 @@
          stopPointer only stops svelte-motion from capturing the pointer so the
          buttons inside stay clickable. It adds no behaviour of its own, so a
          role here would misrepresent the element to assistive tech. -->
-    <div bind:this={headerEl} class="px-6 py-3.5 flex items-center justify-between gap-3 border-b border-hairline bg-chrome text-ink-invert flex-shrink-0 relative z-10 font-ui" style="touch-action: none;" onpointerdown={stopPointer}>
+    <div bind:this={headerEl} class="@container px-6 py-3.5 flex items-center justify-between gap-3 border-b border-hairline bg-chrome text-ink-invert flex-shrink-0 relative z-10 font-ui" style="touch-action: none;" onpointerdown={stopPointer}>
         <div class="flex items-center gap-4 min-w-0 flex-1">
             {#if isPresenting}
                 <Button variant="ghost" size="icon" onpointerdown={stop} onclick={handleExitLive} title="Exit Live Mode" class="text-fossil-400">
@@ -421,9 +421,12 @@
                 </Button>
             {/if}
             <div class="flex items-center gap-3 min-w-0">
-                <h3 class="font-semibold text-lg tracking-tight truncate select-none {isPresenting ? 'text-2xl' : ''}">{displayTitle}</h3>
-                <span class="text-sm px-2 py-1 uppercase tracking-widest font-semibold bg-black/40 text-fossil-300 rounded-full border border-hairline select-none whitespace-nowrap hidden sm:inline">{pedagogy}</span>
-                <span class="text-sm px-2 py-1 font-semibold bg-black/30 text-fossil-300 rounded-full border border-hairline select-none items-center gap-1 whitespace-nowrap hidden md:flex" title="Estimated completion time">
+                <!-- min-w-0 is load-bearing: without it a flex item will not shrink
+                     below its text width, so `truncate` never engages and the title
+                     is clipped out of existence by the controls beside it. -->
+                <h3 class="font-semibold text-lg tracking-tight truncate min-w-0 flex-1 select-none {isPresenting ? 'text-2xl' : ''}">{displayTitle}</h3>
+                <span class="text-sm px-2 py-1 uppercase tracking-widest font-semibold bg-black/40 text-fossil-300 rounded-full border border-hairline select-none whitespace-nowrap shrink-0 @max-md:hidden">{pedagogy}</span>
+                <span class="text-sm px-2 py-1 font-semibold bg-black/30 text-fossil-300 rounded-full border border-hairline select-none items-center gap-1 whitespace-nowrap shrink-0 @max-lg:hidden" title="Estimated completion time">
                     <span>⏱</span> ~{estimatedDuration}m
                 </span>
             </div>

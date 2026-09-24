@@ -32,41 +32,22 @@ export const DIFFICULTY_LABELS: Record<Difficulty, string> = {
   [Difficulty.Suffering]: 'Suffering (C2+)',
 };
 
-export const DEFAULT_BLOCK_DIMENSIONS = { width: 800, height: 600 };
+/**
+ * One standard card size for every exercise type.
+ *
+ * The old per-type table ran from 600x750 up to 800x800, so most cards landed
+ * at 700-800px tall against a canvas of roughly 800px: one card filled the
+ * view and four would not sit side by side. Sizes are uniform now, and only
+ * the picture card is an exception, because it has to hold an image.
+ *
+ * Height is also what `calculateExerciseAmount` reads, so a uniform height
+ * gives a uniform question count -- which is the behaviour the "drag the edge
+ * to get more questions" resize is meant to express.
+ */
+export const DEFAULT_BLOCK_DIMENSIONS = { width: 700, height: 600 };
 
 export const EXERCISE_SIZE_OVERRIDES: Partial<Record<ExerciseType, { width: number; height: number }>> = {
-    [ExerciseType.FITB]: { width: 700, height: 600 },
-    [ExerciseType.MultipleChoice]: { width: 700, height: 800 },
-    [ExerciseType.SentenceScramble]: { width: 700, height: 700 },
-    [ExerciseType.Matching]: { width: 700, height: 600 },
-    [ExerciseType.ClozeParagraph]: { width: 800, height: 700 },
-    [ExerciseType.DialogueCompletion]: { width: 800, height: 600 },
-    [ExerciseType.ErrorCorrection]: { width: 700, height: 600 },
-    [ExerciseType.StorySequencing]: { width: 700, height: 700 },
-    [ExerciseType.Prediction]: { width: 700, height: 700 },
-    [ExerciseType.RuleDiscovery]: { width: 800, height: 700 },
-    [ExerciseType.SpotTheDifference]: { width: 800, height: 700 },
-    [ExerciseType.PicturePrompt]: { width: 600, height: 750 },
-    [ExerciseType.MoralDilemma]: { width: 700, height: 600 },
-    [ExerciseType.ReadingGist]: { width: 800, height: 700 },
-    [ExerciseType.ReadingDetail]: { width: 800, height: 800 },
-    [ExerciseType.FunctionalWriting]: { width: 700, height: 600 },
-    [ExerciseType.DictoGloss]: { width: 700, height: 600 },
-    [ExerciseType.CollocationGapFill]: { width: 700, height: 600 },
-    [ExerciseType.WordFormation]: { width: 700, height: 600 },
-    [ExerciseType.PhrasalVerbGapFill]: { width: 595, height: 510 },
-    [ExerciseType.CollocationOddOneOut]: { width: 700, height: 600 },
-    [ExerciseType.InformationTransfer]: { width: 800, height: 700 },
-    [ExerciseType.ListeningSpecificInfo]: { width: 700, height: 700 },
-    [ExerciseType.ProblemSolvingScenario]: { width: 700, height: 600 },
-    [ExerciseType.RolePlayScenario]: { width: 700, height: 600 },
-    [ExerciseType.StorytellingFromPrompts]: { width: 700, height: 600 },
-    [ExerciseType.JustifyYourOpinion]: { width: 700, height: 600 },
-    [ExerciseType.PictureComparison]: { width: 800, height: 700 },
-    [ExerciseType.FunctionMatching]: { width: 700, height: 600 },
-    [ExerciseType.RegisterSort]: { width: 800, height: 700 },
-    [ExerciseType.PolitenessScenarios]: { width: 700, height: 700 },
-    [ExerciseType.InferringMeaning]: { width: 700, height: 700 },
+    [ExerciseType.PicturePrompt]: { width: 760, height: 680 },
 };
 
 export const EXERCISE_PEDAGOGY: Record<ExerciseType, string> = {

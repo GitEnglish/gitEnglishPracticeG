@@ -144,19 +144,34 @@
     if (isPanning) isPanning = false;
   };
 
-  // Multiplicative zoom toward the cursor. Ported from legacy. Range 0.1..4
-  // was 0.2..3 there, widened at the low end so you can zoom way out to drop blocks.
+  // Zoom. Two things were wrong.
+  //
+  // 1. Any wheel event zoomed, so ordinary scrolling over the board zoomed it
+  //    instead. Zoom is now explicit — Cmd/Ctrl + wheel — which is what the
+  //    on-canvas hint has always said.
+  // 2. The zoom kept the point under the cursor stationary, which slides the
+  //    whole board sideways on every notch. It now zooms about the centre of
+  //    the canvas, so the board grows in both directions and nothing slides.
+  //
+  // Delta is normalised across deltaMode and clamped, so one notch is a small
+  // predictable step on a mouse wheel and on a trackpad, instead of a jump.
   const handleWheel = (e: WheelEvent) => {
+      if (!e.ctrlKey && !e.metaKey) return;
       e.preventDefault();
       const main = document.getElementById('whiteboard-main');
       if (!main) return;
       const rect = main.getBoundingClientRect();
-      const factor = Math.exp(-e.deltaY * 0.001);
+      const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? rect.height : 1;
+      const dy = Math.max(-120, Math.min(120, e.deltaY * unit));
+      const factor = Math.exp(-dy * 0.0005);
       const next = Math.min(Math.max(0.1, scale * factor), 4);
-      // Keep the world point under the cursor stationary as we zoom.
-      const worldX = (e.clientX - rect.left - pan.x) / scale;
-      const worldY = (e.clientY - rect.top - pan.y) / scale;
-      pan = { x: e.clientX - rect.left - worldX * next, y: e.clientY - rect.top - worldY * next };
+      if (next === scale) return;
+      // Hold the centre still rather than the cursor.
+      const cx = rect.width / 2;
+      const cy = rect.height / 2;
+      const worldX = (cx - pan.x) / scale;
+      const worldY = (cy - pan.y) / scale;
+      pan = { x: cx - worldX * next, y: cy - worldY * next };
       scale = next;
   };
 
