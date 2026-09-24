@@ -75,7 +75,12 @@
   });
 
 
-  // Real generation via OpenRouter (DeepSeek) — see services/deepseekService.ts
+  // svelte-motion attaches setPointerCapture on the block at pointerdown, which
+  // retargets pointerup/click to the block — child buttons (Generate, Settings,
+  // Remove, slide nav) and inputs would never receive clicks. Stopping
+  // propagation on interactive zones prevents the drag system from capturing.
+  const stopPointer = (e: PointerEvent) => e.stopPropagation();
+
   // Real generation via OpenRouter (DeepSeek) — see services/deepseekService.ts
   const handleGenerate = async () => {
     isLoading = true;
@@ -258,19 +263,19 @@
 
     <!-- Resize Handles -->
     {#if !isPresenting}
-        <div class="absolute top-0 left-0 w-full h-2 cursor-ns-resize z-50 hover:bg-blue-500/20" onmousedown={(e) => startResize(e, 'n')} role="separator" aria-orientation="horizontal" tabindex="-1"></div>
-        <div class="absolute bottom-0 left-0 w-full h-2 cursor-ns-resize z-50 hover:bg-blue-500/20" onmousedown={(e) => startResize(e, 's')} role="separator" aria-orientation="horizontal" tabindex="-1"></div>
-        <div class="absolute top-0 left-0 w-2 h-full cursor-ew-resize z-50 hover:bg-blue-500/20" onmousedown={(e) => startResize(e, 'w')} role="separator" aria-orientation="vertical" tabindex="-1"></div>
-        <div class="absolute top-0 right-0 w-2 h-full cursor-ew-resize z-50 hover:bg-blue-500/20" onmousedown={(e) => startResize(e, 'e')} role="separator" aria-orientation="vertical" tabindex="-1"></div>
+        <div class="absolute top-0 left-0 w-full h-2 cursor-ns-resize z-50 hover:bg-blue-500/20" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'n')} role="separator" aria-orientation="horizontal" tabindex="-1"></div>
+        <div class="absolute bottom-0 left-0 w-full h-2 cursor-ns-resize z-50 hover:bg-blue-500/20" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 's')} role="separator" aria-orientation="horizontal" tabindex="-1"></div>
+        <div class="absolute top-0 left-0 w-2 h-full cursor-ew-resize z-50 hover:bg-blue-500/20" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'w')} role="separator" aria-orientation="vertical" tabindex="-1"></div>
+        <div class="absolute top-0 right-0 w-2 h-full cursor-ew-resize z-50 hover:bg-blue-500/20" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'e')} role="separator" aria-orientation="vertical" tabindex="-1"></div>
 
-        <div class="absolute top-0 left-0 w-4 h-4 cursor-nwse-resize z-50 hover:bg-blue-500/20" onmousedown={(e) => startResize(e, 'nw')} role="separator" tabindex="-1"></div>
-        <div class="absolute top-0 right-0 w-4 h-4 cursor-nesw-resize z-50 hover:bg-blue-500/20" onmousedown={(e) => startResize(e, 'ne')} role="separator" tabindex="-1"></div>
-        <div class="absolute bottom-0 left-0 w-4 h-4 cursor-nesw-resize z-50 hover:bg-blue-500/20" onmousedown={(e) => startResize(e, 'sw')} role="separator" tabindex="-1"></div>
-        <div class="absolute bottom-0 right-0 w-4 h-4 cursor-nwse-resize z-50 hover:bg-blue-500/20" onmousedown={(e) => startResize(e, 'se')} role="separator" tabindex="-1"></div>
+        <div class="absolute top-0 left-0 w-4 h-4 cursor-nwse-resize z-50 hover:bg-blue-500/20" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'nw')} role="separator" tabindex="-1"></div>
+        <div class="absolute top-0 right-0 w-4 h-4 cursor-nesw-resize z-50 hover:bg-blue-500/20" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'ne')} role="separator" tabindex="-1"></div>
+        <div class="absolute bottom-0 left-0 w-4 h-4 cursor-nesw-resize z-50 hover:bg-blue-500/20" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'sw')} role="separator" tabindex="-1"></div>
+        <div class="absolute bottom-0 right-0 w-4 h-4 cursor-nwse-resize z-50 hover:bg-blue-500/20" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'se')} role="separator" tabindex="-1"></div>
     {/if}
 
     <!-- Header -->
-    <div class="px-7 py-5 flex items-center justify-between border-b border-slate-200 bg-[#F7FAFC]/60" style="touch-action: none;">
+    <div class="px-7 py-5 flex items-center justify-between border-b border-slate-200 bg-[#F7FAFC]/60" style="touch-action: none;" onpointerdown={stopPointer}>
         <div class="flex items-center min-w-[140px] pointer-events-none">
             <h2 class="text-base font-bold tracking-tight text-[#0D1322] flex items-center gap-2">
                 {exerciseType}
@@ -300,7 +305,7 @@
     </div>
 
     <!-- Body -->
-    <div class="flex-grow flex flex-col bg-white overflow-hidden relative w-full h-full">
+    <div class="flex-grow flex flex-col bg-white overflow-hidden relative w-full h-full" onpointerdown={stopPointer}>
         {#if isSettingsOpen}
             <div class="absolute inset-0 bg-white/95 backdrop-blur-sm z-10 p-5 overflow-y-auto font-casual">
                 <div class="flex justify-between items-center mb-4">
