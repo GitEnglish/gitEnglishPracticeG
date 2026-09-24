@@ -135,10 +135,6 @@
       isRemoving = true;
       setTimeout(() => onRemove(id), 170);
   };
-  const handleQuantityChange = (val: string) => {
-      const n = parseInt(val);
-      onUpdate(id, { quantity: isNaN(n) || n < 1 ? undefined : n });
-  };
   const handleRegenerate = () => { if (!isLoading) handleGenerate(); };
   const handleEnterLive = (e: Event) => { stop(e); if (isGenerated) onEnterPresentation(); };
   const handleExitLive = (e: Event) => { stop(e); onExitPresentation(); };
@@ -358,8 +354,7 @@
     aria-roledescription="exercise block"
     drag={!isPresenting && !isResizing}
     dragMomentum={false}
-    dragSnapToOrigin={true}
-    dragElastic={0.2}
+    dragElastic={0}
     onDragStart={() => {
         if (!isPresenting && !isResizing) {
             onFocus(id);
@@ -368,12 +363,14 @@
     }}
     onDrag={(e: PointerEvent, info: any) => {
         if (isPresenting || isResizing) return;
-        const { snappedX, snappedY, lines } = computeSnap(info.offset.x, info.offset.y);
+        // Alignment guides only. This used to also rewrite `info.offset` every
+        // frame to soft-correct toward the snap, while `dragSnapToOrigin`
+        // animated the card back to its layout origin and the x/y state update
+        // on release moved it a third time. Three writers on one transform is
+        // what made the drag feel like it was moving through mud. Now the card
+        // tracks the pointer exactly, and the snap is applied once on release.
+        const { lines } = computeSnap(info.offset.x, info.offset.y);
         onSnapLines(lines);
-        // soft-correct the visual transform during the drag
-        const dx = (snappedX - x) * scale - info.offset.x;
-        const dy = (snappedY - y) * scale - info.offset.y;
-        if (dx || dy) info.offset.x += dx, info.offset.y += dy;
     }}
     onDragEnd={(e: PointerEvent, info: any) => {
         if (isPresenting || isResizing) return;
@@ -445,19 +442,15 @@
                 </div>
             {/if}
 
-            {#if !isPresenting && !isGenerated && !isSingleInstance}
-                <div class="flex items-center bg-black/40 rounded-lg px-2 py-1 border {quantity ? 'border-accent' : 'border-hairline'} transition-colors" onpointerdown={stopPointer}>
-                    <span class="text-sm font-semibold uppercase mr-1.5 {quantity ? 'text-accent' : 'text-fossil-300'}">Qty</span>
-                    <input
-                        type="number" min="1" max="50"
-                        value={generateAmount}
-                        oninput={(e) => handleQuantityChange(e.currentTarget.value)}
-                        onpointerdown={stop}
-                        class="w-7 bg-transparent text-center text-xs font-semibold text-ink-invert outline-none appearance-none"
-                        title="Manually set amount (overrides auto-size)"
-                    />
-                </div>
-            {/if}
+            <!--
+              No quantity stepper. The card's own height decides how many
+              questions render — drag the edge and the count follows, which is
+              the only way this is meant to work. calculateExerciseAmount
+              already reads the height, so removing the control leaves the
+              height as the single source. The `quantity` field stays in the
+              block state so older saved projects still load, it is just no
+              longer settable from the header.
+            -->
 
             {#if !isPresenting && isGenerated}
                 <button
@@ -529,8 +522,8 @@
 
         {#if !isGenerated && !isLoading}
 
-<div class="h-full flex flex-col p-7 bg-fossil-50 overflow-hidden space-y-4">
-    <div class="w-full flex-grow space-y-4 max-w-2xl mx-auto flex flex-col justify-start">
+<div class="h-full flex flex-col p-4 bg-fossil-50 overflow-hidden space-y-3">
+    <div class="w-full flex-grow space-y-2 max-w-2xl mx-auto flex flex-col justify-start">
         {#each Array(generateAmount) as _, i}
             <ExerciseTemplate type={exerciseType} index={i} />
         {/each}

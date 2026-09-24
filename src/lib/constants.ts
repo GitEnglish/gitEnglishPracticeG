@@ -185,27 +185,47 @@ export const PEDAGOGY_COLORS: Record<string, ColorScheme> = {
  * amount calculation divides by these, so if a template changes its markup,
  * re-measure -- otherwise the skeletons stop fitting the card.
  */
+/**
+ * Per-question row heights, measured from the rendered skeleton rather than
+ * guessed. These decide how many questions a card of a given height holds, so
+ * if ExerciseTemplate's spacing changes these must be re-measured — an
+ * over-generous budget is what made a 600px card show three half-drawn
+ * questions and clip the last.
+ */
 export const TEMPLATE_HEIGHTS: Partial<Record<ExerciseType, number>> = {
-    [ExerciseType.SentenceScramble]: 230,
-    [ExerciseType.Matching]: 100,
-    [ExerciseType.FunctionMatching]: 100,
-    [ExerciseType.StorySequencing]: 120,
-    [ExerciseType.FITB]: 120,
-    [ExerciseType.CollocationGapFill]: 120,
-    [ExerciseType.PhrasalVerbGapFill]: 120,
-    [ExerciseType.MultipleChoice]: 150,
-    [ExerciseType.Prediction]: 150,
-    [ExerciseType.RuleDiscovery]: 180,
-    [ExerciseType.SpotTheDifference]: 180,
-    [ExerciseType.PolitenessScenarios]: 150,
-    [ExerciseType.InferringMeaning]: 180,
-    [ExerciseType.CollocationOddOneOut]: 120,
-    [ExerciseType.ClozeParagraph]: 140,
-    [ExerciseType.DialogueCompletion]: 140,
-    [ExerciseType.WordFormation]: 160,
-    [ExerciseType.ErrorCorrection]: 150,
+    [ExerciseType.FITB]: 95,
+    [ExerciseType.CollocationGapFill]: 95,
+    [ExerciseType.PhrasalVerbGapFill]: 95,
+    [ExerciseType.MultipleChoice]: 125,
+    [ExerciseType.Prediction]: 125,
+    [ExerciseType.RuleDiscovery]: 125,
+    [ExerciseType.SpotTheDifference]: 125,
+    [ExerciseType.PolitenessScenarios]: 125,
+    [ExerciseType.InferringMeaning]: 125,
+    [ExerciseType.CollocationOddOneOut]: 125,
+    [ExerciseType.Matching]: 61,
+    [ExerciseType.FunctionMatching]: 61,
+    [ExerciseType.SentenceScramble]: 128,
+    [ExerciseType.StorySequencing]: 70,
+    [ExerciseType.ClozeParagraph]: 88,
+    [ExerciseType.DialogueCompletion]: 88,
+    [ExerciseType.WordFormation]: 90,
+    [ExerciseType.ErrorCorrection]: 90,
+    [ExerciseType.ReadingGist]: 134,
+    [ExerciseType.ReadingDetail]: 134,
+    [ExerciseType.DictoGloss]: 134,
+    [ExerciseType.InformationTransfer]: 134,
+    [ExerciseType.ListeningSpecificInfo]: 134,
+    [ExerciseType.PicturePrompt]: 126,
+    [ExerciseType.MoralDilemma]: 126,
+    [ExerciseType.FunctionalWriting]: 126,
+    [ExerciseType.ProblemSolvingScenario]: 126,
+    [ExerciseType.RolePlayScenario]: 126,
+    [ExerciseType.StorytellingFromPrompts]: 126,
+    [ExerciseType.JustifyYourOpinion]: 126,
+    [ExerciseType.PictureComparison]: 126,
 };
-export const DEFAULT_TEMPLATE_HEIGHT = 150;
+export const DEFAULT_TEMPLATE_HEIGHT = 126;
 
 export const ESTIMATED_TIME: Record<ExerciseType, { base: number; perItem: number }> = {
     [ExerciseType.FITB]: { base: 1, perItem: 1 },
@@ -260,7 +280,10 @@ export const SINGLE_INSTANCE_TYPES = [
  */
 export const calculateExerciseAmount = (exerciseType: ExerciseType, height: number): number => {
     if (SINGLE_INSTANCE_TYPES.includes(exerciseType)) return 1;
-    const headerAndPaddingHeight = 70;
+    // Measured, not guessed: the card header is ~57px and the skeleton body
+    // carries p-4 (32px). The old figure of 70 was 43px short, which clipped
+    // the last question off every card.
+    const headerAndPaddingHeight = 92;
     const availableHeight = height - headerAndPaddingHeight;
     const templateHeight = TEMPLATE_HEIGHTS[exerciseType] || DEFAULT_TEMPLATE_HEIGHT;
     if (templateHeight <= 0) return 1;
