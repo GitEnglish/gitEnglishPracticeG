@@ -32,41 +32,41 @@ export const DIFFICULTY_LABELS: Record<Difficulty, string> = {
   [Difficulty.Suffering]: 'Suffering (C2+)',
 };
 
-export const DEFAULT_BLOCK_DIMENSIONS = { width: 800, height: 600 };
+export const DEFAULT_BLOCK_DIMENSIONS = { width: 460, height: 476 };
 
 export const EXERCISE_SIZE_OVERRIDES: Partial<Record<ExerciseType, { width: number; height: number }>> = {
-    [ExerciseType.FITB]: { width: 700, height: 600 },
-    [ExerciseType.MultipleChoice]: { width: 700, height: 800 },
-    [ExerciseType.SentenceScramble]: { width: 700, height: 700 },
-    [ExerciseType.Matching]: { width: 700, height: 600 },
-    [ExerciseType.ClozeParagraph]: { width: 800, height: 700 },
-    [ExerciseType.DialogueCompletion]: { width: 800, height: 600 },
-    [ExerciseType.ErrorCorrection]: { width: 700, height: 600 },
-    [ExerciseType.StorySequencing]: { width: 700, height: 700 },
-    [ExerciseType.Prediction]: { width: 700, height: 700 },
-    [ExerciseType.RuleDiscovery]: { width: 800, height: 700 },
-    [ExerciseType.SpotTheDifference]: { width: 800, height: 700 },
-    [ExerciseType.PicturePrompt]: { width: 600, height: 750 },
-    [ExerciseType.MoralDilemma]: { width: 700, height: 600 },
-    [ExerciseType.ReadingGist]: { width: 800, height: 700 },
-    [ExerciseType.ReadingDetail]: { width: 800, height: 800 },
-    [ExerciseType.FunctionalWriting]: { width: 700, height: 600 },
-    [ExerciseType.DictoGloss]: { width: 700, height: 600 },
-    [ExerciseType.CollocationGapFill]: { width: 700, height: 600 },
-    [ExerciseType.WordFormation]: { width: 700, height: 600 },
-    [ExerciseType.PhrasalVerbGapFill]: { width: 595, height: 510 },
-    [ExerciseType.CollocationOddOneOut]: { width: 700, height: 600 },
-    [ExerciseType.InformationTransfer]: { width: 800, height: 700 },
-    [ExerciseType.ListeningSpecificInfo]: { width: 700, height: 700 },
-    [ExerciseType.ProblemSolvingScenario]: { width: 700, height: 600 },
-    [ExerciseType.RolePlayScenario]: { width: 700, height: 600 },
-    [ExerciseType.StorytellingFromPrompts]: { width: 700, height: 600 },
-    [ExerciseType.JustifyYourOpinion]: { width: 700, height: 600 },
-    [ExerciseType.PictureComparison]: { width: 800, height: 700 },
-    [ExerciseType.FunctionMatching]: { width: 700, height: 600 },
-    [ExerciseType.RegisterSort]: { width: 800, height: 700 },
-    [ExerciseType.PolitenessScenarios]: { width: 700, height: 700 },
-    [ExerciseType.InferringMeaning]: { width: 700, height: 700 },
+    [ExerciseType.FITB]: { width: 460, height: 426 },
+    [ExerciseType.MultipleChoice]: { width: 460, height: 568 },
+    [ExerciseType.SentenceScramble]: { width: 460, height: 798 },
+    [ExerciseType.Matching]: { width: 460, height: 312 },
+    [ExerciseType.ClozeParagraph]: { width: 460, height: 548 },
+    [ExerciseType.DialogueCompletion]: { width: 460, height: 548 },
+    [ExerciseType.ErrorCorrection]: { width: 460, height: 428 },
+    [ExerciseType.StorySequencing]: { width: 460, height: 355 },
+    [ExerciseType.Prediction]: { width: 460, height: 568 },
+    [ExerciseType.RuleDiscovery]: { width: 460, height: 568 },
+    [ExerciseType.SpotTheDifference]: { width: 460, height: 568 },
+    [ExerciseType.PicturePrompt]: { width: 440, height: 420 },
+    [ExerciseType.MoralDilemma]: { width: 460, height: 340 },
+    [ExerciseType.ReadingGist]: { width: 500, height: 360 },
+    [ExerciseType.ReadingDetail]: { width: 500, height: 420 },
+    [ExerciseType.FunctionalWriting]: { width: 460, height: 360 },
+    [ExerciseType.DictoGloss]: { width: 460, height: 320 },
+    [ExerciseType.CollocationGapFill]: { width: 460, height: 426 },
+    [ExerciseType.WordFormation]: { width: 460, height: 428 },
+    [ExerciseType.PhrasalVerbGapFill]: { width: 460, height: 426 },
+    [ExerciseType.CollocationOddOneOut]: { width: 460, height: 568 },
+    [ExerciseType.InformationTransfer]: { width: 500, height: 380 },
+    [ExerciseType.ListeningSpecificInfo]: { width: 460, height: 360 },
+    [ExerciseType.ProblemSolvingScenario]: { width: 460, height: 340 },
+    [ExerciseType.RolePlayScenario]: { width: 460, height: 340 },
+    [ExerciseType.StorytellingFromPrompts]: { width: 460, height: 340 },
+    [ExerciseType.JustifyYourOpinion]: { width: 460, height: 340 },
+    [ExerciseType.PictureComparison]: { width: 500, height: 360 },
+    [ExerciseType.FunctionMatching]: { width: 460, height: 312 },
+    [ExerciseType.RegisterSort]: { width: 500, height: 380 },
+    [ExerciseType.PolitenessScenarios]: { width: 460, height: 568 },
+    [ExerciseType.InferringMeaning]: { width: 460, height: 568 },
 };
 
 export const EXERCISE_PEDAGOGY: Record<ExerciseType, string> = {
@@ -198,27 +198,39 @@ export const PEDAGOGY_COLORS: Record<string, ColorScheme> = {
   'Default': GROUP_SCHEME,
 };
 
+/**
+ * Natural rendered height of ONE skeleton, in px, measured from a real browser
+ * with the card forced tall so flex-stretch cannot distort the figure. The
+ * amount calculation divides by these, so if a template changes its markup,
+ * re-measure -- otherwise the skeletons stop fitting the card.
+ */
 export const TEMPLATE_HEIGHTS: Partial<Record<ExerciseType, number>> = {
-    [ExerciseType.SentenceScramble]: 230,
-    [ExerciseType.Matching]: 100,
-    [ExerciseType.FunctionMatching]: 100,
-    [ExerciseType.StorySequencing]: 120,
-    [ExerciseType.FITB]: 170,
-    [ExerciseType.CollocationGapFill]: 170,
-    [ExerciseType.PhrasalVerbGapFill]: 170,
-    [ExerciseType.MultipleChoice]: 150,
-    [ExerciseType.Prediction]: 150,
-    [ExerciseType.RuleDiscovery]: 180,
-    [ExerciseType.SpotTheDifference]: 180,
-    [ExerciseType.PolitenessScenarios]: 150,
-    [ExerciseType.InferringMeaning]: 180,
-    [ExerciseType.CollocationOddOneOut]: 120,
-    [ExerciseType.ClozeParagraph]: 140,
-    [ExerciseType.DialogueCompletion]: 140,
-    [ExerciseType.WordFormation]: 160,
-    [ExerciseType.ErrorCorrection]: 150,
+    // compact
+    [ExerciseType.Matching]: 90,
+    [ExerciseType.FunctionMatching]: 90,
+    [ExerciseType.StorySequencing]: 110,
+    // fill in the blank
+    [ExerciseType.FITB]: 142,
+    [ExerciseType.CollocationGapFill]: 142,
+    [ExerciseType.PhrasalVerbGapFill]: 142,
+    // multiple choice
+    [ExerciseType.MultipleChoice]: 207,
+    [ExerciseType.Prediction]: 207,
+    [ExerciseType.RuleDiscovery]: 207,
+    [ExerciseType.SpotTheDifference]: 207,
+    [ExerciseType.PolitenessScenarios]: 207,
+    [ExerciseType.InferringMeaning]: 207,
+    [ExerciseType.CollocationOddOneOut]: 207,
+    // passage
+    [ExerciseType.ClozeParagraph]: 198,
+    [ExerciseType.DialogueCompletion]: 198,
+    // short answer
+    [ExerciseType.WordFormation]: 143,
+    [ExerciseType.ErrorCorrection]: 143,
+    // scramble
+    [ExerciseType.SentenceScramble]: 312,
 };
-export const DEFAULT_TEMPLATE_HEIGHT = 150;
+export const DEFAULT_TEMPLATE_HEIGHT = 207;
 
 export const ESTIMATED_TIME: Record<ExerciseType, { base: number; perItem: number }> = {
     [ExerciseType.FITB]: { base: 1, perItem: 1 },
@@ -263,14 +275,28 @@ export const SINGLE_INSTANCE_TYPES = [
     ExerciseType.MoralDilemma, ExerciseType.PicturePrompt
 ];
 
-export const calculateExerciseAmount = (exerciseType: ExerciseType, height: number): number => {
+/**
+ * How many skeleton exercises fit on a card of this size.
+ *
+ * Driven by AREA, not height alone: widening a card makes room for longer
+ * sentences, and a short wide card should not claim the same capacity as a
+ * tall narrow one. Chrome (header + padding) is subtracted before dividing,
+ * so the skeletons always land inside the card rather than overflowing it.
+ */
+export const calculateExerciseAmount = (exerciseType: ExerciseType, height: number, width = 460): number => {
     if (SINGLE_INSTANCE_TYPES.includes(exerciseType)) return 1;
-    const headerAndPaddingHeight = 70;
-    const availableHeight = height - headerAndPaddingHeight;
     const templateHeight = TEMPLATE_HEIGHTS[exerciseType] || DEFAULT_TEMPLATE_HEIGHT;
     if (templateHeight <= 0) return 1;
-    return Math.max(1, Math.floor(availableHeight / templateHeight));
+
+    // Measured chrome: the block header is 86px and the body pads 28px, so 114
+    // goes vertically. The card only pads 40px at the sides -- charging the
+    // header to both axes is what made wide cards render fewer exercises.
+    const usableHeight = Math.max(0, height - 114);
+    const usableWidth = Math.max(0, width - 40);
+
+    return Math.max(1, Math.floor((usableHeight * usableWidth) / (templateHeight * 460)));
 };
+
 
 export const calculateExerciseDuration = (exerciseType: ExerciseType, height: number, manualAmount?: number): number => {
     const amount = manualAmount ?? calculateExerciseAmount(exerciseType, height);

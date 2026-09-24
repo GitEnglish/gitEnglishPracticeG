@@ -6,7 +6,7 @@
   import type { ExerciseBlockState } from './lib/types';
   import { Difficulty, Tone, ExerciseType } from './lib/types';
   import { initActivityLogger, getActivityLogger } from './services/ActivityLogger';
-  import { EXERCISE_SIZE_OVERRIDES, DEFAULT_BLOCK_DIMENSIONS, calculateExerciseAmount } from './lib/constants';
+  import { EXERCISE_SIZE_OVERRIDES, DEFAULT_BLOCK_DIMENSIONS } from './lib/constants';
 
   $effect(() => {
     initActivityLogger('practice-genie', 'student_default');
@@ -210,8 +210,7 @@
           inclusionRate: globalInclusionRate,
           focusGrammar: [...globalFocusGrammar],
           grammarInclusionRate: globalGrammarInclusionRate,
-          isGenerated: false,
-          quantity: calculateExerciseAmount(type, height)
+          isGenerated: false
       };
       blocks = [...blocks, newBlock];
   };

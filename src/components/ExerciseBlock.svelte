@@ -66,7 +66,7 @@
   let isLoading = $state(false);
   let isSettingsOpen = $state(false);
   let currentSlide = $state(0);
-  let generateAmount = $derived(quantity ?? calculateExerciseAmount(exerciseType, height));
+  let generateAmount = $derived(quantity ?? calculateExerciseAmount(exerciseType, height, width));
 
   // If the block is marked as generated (e.g. from local storage reload) but content is empty,
   // revert it to un-generated so the user can see the generate button and prevent crashes.
@@ -89,7 +89,7 @@
     onFocus(id);
     currentSlide = 0;
     try {
-        const amount = quantity ?? calculateExerciseAmount(exerciseType, height);
+        const amount = quantity ?? calculateExerciseAmount(exerciseType, height, width);
         const result = await generateExercise(exerciseType, difficulty, tone, theme, amount, focusVocabulary, inclusionRate, focusGrammar, grammarInclusionRate);
         if (Array.isArray(result)) {
             content = result;
@@ -180,6 +180,7 @@
 
   const startResize = (e: MouseEvent, direction: string) => {
       e.stopPropagation();
+      e.preventDefault();
       onFocus(id);
       isResizing = true;
       resizeDirection = direction;
@@ -257,7 +258,7 @@
         }
     }}
     onmousedown={() => onFocus(id)}
-    class="bg-fossil-50 rounded-[22px] shadow-card border panel-outline-light overflow-hidden transition-all duration-300 hover:shadow-2xl flex flex-col will-change-transform {isPresenting ? 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] scale-150 !rounded-none !border-0 w-screen h-screen' : 'absolute cursor-grab active:cursor-grabbing'}"
+    class="bg-fossil-50 rounded-[22px] shadow-card border panel-outline-light overflow-hidden transition-shadow duration-200 hover:shadow-2xl flex flex-col will-change-transform {isResizing ? 'select-none' : ''} {isPresenting ? 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] scale-150 !rounded-none !border-0 w-screen h-screen' : 'absolute cursor-grab active:cursor-grabbing'}"
     style="left: {x}px; top: {y}px; width: {isPresenting ? '900px' : width + 'px'}; height: {isPresenting ? 'auto' : height + 'px'}; min-height: {isPresenting ? 'auto' : '150px'}; z-index: {isPresenting ? 9999 : zIndex};"
 >
     <!-- Top Gradient Bar -->
@@ -265,15 +266,15 @@
 
     <!-- Resize Handles -->
     {#if !isPresenting}
-        <div class="absolute top-0 left-0 w-full h-2 cursor-ns-resize z-50 hover:bg-accent/20" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'n')} role="separator" aria-orientation="horizontal" tabindex="-1"></div>
-        <div class="absolute bottom-0 left-0 w-full h-2 cursor-ns-resize z-50 hover:bg-accent/20" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 's')} role="separator" aria-orientation="horizontal" tabindex="-1"></div>
-        <div class="absolute top-0 left-0 w-2 h-full cursor-ew-resize z-50 hover:bg-accent/20" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'w')} role="separator" aria-orientation="vertical" tabindex="-1"></div>
-        <div class="absolute top-0 right-0 w-2 h-full cursor-ew-resize z-50 hover:bg-accent/20" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'e')} role="separator" aria-orientation="vertical" tabindex="-1"></div>
+        <div class="absolute -top-1 left-2 right-2 h-3 cursor-ns-resize z-50 hover:bg-accent/25 rounded-full" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'n')} role="separator" aria-orientation="horizontal" tabindex="-1"></div>
+        <div class="absolute -bottom-1 left-2 right-2 h-3 cursor-ns-resize z-50 hover:bg-accent/25 rounded-full" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 's')} role="separator" aria-orientation="horizontal" tabindex="-1"></div>
+        <div class="absolute -left-1 top-2 bottom-2 w-3 cursor-ew-resize z-50 hover:bg-accent/25 rounded-full" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'w')} role="separator" aria-orientation="vertical" tabindex="-1"></div>
+        <div class="absolute -right-1 top-2 bottom-2 w-3 cursor-ew-resize z-50 hover:bg-accent/25 rounded-full" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'e')} role="separator" aria-orientation="vertical" tabindex="-1"></div>
 
-        <div class="absolute top-0 left-0 w-4 h-4 cursor-nwse-resize z-50 hover:bg-accent/20" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'nw')} role="separator" tabindex="-1"></div>
-        <div class="absolute top-0 right-0 w-4 h-4 cursor-nesw-resize z-50 hover:bg-accent/20" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'ne')} role="separator" tabindex="-1"></div>
-        <div class="absolute bottom-0 left-0 w-4 h-4 cursor-nesw-resize z-50 hover:bg-accent/20" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'sw')} role="separator" tabindex="-1"></div>
-        <div class="absolute bottom-0 right-0 w-4 h-4 cursor-nwse-resize z-50 hover:bg-accent/20" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'se')} role="separator" tabindex="-1"></div>
+        <div class="absolute -top-1 -left-1 w-4 h-4 cursor-nwse-resize z-50 hover:bg-accent/30 rounded" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'nw')} role="separator" tabindex="-1"></div>
+        <div class="absolute -top-1 -right-1 w-4 h-4 cursor-nesw-resize z-50 hover:bg-accent/30 rounded" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'ne')} role="separator" tabindex="-1"></div>
+        <div class="absolute -bottom-1 -left-1 w-4 h-4 cursor-nesw-resize z-50 hover:bg-accent/30 rounded" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'sw')} role="separator" tabindex="-1"></div>
+        <div class="absolute -bottom-1 -right-1 w-4 h-4 cursor-nwse-resize z-50 hover:bg-accent/30 rounded" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'se')} role="separator" tabindex="-1"></div>
     {/if}
 
     <!-- Header -->
