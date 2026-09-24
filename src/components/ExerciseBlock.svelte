@@ -401,8 +401,8 @@
             {/if}
             <div class="flex items-center gap-3 min-w-0">
                 <h3 class="font-semibold text-lg tracking-tight truncate select-none {isPresenting ? 'text-2xl' : ''}">{exerciseType}</h3>
-                <span class="text-[10px] px-2 py-1 uppercase tracking-widest font-semibold bg-black/40 text-fossil-400 rounded-full border border-hairline select-none whitespace-nowrap hidden sm:inline">{pedagogy}</span>
-                <span class="text-[10px] px-2 py-1 font-semibold bg-black/30 text-fossil-300 rounded-full border border-hairline select-none items-center gap-1 whitespace-nowrap hidden md:flex" title="Estimated completion time">
+                <span class="text-sm px-2 py-1 uppercase tracking-widest font-semibold bg-black/40 text-fossil-400 rounded-full border border-hairline select-none whitespace-nowrap hidden sm:inline">{pedagogy}</span>
+                <span class="text-sm px-2 py-1 font-semibold bg-black/30 text-fossil-300 rounded-full border border-hairline select-none items-center gap-1 whitespace-nowrap hidden md:flex" title="Estimated completion time">
                     <span>⏱</span> ~{estimatedDuration}m
                 </span>
             </div>
@@ -423,7 +423,7 @@
 
             {#if !isPresenting && !isGenerated && !isSingleInstance}
                 <div class="flex items-center bg-black/40 rounded-lg px-2 py-1 border {quantity ? 'border-accent' : 'border-hairline'} transition-colors" onpointerdown={stopPointer}>
-                    <span class="text-[10px] font-semibold uppercase mr-1.5 {quantity ? 'text-accent' : 'text-fossil-500'}">Qty</span>
+                    <span class="text-sm font-semibold uppercase mr-1.5 {quantity ? 'text-accent' : 'text-fossil-500'}">Qty</span>
                     <input
                         type="number" min="1" max="50"
                         value={generateAmount}

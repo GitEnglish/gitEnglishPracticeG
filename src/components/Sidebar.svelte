@@ -209,7 +209,7 @@
           <button onclick={onToggleSettings} class="p-2 rounded-lg text-fossil-400 hover:text-fossil-50 hover:bg-fossil-50/10 transition-all" title="Global settings" aria-label="Global settings">
             <SettingsIcon class="w-4 h-4" />
           </button>
-          <button onclick={onCycleDifficulty} class="px-2 py-1 rounded-lg border border-hairline text-[10px] font-semibold tracking-widest text-accent hover:bg-fossil-50/10 transition-all whitespace-nowrap" title="Cycle difficulty (CEFR)" aria-label="Cycle difficulty">
+          <button onclick={onCycleDifficulty} class="px-2 py-1 rounded-lg border border-hairline text-sm font-semibold tracking-widest text-accent hover:bg-fossil-50/10 transition-all whitespace-nowrap" title="Cycle difficulty (CEFR)" aria-label="Cycle difficulty">
             {difficulty ?? 'B1'}
           </button>
           <button onclick={onToggleDrawingMode} class="p-2 rounded-lg transition-all {isDrawingMode ? 'text-accent bg-accent/15' : 'text-fossil-400 hover:text-fossil-50 hover:bg-fossil-50/10'}" title="Drawing mode" aria-pressed={isDrawingMode ?? false} aria-label="Toggle drawing mode">
@@ -326,7 +326,7 @@
                                       {@render difficultyIndicator(info.difficultyRating)}
                                       <button
                                           onclick={(e) => toggleInfo(e, type)}
-                                          class="text-[10px] font-sans font-medium tracking-wide text-fossil-400 border border-fossil-50/10 rounded px-1.5 py-0.5 hover:text-fossil-50 hover:border-fossil-50/30 transition-colors z-20"
+                                          class="text-sm font-sans font-medium tracking-wide text-fossil-400 border border-fossil-50/10 rounded px-1.5 py-0.5 hover:text-fossil-50 hover:border-fossil-50/30 transition-colors z-20"
                                           title="About this exercise"
                                       >
                                           {pedagogy}
@@ -351,7 +351,7 @@
                                       <p class="text-xs text-fossil-400 mb-1 font-semibold uppercase tracking-wider">Example</p>
                                       <p class="text-xs text-fossil-300 font-mono italic">"{info.example}"</p>
                                   </div>
-                                  <p class="text-[10px] text-fossil-300 text-center uppercase tracking-widest pt-1">Click to add • Drag to place</p>
+                                  <p class="text-sm text-fossil-300 text-center uppercase tracking-widest pt-1">Click to add • Drag to place</p>
                               </div>
 
                               <!-- Accordion Info Panel (Not Draggable) -->
@@ -360,13 +360,13 @@
                                       <div class="p-3.5">
                                           <h4 class="font-semibold text-accent text-sm mb-1.5">{info.name}</h4>
                                           <div class="flex items-center gap-2 mb-2">
-                                              <span class="text-[10px] px-1.5 py-0.5 rounded border {colors.border} {colors.textOnDark} bg-fossil-800">{pedagogy}</span>
+                                              <span class="text-sm px-1.5 py-0.5 rounded border {colors.border} {colors.textOnDark} bg-fossil-800">{pedagogy}</span>
                                               <span class="text-xs text-fossil-500">•</span>
-                                              <span class="text-[10px] text-citrine-300">{info.difficultyRating}</span>
+                                              <span class="text-sm text-citrine-300">{info.difficultyRating}</span>
                                           </div>
                                           <p class="text-fossil-300 text-xs mb-3 leading-relaxed border-l-2 border-fossil-700 pl-2">{info.description}</p>
                                           <div class="bg-black/30 rounded p-2.5 border border-fossil-800">
-                                              <p class="text-[10px] text-malachite-400 mb-1 font-semibold uppercase tracking-wider">Example</p>
+                                              <p class="text-sm text-malachite-400 mb-1 font-semibold uppercase tracking-wider">Example</p>
                                               <p class="text-xs text-fossil-200 font-serif italic leading-tight">"{info.example}"</p>
                                           </div>
                                       </div>
@@ -398,7 +398,7 @@
             <button onclick={() => getActivityLogger()?.downloadLog()} class="p-2 rounded-lg text-fossil-600 hover:text-fossil-300 hover:bg-fossil-50/10 transition-all" title="Download telemetry log" aria-label="Download session activity log">
                 <DownloadIcon class="w-4 h-4" />
             </button>
-            <div class="ml-1 text-[10px] font-mono text-fossil-400 select-none">v2.1.0</div>
+            <div class="ml-1 text-sm font-mono text-fossil-400 select-none">v2.1.0</div>
         </div>
   </div>
   </div>

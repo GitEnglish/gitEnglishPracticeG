@@ -102,7 +102,7 @@
 
     <!-- Label tooltip -->
     {#if !isOpen && isHovered}
-         <div class="absolute top-16 text-[10px] font-bold uppercase tracking-widest text-fossil-600 bg-fossil-50/90 px-2 py-1 rounded-md shadow-sm border border-fossil-100 animate-in fade-in slide-in-from-top-1">
+         <div class="absolute top-16 text-sm font-bold uppercase tracking-widest text-fossil-600 bg-fossil-50/90 px-2 py-1 rounded-md shadow-sm border border-fossil-100 animate-in fade-in slide-in-from-top-1">
              Menu
          </div>
     {/if}
