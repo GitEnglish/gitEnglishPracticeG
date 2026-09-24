@@ -207,7 +207,7 @@
   class="flex-grow bg-transparent relative overflow-hidden font-sans h-full w-full {isPanning ? 'cursor-grabbing' : (isDrawingMode ? 'cursor-crosshair' : 'cursor-grab')}"
 >
   {#if blocks.length === 0}
-  <div class="absolute inset-0 flex flex-col justify-center items-center text-center text-fossil-500 pointer-events-none p-4 z-0 select-none">
+  <div class="absolute inset-0 flex flex-col justify-center items-center text-center text-ink-muted pointer-events-none p-4 z-0 select-none">
       <Wand2 size={64} class="text-fossil-400" />
       <h2 class="text-2xl font-bold mt-4">Welcome to the Practice Genie!</h2>
       <p class="mt-2 text-lg">Your infinite whiteboard is empty.</p>

@@ -184,7 +184,7 @@
   initial={false}
   animate={{ x: isSidebarOpen ? 0 : "-100%" }}
   transition={{ type: "spring", stiffness: 400, damping: 40 }}
-  class="w-80 flex-shrink-0 bg-shell border-r border-hairline/50 text-fossil-300 flex flex-col justify-between relative z-30 panel-frosted will-change-transform h-screen lg:static lg:translate-x-0 font-sans"
+  class="w-80 flex-shrink-0 bg-chrome border-r border-hairline/50 text-fossil-300 flex flex-col justify-between relative z-30 panel-frosted will-change-transform h-screen lg:static lg:translate-x-0 font-sans"
 >
 
   <div class="flex flex-col h-full overflow-hidden">
@@ -351,7 +351,7 @@
                                       <p class="text-xs text-fossil-400 mb-1 font-semibold uppercase tracking-wider">Example</p>
                                       <p class="text-xs text-fossil-300 font-mono italic">"{info.example}"</p>
                                   </div>
-                                  <p class="text-[10px] text-fossil-500 text-center uppercase tracking-widest pt-1">Click to add • Drag to place</p>
+                                  <p class="text-[10px] text-fossil-300 text-center uppercase tracking-widest pt-1">Click to add • Drag to place</p>
                               </div>
 
                               <!-- Accordion Info Panel (Not Draggable) -->
@@ -398,7 +398,7 @@
             <button onclick={() => getActivityLogger()?.downloadLog()} class="p-2 rounded-lg text-fossil-600 hover:text-fossil-300 hover:bg-fossil-50/10 transition-all" title="Download telemetry log" aria-label="Download session activity log">
                 <DownloadIcon class="w-4 h-4" />
             </button>
-            <div class="ml-1 text-[10px] font-mono text-fossil-600 select-none">v2.1.0</div>
+            <div class="ml-1 text-[10px] font-mono text-fossil-400 select-none">v2.1.0</div>
         </div>
   </div>
   </div>

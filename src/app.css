@@ -98,21 +98,26 @@
    Light shell. Dark ink. Accents only where the palette says accents go.
    ========================================================================== */
 @theme inline {
-  --color-shell: #f2fcff;            /* app background                     */
-  --color-chrome: #e9f4fa;           /* sidebar                            */
-  --color-chrome-raised: #dbe5eb;   /* sidebar headers                    */
-  --color-hairline: #c7d1d7;         /* borders                            */
+  /* Two surfaces that differ in LIGHTNESS, not just hue. This is the whole
+     reason the UI is legible: the canvas is a definite pale grey so white
+     cards read as objects on it, and the chrome is a dark blue-grey so the
+     light text already in the components (text-fossil-50/200/300) reads.
+     Same neutral ramp, opposite ends. */
+  --color-shell: #dbe5eb;            /* canvas: pale blue-grey, NOT white   */
+  --color-chrome: #131b1f;           /* sidebar: dark blue-grey, NOT black */
+  --color-chrome-raised: #252d31;   /* sidebar headers                    */
+  --color-hairline: #3a4248;         /* borders on dark chrome             */
   --color-surface: #ffffff;          /* exercise blocks, cards, modals     */
-  --color-surface-sunken: #f2fcff;
+  --color-surface-sunken: #e9f4fa;
   --color-surface-raised: #ffffff;
-  --color-rule: #c7d1d7;
+  --color-rule: #c7d1d7;             /* borders on light                   */
 
-  --color-ink: #131b1f;
+  --color-ink: #131b1f;              /* text on light                      */
   --color-ink-muted: #51595f;
   --color-ink-faint: #6d767c;
-  --color-ink-invert: #131b1f;
-  --color-ink-invert-muted: #51595f;
-  --color-ink-invert-faint: #6d767c;
+  --color-ink-invert: #f2fcff;       /* text on dark chrome                */
+  --color-ink-invert-muted: #c7d1d7;
+  --color-ink-invert-faint: #97a0a6;
 
   --color-accent: #e3570b;           /* CTA — palette CTA orange, 4.68:1 on ink */
   --color-accent-hover: #c1440a;
@@ -135,8 +140,9 @@
     background-size: 24px 24px;
   }
 
+  /* The sidebar is dark. Must not be white, or its light text disappears. */
   .panel-frosted {
-    background-color: rgb(255 255 255 / 0.94);
+    background-color: rgb(19 27 31 / 0.96);
     backdrop-filter: blur(28px) saturate(180%);
     -webkit-backdrop-filter: blur(28px) saturate(180%);
   }
