@@ -122,6 +122,15 @@
   const estimatedDuration = $derived(calculateExerciseDuration(exerciseType, height, quantity));
 
   const stop = (e: Event) => e.stopPropagation();
+  // Deletion should read as the card leaving, not as a frame being dropped.
+  // Fade and shrink over a short beat, then remove. `scale` is Tailwind's
+  // standalone property here, so it never collides with the drag transform.
+  let isRemoving = $state(false);
+  const handleRemove = () => {
+      if (isRemoving) return;
+      isRemoving = true;
+      setTimeout(() => onRemove(id), 170);
+  };
   const handleQuantityChange = (val: string) => {
       const n = parseInt(val);
       onUpdate(id, { quantity: isNaN(n) || n < 1 ? undefined : n });
@@ -370,9 +379,14 @@
         onUpdate(id, { x: Math.round(snappedX), y: Math.round(snappedY) });
     }}
     onmousedown={() => onFocus(id)}
-    class="bg-fossil-50 rounded-[22px] shadow-card border panel-outline-light overflow-hidden transition-shadow duration-150 hover:shadow-lift flex flex-col {isResizing ? 'select-none' : ''} {isPresenting ? 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] scale-150 !rounded-none !border-0 w-screen h-screen' : 'absolute cursor-grab active:cursor-grabbing'}"
+    class="bg-fossil-50 rounded-[22px] shadow-card border panel-outline-light overflow-hidden flex flex-col transition-[opacity,scale] duration-[170ms] ease-out {isRemoving ? 'opacity-0 scale-[0.97] pointer-events-none' : ''} {isResizing ? 'select-none' : ''} {isPresenting ? 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] scale-150 !rounded-none !border-0 w-screen h-screen' : 'absolute cursor-grab active:cursor-grabbing'}"
     style="left: {x}px; top: {y}px; width: {isPresenting ? '900px' : width + 'px'}; height: {isPresenting ? 'auto' : height + 'px'}; min-height: {isPresenting ? 'auto' : '150px'}; z-index: {isPresenting ? 9999 : zIndex};"
 >
+    <!-- Hover lives on this inner wrapper, not on the motion root. svelte-motion
+         owns `transform` on the root for dragging, and the whiteboard zoom
+         already scales the parent, so a hover transform there fights both.
+         Inside, a CSS scale composes freely and cannot disturb a drag. -->
+    <div class="h-full w-full flex flex-col transition-[scale,box-shadow] duration-150 ease-out origin-center hover:scale-[1.01]">
     <!-- Top Gradient Bar -->
     <div class="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-accent to-transparent"></div>
 
@@ -464,15 +478,15 @@
                 <Button variant="ghost" size="icon" onpointerdown={stop} onclick={(e) => { stop(e); isSettingsOpen = !isSettingsOpen; }} title="Settings" class={isSettingsOpen ? 'bg-fossil-50/15 text-ink-invert' : 'text-fossil-300'}>
                     <Settings class="w-4 h-4" />
                 </Button>
-                <Button variant="danger" size="icon" onpointerdown={stop} onclick={(e) => { stop(e); onRemove(id); }} title="Remove" class="text-cinnabar-400">
+                <Button variant="danger" size="icon" onpointerdown={stop} onclick={(e) => { stop(e); handleRemove(); }} title="Remove" class="text-cinnabar-400 {isRemoving ? 'opacity-40' : ''}">
                     <Trash2 class="w-4 h-4" />
                 </Button>
             {/if}
         </div>
     </div>
-    <div class="flex-grow flex flex-col bg-fossil-50 overflow-hidden relative w-full h-full" onpointerdown={stopPointer}>
+    <div class="flex-grow flex flex-col bg-fossil-50 overflow-hidden relative w-full h-full" role="presentation" onpointerdown={stopPointer}>
         {#if isSettingsOpen && !isPresenting}
-            <div class="p-3 border-b border-rule bg-surface grid grid-cols-2 gap-3 flex-shrink-0 relative z-10" onpointerdown={stopPointer}>
+            <div class="p-3 border-b border-rule bg-surface grid grid-cols-2 gap-3 flex-shrink-0 relative z-10" role="presentation" onpointerdown={stopPointer}>
                 <label class="sr-only" for="block-difficulty-{id}">Block difficulty</label>
                 <select
                     id="block-difficulty-{id}"
@@ -509,7 +523,7 @@
 
         {#if !isGenerated && !isLoading}
 
-<div class="h-full flex flex-col p-7 bg-fossil-50 overflow-y-auto custom-scrollbar-light space-y-4">
+<div class="h-full flex flex-col p-7 bg-fossil-50 overflow-hidden space-y-4">
     <div class="w-full flex-grow space-y-4 max-w-2xl mx-auto flex flex-col justify-start">
         {#each Array(generateAmount) as _, i}
             <ExerciseTemplate type={exerciseType} index={i} />
@@ -536,7 +550,7 @@
                         </button>
                     </div>
                 {/if}
-                <div class="flex-grow overflow-y-auto p-5 custom-scrollbar-light h-full w-full">
+                <div class="flex-grow overflow-hidden p-5 h-full w-full">
                     {#if activeItem?.error}
                         <div class="p-4 bg-cinnabar-50 text-cinnabar-600 rounded-xl border border-cinnabar-200 text-sm">{activeItem.error}</div>
                     {:else if ActiveExercise}
@@ -547,6 +561,7 @@
                 </div>
             </div>
         {/if}
+    </div>
     </div>
 </motion.div>
 

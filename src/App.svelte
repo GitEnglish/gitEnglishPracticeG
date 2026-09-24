@@ -157,40 +157,75 @@
           finalX = Math.round(dropX - width/2);
           finalY = Math.round(dropY - height/2);
       } else {
-          // Find free position logic equivalent to React version
-          // the legacy app used standard screen bounds, here the whiteboard origin is at -5000, -5000
-          // Let's place it near the center of the current view by default, or just at a fixed offset
-          // To be simple and match the "fallback" logic, let's put it around 0,0 relative to whiteboard center
-          finalX = 5000 + 100;
-          finalY = 5000 + 100;
+          // Place a new card in free space that is actually visible.
+          //
+          // The old search spiralled out to 3000px from centre, so a few adds
+          // put cards — and their header controls, including Remove — outside
+          // the viewport: unreachable, which read as "this one won't delete".
+          // Capping the radius instead just stacked cards on top of each
+          // other, hiding their controls the same way.
+          //
+          // So: sweep candidate positions across the visible box only, take
+          // the first that is free, and if the view is genuinely full, cascade
+          // from the centre by a small offset that stays on screen.
+          // The canvas does not start at screen x=0 — the sidebar covers the
+          // left 320px. Using the whiteboard element's own rect keeps new cards
+          // out from under the sidebar, where their header controls would be
+          // unreachable.
+          const canvasEl = document.getElementById('whiteboard-main');
+          const canvasRect = canvasEl
+              ? canvasEl.getBoundingClientRect()
+              : { left: 0, top: 0, right: window.innerWidth, bottom: window.innerHeight };
+          // The canvas element can be larger than the window (it is a pannable
+          // surface), so intersect it with the viewport. What matters is the
+          // part the user can actually see right now.
+          //
+          // Block coordinates map to the screen as:
+          //   screen = state - 5000 + canvasRect.left
+          // so the visible band, expressed in block coordinates, is the
+          // viewport shifted by (5000 - canvasRect.left).
+          const visLeft = Math.max(0, canvasRect.left);
+          const visTop = Math.max(0, canvasRect.top);
+          const visRight = Math.min(window.innerWidth, canvasRect.right);
+          const visBottom = Math.min(window.innerHeight, canvasRect.bottom);
+          const canvasW = Math.max(0, visRight - visLeft);
+          const canvasH = Math.max(0, visBottom - visTop);
+          const viewLeft = 5000 + visLeft - canvasRect.left;
+          const viewTop = 5000 + visTop - canvasRect.top;
+          const viewRight = 5000 + visRight - canvasRect.left;
+          const viewBottom = 5000 + visBottom - canvasRect.top;
 
-          // We want it to be near the center of the screen
-          const centerX = 5000 + (window.innerWidth / 2) - (width / 2);
-          const centerY = 5000 + (window.innerHeight / 2) - (height / 2);
+          const clampX = (v: number) => Math.min(Math.max(v, viewLeft), Math.max(viewLeft, viewRight - width));
+          const clampY = (v: number) => Math.min(Math.max(v, viewTop), Math.max(viewTop, viewBottom - height));
 
+          const isFree = (x: number, y: number) => !blocks.some((b) =>
+              x < b.x + b.width && x + width > b.x && y < b.y + b.height && y + height > b.y
+          );
+
+          const step = 60;
           let positionFound = false;
-          for (let offset = 0; offset < 3000 && !positionFound; offset += 50) {
-              for (let angle = 0; angle < Math.PI * 2 && !positionFound; angle += Math.PI / 4) {
-                  const checkX = Math.round(centerX + Math.cos(angle) * offset);
-                  const checkY = Math.round(centerY + Math.sin(angle) * offset);
-                  let hasOverlap = false;
-                  for (const block of blocks) {
-                      if (
-                          checkX < block.x + block.width &&
-                          checkX + width > block.x &&
-                          checkY < block.y + block.height &&
-                          checkY + height > block.y
-                      ) {
-                          hasOverlap = true;
-                          break;
-                      }
-                  }
-                  if (!hasOverlap) {
-                      finalX = checkX;
-                      finalY = checkY;
+          search:
+          for (let y = viewTop; y <= viewBottom - height && !positionFound; y += step) {
+              for (let x = viewLeft; x <= viewRight - width; x += step) {
+                  if (isFree(x, y)) {
+                      finalX = x;
+                      finalY = y;
                       positionFound = true;
+                      break search;
                   }
               }
+          }
+
+          if (!positionFound) {
+              // View is full. Cascade down and to the LEFT, never right: a card
+              // placed to the right covers the previous card's top-right
+              // corner, which is exactly where its Remove control lives, and a
+              // fully covered card can never be clicked or brought forward.
+              // Each step leaves the previous card's right edge exposed.
+              const n = blocks.length;
+              const offset = 56 * (1 + (n % 4));
+              finalX = clampX(viewLeft + (canvasW - width) / 2 - offset);
+              finalY = clampY(viewTop + (canvasH - height) / 2 + offset);
           }
       }
 

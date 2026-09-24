@@ -75,6 +75,31 @@
   });
 
   $effect(() => {
+      // svelte-motion's drag listens for pointerdown in the CAPTURE phase and
+      // then calls setPointerCapture on the block. Capture retargets the
+      // following pointerup/click to the block itself, so a real click on a
+      // button inside a card (Remove, Settings, Generate) or on a resize
+      // handle never reaches its own handler. A synthetic .click() works,
+      // which is why this looked intermittent.
+      //
+      // Stopping propagation here means the event never reaches the drag
+      // listener, so no capture happens and clicks land normally. The controls
+      // start their work on click or mousedown, not pointerdown, so nothing
+      // else is lost.
+      const guardInteractive = (e: PointerEvent) => {
+          const target = e.target as HTMLElement | null;
+          if (!target) return;
+          if (!target.closest('[aria-roledescription="exercise block"]')) return;
+
+          if (target.closest('button, input, select, textarea, a, label, [role="button"], [role="separator"]')) {
+              e.stopPropagation();
+          }
+      };
+      document.addEventListener('pointerdown', guardInteractive, true);
+      return () => document.removeEventListener('pointerdown', guardInteractive, true);
+  });
+
+  $effect(() => {
       // Listen on `window`, not on `whiteboard-main`: svelte-motion sets
       // pointer capture on the sidebar card during a drag, so pointermove
       // events are retargeted to the card and never reach `mainElement`.

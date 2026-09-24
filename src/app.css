@@ -22,7 +22,7 @@
   --color-*: initial;
 
   /* ---- the neutral: Opaline Sky hue, bodyText chroma, in shades ---- */
-  --color-fossil-50: #f2fcff;
+  --color-fossil-50: #edf3f7;        /* card paper: soft, deliberately not white */
   --color-fossil-100: #e9f4fa;
   --color-fossil-200: #dbe5eb;
   --color-fossil-300: #c7d1d7;
