@@ -31,7 +31,7 @@ export default defineConfig(({ mode }) => {
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
       // OpenRouter / DeepSeek (OpenAI-compatible) — set in .env locally or Railway vars in prod
       'process.env.OPENROUTER_API_KEY': JSON.stringify(env.OPENROUTER_API_KEY ?? env.DEEPSEEK_API_KEY),
-      'process.env.OPENROUTER_MODEL': JSON.stringify(env.OPENROUTER_MODEL || 'xiaomi/mimo-v2.6-flash'),
+      'process.env.OPENROUTER_MODEL': JSON.stringify(env.OPENROUTER_MODEL || 'mistralai/mistral-small-24b-instruct-2501'),
       'process.env.OPENROUTER_BASE_URL': JSON.stringify(env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1')
     }
   }

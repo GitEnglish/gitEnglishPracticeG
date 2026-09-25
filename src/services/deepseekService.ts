@@ -12,7 +12,7 @@ import { ExerciseType, Difficulty, Tone } from '../lib/types';
  * Configuration (injected by vite.config.ts via `define`, picked up from
  * .env locally or Railway environment variables in production):
  *   - OPENROUTER_API_KEY  (required; DEEPSEEK_API_KEY is accepted as a fallback)
- *   - OPENROUTER_MODEL    (optional; default `deepseek/deepseek-chat`)
+ *   - OPENROUTER_MODEL    (optional; default `mistralai/mistral-small-24b-instruct-2501`)
  *   - OPENROUTER_BASE_URL (optional; default `https://openrouter.ai/api/v1`)
  */
 
@@ -34,7 +34,7 @@ export const OPENROUTER_BASE_URL: string = normaliseBaseUrl(
     process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1'
 );
 export const OPENROUTER_ENDPOINT: string = `${OPENROUTER_BASE_URL}${CHAT_PATH}`;
-export const OPENROUTER_MODEL: string = process.env.OPENROUTER_MODEL || 'xiaomi/mimo-v2.6-flash';
+export const OPENROUTER_MODEL: string = process.env.OPENROUTER_MODEL || 'mistralai/mistral-small-24b-instruct-2501';
 // Backend-only auth: no client-side key entry UI. The key comes from
 // .env (local) or Railway variables (production) at build time.
 const getApiKey = (): string | undefined => {
@@ -329,7 +329,11 @@ Generate ${amount} item${amount === 1 ? '' : 's'}.
 
 **Output contract:**
 - Respond with ONLY a JSON array. No prose, no markdown fences.
-- Each element is a JSON object with exactly these fields: ${spec.shape}.`;
+- The array MUST contain exactly ${amount} object(s). Not one fewer, not one more.
+- Each element is a JSON object with exactly these fields: ${spec.shape}.
+- Your entire reply must start with [ and end with ].
+- Example shape for ${amount} item(s): [ { ${spec.shape} }, { ${spec.shape} } ]
+- Remember: exactly ${amount} item(s).`;
 };
 
 // ---------------------------------------------------------------------------
