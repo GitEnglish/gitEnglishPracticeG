@@ -35,9 +35,33 @@ export const OPENROUTER_BASE_URL: string = normaliseBaseUrl(
 );
 export const OPENROUTER_ENDPOINT: string = `${OPENROUTER_BASE_URL}${CHAT_PATH}`;
 export const OPENROUTER_MODEL: string = process.env.OPENROUTER_MODEL || 'mistralai/mistral-small-24b-instruct-2501';
+// Direct Mistral, used whenever MISTRAL_API_KEY is present.
+//
+// Mistral Small 4 (`mistral-small-2603`) is GA and speaks the same
+// OpenAI-shaped chat/completions schema, so the request builder below is
+// shared. Going direct skips the OpenRouter hop, and it is the path that
+// actually honours the requested item count: xiaomi/mimo-v2.6-flash answers
+// a "JSON array of N" contract with a single object, which collapsed every
+// card to one question.
+//
+//   docs:  https://docs.mistral.ai/models/mistral-small-4-0-26-03
+//   price: $0.15 / M input, $0.60 / M output
+export const MISTRAL_BASE_URL: string = normaliseBaseUrl(
+    process.env.MISTRAL_BASE_URL || 'https://api.mistral.ai/v1'
+);
+export const MISTRAL_ENDPOINT: string = `${MISTRAL_BASE_URL}${CHAT_PATH}`;
+export const MISTRAL_MODEL: string = process.env.MISTRAL_MODEL || 'mistral-small-2603';
+
+/** Direct Mistral when its key is set, otherwise OpenRouter. */
+export const USING_MISTRAL: boolean = Boolean(process.env.MISTRAL_API_KEY);
+export const PROVIDER_NAME: string = USING_MISTRAL ? 'mistral' : 'openrouter';
+export const ACTIVE_ENDPOINT: string = USING_MISTRAL ? MISTRAL_ENDPOINT : OPENROUTER_ENDPOINT;
+export const ACTIVE_MODEL: string = USING_MISTRAL ? MISTRAL_MODEL : OPENROUTER_MODEL;
+
 // Backend-only auth: no client-side key entry UI. The key comes from
 // .env (local) or Railway variables (production) at build time.
 const getApiKey = (): string | undefined => {
+  if (USING_MISTRAL) return process.env.MISTRAL_API_KEY;
   return process.env.OPENROUTER_API_KEY || process.env.DEEPSEEK_API_KEY;
 };
 
@@ -241,13 +265,13 @@ const chatCompletion = async (messages: ChatMessage[], jsonMode: boolean): Promi
   } catch { /* ignore */ }
 
   const body: Record<string, unknown> = {
-    model: OPENROUTER_MODEL,
+    model: ACTIVE_MODEL,
     messages,
     max_tokens: 4096,
   };
   if (jsonMode) body.response_format = { type: 'json_object' };
 
-  const response = await fetch(OPENROUTER_ENDPOINT, {
+  const response = await fetch(ACTIVE_ENDPOINT, {
     method: 'POST',
     headers,
     body: JSON.stringify(body),
