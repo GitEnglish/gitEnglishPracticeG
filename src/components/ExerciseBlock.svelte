@@ -367,28 +367,28 @@
         onUpdate(id, { x: Math.round(snappedX), y: Math.round(snappedY) });
     }}
     onmousedown={() => onFocus(id)}
-    class="bg-fossil-50 rounded-[22px] shadow-card border panel-outline-light overflow-hidden flex flex-col transition-[opacity,scale] duration-[170ms] ease-out {isRemoving ? 'opacity-0 scale-[0.97] pointer-events-none' : ''} {isResizing ? 'select-none' : ''} {isPresenting ? 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] scale-150 !rounded-none !border-0 w-screen h-screen' : 'absolute cursor-grab active:cursor-grabbing'}"
+    class="bg-fossil-50 rounded-[22px] shadow-card border panel-outline-light overflow-hidden flex flex-col origin-center hover:scale-[1.006] transition-[opacity,scale] duration-150 ease-out transition-[opacity,scale] duration-[170ms] ease-out {isRemoving ? 'opacity-0 scale-[0.97] pointer-events-none' : ''} {isResizing ? 'select-none' : ''} {isPresenting ? 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] scale-150 !rounded-none !border-0 w-screen h-screen' : 'absolute cursor-grab active:cursor-grabbing'}"
     style="left: {x}px; top: {y}px; width: {isPresenting ? '900px' : width + 'px'}; height: {isPresenting ? 'auto' : height + 'px'}; min-height: {isPresenting ? 'auto' : '150px'}; z-index: {isPresenting ? 9999 : zIndex};"
 >
     <!-- Hover lives on this inner wrapper, not on the motion root. svelte-motion
          owns `transform` on the root for dragging, and the whiteboard zoom
          already scales the parent, so a hover transform there fights both.
          Inside, a CSS scale composes freely and cannot disturb a drag. -->
-    <div class="h-full w-full flex flex-col transition-[scale,box-shadow] duration-150 ease-out origin-center hover:scale-[1.01]">
+    <div class="h-full w-full flex flex-col">
     <!-- Top Gradient Bar -->
     <div class="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-accent to-transparent"></div>
 
     <!-- Resize Handles -->
     {#if !isPresenting}
-        <div class="absolute -top-1 left-2 right-2 h-3 cursor-ns-resize z-50 hover:bg-accent/25 rounded-full" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'n')} role="separator" aria-orientation="horizontal" tabindex="-1"></div>
-        <div class="absolute -bottom-1 left-2 right-2 h-3 cursor-ns-resize z-50 hover:bg-accent/25 rounded-full" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 's')} role="separator" aria-orientation="horizontal" tabindex="-1"></div>
-        <div class="absolute -left-1 top-2 bottom-2 w-3 cursor-ew-resize z-50 hover:bg-accent/25 rounded-full" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'w')} role="separator" aria-orientation="vertical" tabindex="-1"></div>
-        <div class="absolute -right-1 top-2 bottom-2 w-3 cursor-ew-resize z-50 hover:bg-accent/25 rounded-full" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'e')} role="separator" aria-orientation="vertical" tabindex="-1"></div>
+        <div class="absolute -top-1 left-2 right-2 h-3 cursor-ns-resize z-50 hover:bg-ink-faint/20 rounded-full" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'n')} role="separator" aria-orientation="horizontal" tabindex="-1"></div>
+        <div class="absolute -bottom-1 left-2 right-2 h-3 cursor-ns-resize z-50 hover:bg-ink-faint/20 rounded-full" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 's')} role="separator" aria-orientation="horizontal" tabindex="-1"></div>
+        <div class="absolute -left-1 top-2 bottom-2 w-3 cursor-ew-resize z-50 hover:bg-ink-faint/20 rounded-full" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'w')} role="separator" aria-orientation="vertical" tabindex="-1"></div>
+        <div class="absolute -right-1 top-2 bottom-2 w-3 cursor-ew-resize z-50 hover:bg-ink-faint/20 rounded-full" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'e')} role="separator" aria-orientation="vertical" tabindex="-1"></div>
 
-        <div class="absolute -top-1 -left-1 w-4 h-4 cursor-nwse-resize z-50 hover:bg-accent/30 rounded" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'nw')} role="separator" tabindex="-1"></div>
-        <div class="absolute -top-1 -right-1 w-4 h-4 cursor-nesw-resize z-50 hover:bg-accent/30 rounded" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'ne')} role="separator" tabindex="-1"></div>
-        <div class="absolute -bottom-1 -left-1 w-4 h-4 cursor-nesw-resize z-50 hover:bg-accent/30 rounded" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'sw')} role="separator" tabindex="-1"></div>
-        <div class="absolute -bottom-1 -right-1 w-4 h-4 cursor-nwse-resize z-50 hover:bg-accent/30 rounded" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'se')} role="separator" tabindex="-1"></div>
+        <div class="absolute -top-1 -left-1 w-4 h-4 cursor-nwse-resize z-50 hover:bg-ink-faint/25 rounded" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'nw')} role="separator" tabindex="-1"></div>
+        <div class="absolute -top-1 -right-1 w-4 h-4 cursor-nesw-resize z-50 hover:bg-ink-faint/25 rounded" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'ne')} role="separator" tabindex="-1"></div>
+        <div class="absolute -bottom-1 -left-1 w-4 h-4 cursor-nesw-resize z-50 hover:bg-ink-faint/25 rounded" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'sw')} role="separator" tabindex="-1"></div>
+        <div class="absolute -bottom-1 -right-1 w-4 h-4 cursor-nwse-resize z-50 hover:bg-ink-faint/25 rounded" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'se')} role="separator" tabindex="-1"></div>
     {/if}
 
     <!-- Header — ported from the pre-refactor block. The title column is
