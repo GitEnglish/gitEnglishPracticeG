@@ -44,7 +44,7 @@
 
 </script>
 
-<div class="text-base font-casual {colors.textOnLight}">
+<div class="text-sm font-casual {colors.textOnLight}">
     <p class="mb-2 font-bold opacity-70 text-sm uppercase">Build the sentence</p>
     <div class="min-h-[4rem] p-3 rounded-2xl border-4 flex flex-wrap gap-2 items-center transition-colors mb-4 border-dashed border-fossil-300 bg-fossil-50">
         {#if solution.length === 0}

@@ -36,7 +36,7 @@
   };
 </script>
 
-<div class="text-base font-casual {colors.textOnLight}">
+<div class="text-sm font-casual {colors.textOnLight}">
     <p class="mb-3 font-bold text-sm opacity-70 uppercase">Connect the pairs</p>
     <div class="flex gap-4 md:gap-8">
         <div class="flex-1 space-y-2">

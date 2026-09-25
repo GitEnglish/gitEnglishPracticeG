@@ -20,7 +20,7 @@
   };
 </script>
 
-<div class="text-base font-casual {colors.textOnLight}">
+<div class="text-sm font-casual {colors.textOnLight}">
     <p class="mb-2 font-playful text-lg text-cinnabar-600">Incorrect:</p>
     <div class="mb-4 p-3 bg-cinnabar-50 rounded-xl border-l-4 border-cinnabar-300 italic text-cinnabar-900">"{exercise.incorrectSentence}"</div>
     <p class="mb-2 font-playful text-lg text-malachite-600">Correct:</p>

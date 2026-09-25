@@ -21,7 +21,7 @@
   };
 </script>
 
-<div class="text-base font-casual {colors.textOnLight}">
+<div class="text-sm font-casual {colors.textOnLight}">
   <h4 class="font-playful text-xl mb-2">{exercise.title}</h4>
   <div class="bg-black/5 p-2 rounded-2xl border-2 border-dashed border-fossil-300 mb-4">
       <img src={exercise.imageUrl} alt={exercise.prompt} class="w-full h-auto max-h-[300px] rounded-xl object-contain shadow-sm mx-auto" />

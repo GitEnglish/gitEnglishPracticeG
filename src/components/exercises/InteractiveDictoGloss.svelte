@@ -23,7 +23,7 @@
   let buttonBg = $derived(colors.textOnLight.replace('text-', 'bg-'));
 </script>
 
-<div class="text-base font-casual {colors.textOnLight}">
+<div class="text-sm font-casual {colors.textOnLight}">
     <h4 class="font-playful text-xl mb-2">{exercise.title}</h4>
     <div class="p-3 rounded-2xl transition-all duration-300 {colors.chip.bg} border-2 {colors.chip.border}">
         <div class="flex justify-between items-center mb-2">

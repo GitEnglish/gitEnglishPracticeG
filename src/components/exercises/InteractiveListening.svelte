@@ -22,7 +22,7 @@
   };
 </script>
 
-<div class="text-base font-casual {colors.textOnLight}">
+<div class="text-sm font-casual {colors.textOnLight}">
     <h4 class="font-playful text-xl mb-2">{exercise.title}</h4>
     <div class="mb-6 p-4 rounded-2xl bg-fossil-800 text-fossil-200 shadow-lg relative overflow-hidden">
         <div class="absolute top-0 right-0 p-2 opacity-10"><SpeakerWaveIcon class="w-24 h-24" /></div>

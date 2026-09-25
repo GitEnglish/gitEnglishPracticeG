@@ -21,7 +21,7 @@
   };
 </script>
 
-<div class="text-base font-casual {colors.textOnLight}">
+<div class="text-sm font-casual {colors.textOnLight}">
     <h4 class="font-playful text-2xl mb-2">{exercise.title}</h4>
     <div class="p-4 rounded-2xl bg-fossil-50 border-2 {colors.chip.border} mb-6 shadow-inner leading-relaxed whitespace-pre-wrap max-h-96 overflow-y-auto custom-scrollbar">
         {exercise.text}

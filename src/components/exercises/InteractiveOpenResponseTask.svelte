@@ -48,7 +48,7 @@
   };
 </script>
 
-<div class="text-base font-casual {colors.textOnLight} flex flex-col h-full">
+<div class="text-sm font-casual {colors.textOnLight} flex flex-col h-full">
     {#if 'title' in exercise}
         <h4 class="font-playful text-xl mb-3">{exercise.title}</h4>
     {/if}

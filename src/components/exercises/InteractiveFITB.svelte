@@ -20,7 +20,7 @@
   };
 </script>
 
-<div class="text-base font-casual {colors.textOnLight}">
+<div class="text-sm font-casual {colors.textOnLight}">
   {#if 'collocation' in exercise}
       <p class="text-sm italic opacity-70 mb-2 font-playful">Collocation: {exercise.collocation}</p>
   {/if}

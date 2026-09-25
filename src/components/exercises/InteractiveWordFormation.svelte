@@ -20,7 +20,7 @@
   };
 </script>
 
-<div class="text-base font-casual {colors.textOnLight}">
+<div class="text-sm font-casual {colors.textOnLight}">
     <p class="mb-2 font-bold text-sm uppercase tracking-wide opacity-70">Task</p>
     <p class="mb-3 leading-relaxed">
         {exercise.question.replace('[BLANK]', '______')} <span class="font-bold italic text-lg ml-2 font-playful">({exercise.rootWord})</span>

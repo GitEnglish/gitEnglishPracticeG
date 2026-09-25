@@ -21,7 +21,7 @@
   };
 </script>
 
-<div class="text-base font-casual {colors.textOnLight}">
+<div class="text-sm font-casual {colors.textOnLight}">
     <h4 class="font-playful text-xl mb-2">{exercise.title}</h4>
     <p class="text-sm p-3 rounded-xl bg-fossil-50 border border-fossil-200 mb-4 whitespace-pre-wrap shadow-sm">{exercise.text}</p>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">

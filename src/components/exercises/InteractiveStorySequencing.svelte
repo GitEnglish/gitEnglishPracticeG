@@ -44,7 +44,7 @@
   };
 </script>
 
-<div class="text-base font-casual {colors.textOnLight}">
+<div class="text-sm font-casual {colors.textOnLight}">
     <h4 class="font-playful text-xl mb-2">{exercise.title}</h4>
     <ul class="space-y-2 border-4 border-dashed p-2 rounded-2xl transition-colors {status === 'correct' ? 'border-malachite-500 bg-malachite-50' : status === 'incorrect' ? 'border-cinnabar-500 bg-cinnabar-50' : 'border-transparent'}">
         {#each parts as part, i}

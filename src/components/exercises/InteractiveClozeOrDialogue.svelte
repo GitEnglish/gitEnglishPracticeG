@@ -36,7 +36,7 @@
   };
 </script>
 
-<div class="text-base leading-loose font-casual {colors.textOnLight}">
+<div class="text-sm leading-loose font-casual {colors.textOnLight}">
     {#each textParts as part, index}
         {#each part.split('\n') as line, lineIndex}
             {#if lineIndex > 0}

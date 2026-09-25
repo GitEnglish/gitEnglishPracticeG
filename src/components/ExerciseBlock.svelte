@@ -256,36 +256,18 @@
   let scaledX = $derived(x * scale);
   let scaledY = $derived(y * scale);
 
-  // Snap-to-content: after generation the card resizes itself to exactly fit
-  // its content, so it never scrolls. Ported from the pre-refactor block,
-  // which did this with a ResizeObserver, a 5px jitter guard and a 350px
-  // minimum width. Disabled while presenting or before generation.
-  let headerEl = $state<HTMLElement | null>(null);
+  // No snap-to-content ResizeObserver.
+  //
+  // It looked helpful and was actively harmful. Shrinking the card to fit its
+  // content created a spiral, because the question count is derived from the
+  // height: one question made a short card, and the short card then asked for
+  // one question again. Making it grow-only was worse — the content fills the
+  // card, so the observer grew the card, which grew the content, forever. The
+  // user hit Generate and watched a card inflate without end.
+  //
+  // The height is the user's setting and the count follows from it, so nothing
+  // but the user resizes a card.
   let contentEl = $state<HTMLElement | null>(null);
-
-  $effect(() => {
-      if (!isGenerated || !contentEl || isPresenting || isResizing) return;
-      const observer = new ResizeObserver(() => {
-          const contentHeight = contentEl!.scrollHeight;
-          const contentWidth = contentEl!.scrollWidth;
-          const headerHeight = headerEl?.offsetHeight || 0;
-          // body padding (p-4 top+bottom = 32) + card border
-          const chromeV = 32 + 2;
-          const chromeH = 32 + 2;
-          // Grow to fit overflow, never shrink. Shrinking was a spiral: one
-          // question made a short card, and the short card then computed ONE
-          // question for the next generate, because the amount is derived from
-          // the height. The height is the user's setting and the count follows
-          // from it, so the card has to keep it.
-          const desiredHeight = Math.max(height, headerHeight + contentHeight + chromeV);
-          const desiredWidth = Math.max(width, contentWidth + chromeH);
-          if (Math.abs(desiredHeight - height) > 5 || Math.abs(desiredWidth - width) > 5) {
-              onUpdate(id, { height: desiredHeight, width: desiredWidth });
-          }
-      });
-      observer.observe(contentEl);
-      return () => observer.disconnect();
-  });
 
   // Resize State
   let isResizing = $state(false);
@@ -416,7 +398,7 @@
          stopPointer only stops svelte-motion from capturing the pointer so the
          buttons inside stay clickable. It adds no behaviour of its own, so a
          role here would misrepresent the element to assistive tech. -->
-    <div bind:this={headerEl} class="@container px-6 py-3.5 flex items-center justify-between gap-3 border-b border-hairline bg-chrome text-ink-invert flex-shrink-0 relative z-10 font-ui" style="touch-action: none;" onpointerdown={stopPointer}>
+    <div class="@container px-6 py-3.5 flex items-center justify-between gap-3 border-b border-hairline bg-chrome text-ink-invert flex-shrink-0 relative z-10 font-ui" style="touch-action: none;" onpointerdown={stopPointer}>
         <div class="flex items-center gap-4 min-w-0 flex-1">
             {#if isPresenting}
                 <Button variant="ghost" size="icon" onpointerdown={stop} onclick={handleExitLive} title="Exit Live Mode" class="text-fossil-400">
@@ -539,7 +521,7 @@
             <div class="h-full flex items-center justify-center">
                 <div class="flex flex-col items-center gap-3">
                     <div class="w-8 h-8 border-4 border-fossil-200 border-t-accent rounded-full animate-spin"></div>
-                    <span class="text-sm font-medium text-fossil-500 animate-pulse">Designing lesson...</span>
+                    <span class="text-sm font-medium text-fossil-500 animate-pulse">Designing practice...</span>
                 </div>
             </div>
         {:else}
@@ -577,7 +559,7 @@
                         {/if}
                     </div>
                 {:else}
-                    <div class="flex-grow overflow-y-auto p-4 h-full w-full">
+                    <div class="flex-grow overflow-y-auto no-scrollbar p-4 h-full w-full">
                         <div class="space-y-4 max-w-2xl mx-auto">
                             {#each content as item, i (i)}
                                 {@const Item = EXERCISE_RENDERERS[exerciseType as ExerciseType]}
