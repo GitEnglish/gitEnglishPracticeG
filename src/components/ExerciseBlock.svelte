@@ -136,8 +136,6 @@
       setTimeout(() => onRemove(id), 170);
   };
   const handleRegenerate = () => { if (!isLoading) handleGenerate(); };
-  const handleEnterLive = (e: Event) => { stop(e); if (isGenerated) onEnterPresentation(); };
-  const handleExitLive = (e: Event) => { stop(e); onExitPresentation(); };
 
   // Arrow-key slide nav in presentation mode — ported from legacy
   $effect(() => {
@@ -400,11 +398,6 @@
          role here would misrepresent the element to assistive tech. -->
     <div class="@container px-6 py-3.5 flex items-center justify-between gap-3 border-b border-hairline bg-chrome text-ink-invert flex-shrink-0 relative z-10 font-ui" style="touch-action: none;" onpointerdown={stopPointer}>
         <div class="flex items-center gap-4 min-w-0 flex-1">
-            {#if isPresenting}
-                <Button variant="ghost" size="icon" onpointerdown={stop} onclick={handleExitLive} title="Exit Live Mode" class="text-fossil-400">
-                    <X class="w-6 h-6" />
-                </Button>
-            {/if}
             <div class="flex items-center gap-3 min-w-0">
                 <!-- min-w-0 is load-bearing: without it a flex item will not shrink
                      below its text width, so `truncate` never engages and the title
@@ -440,16 +433,13 @@
               longer settable from the header.
             -->
 
-            {#if !isPresenting && isGenerated}
-                <button
-                    onpointerdown={stop} onclick={handleEnterLive}
-                    class="px-3 py-1.5 rounded-full bg-cinnabar-600 text-fossil-50 font-semibold hover:bg-cinnabar-500 transition-all shadow-lift active:scale-95 flex items-center gap-2 whitespace-nowrap"
-                    title="Start Live Mode"
-                >
-                    <span class="w-2 h-2 rounded-full bg-fossil-50 animate-pulse"></span>
-                    <span class="text-xs uppercase tracking-wider">Live</span>
-                </button>
-            {/if}
+            <!--
+              The Live / presentation button is gone. It never worked as
+              intended and the user asked for it out; the pill did nothing
+              observable, so removing it deletes the feature rather than
+              hiding it. Nothing sets isPresenting any more, so the exit
+              button and the slide arrows above are unreachable too.
+            -->
 
             {#if !isPresenting}
                 {#if isGenerated}
@@ -481,7 +471,7 @@
                     onchange={(e) => handleUpdateSetting({difficulty: e.currentTarget.value as Difficulty})}
                     class="appearance-none text-xs font-medium text-ink-muted p-2 rounded-lg border border-fossil-300 bg-surface-raised w-full outline-none focus:ring-2 focus:ring-accent cursor-pointer select-chevron pr-7"
                 >
-                    {#each DIFFICULTY_LEVELS as d}
+                    {#each DIFFICULTY_LEVELS as d (d)}
                         <option value={d}>{DIFFICULTY_LABELS[d]}</option>
                     {/each}
                 </select>
@@ -492,7 +482,7 @@
                     onchange={(e) => handleUpdateSetting({tone: e.currentTarget.value as Tone})}
                     class="appearance-none text-xs font-medium text-ink-muted p-2 rounded-lg border border-fossil-300 bg-surface-raised w-full outline-none focus:ring-2 focus:ring-accent cursor-pointer select-chevron pr-7"
                 >
-                    {#each TONES as tn}
+                    {#each TONES as tn (tn)}
                         <option value={tn}>{tn}</option>
                     {/each}
                 </select>
@@ -512,7 +502,7 @@
 
 <div class="h-full flex flex-col p-4 bg-fossil-50 overflow-hidden space-y-3">
     <div class="w-full flex-grow space-y-2 max-w-2xl mx-auto flex flex-col justify-start">
-        {#each Array(generateAmount) as _, i}
+        {#each Array(generateAmount) as _, i (i)}
             <ExerciseTemplate type={exerciseType} index={i} />
         {/each}
     </div>

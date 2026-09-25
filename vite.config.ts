@@ -37,7 +37,8 @@ export default defineConfig(({ mode }) => {
       // api.mistral.ai and ignores the OpenRouter variables entirely.
       'process.env.MISTRAL_API_KEY': JSON.stringify(env.MISTRAL_API_KEY || ''),
       'process.env.MISTRAL_BASE_URL': JSON.stringify(env.MISTRAL_BASE_URL || 'https://api.mistral.ai/v1'),
-      'process.env.MISTRAL_MODEL': JSON.stringify(env.MISTRAL_MODEL || 'mistral-small-2603')
+      'process.env.MISTRAL_MODEL': JSON.stringify(env.MISTRAL_MODEL || 'mistral-small-2603'),
+      'process.env.USE_MISTRAL_DIRECT': JSON.stringify(env.USE_MISTRAL_DIRECT || '')
     }
   }
 })

@@ -34,7 +34,7 @@ export const OPENROUTER_BASE_URL: string = normaliseBaseUrl(
     process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1'
 );
 export const OPENROUTER_ENDPOINT: string = `${OPENROUTER_BASE_URL}${CHAT_PATH}`;
-export const OPENROUTER_MODEL: string = process.env.OPENROUTER_MODEL || 'mistralai/mistral-small-24b-instruct-2501';
+export const OPENROUTER_MODEL: string = process.env.OPENROUTER_MODEL || 'xiaomi/mimo-v2.6-flash';
 // Direct Mistral, used whenever MISTRAL_API_KEY is present.
 //
 // Mistral Small 4 (`mistral-small-2603`) is GA and speaks the same
@@ -52,8 +52,16 @@ export const MISTRAL_BASE_URL: string = normaliseBaseUrl(
 export const MISTRAL_ENDPOINT: string = `${MISTRAL_BASE_URL}${CHAT_PATH}`;
 export const MISTRAL_MODEL: string = process.env.MISTRAL_MODEL || 'mistral-small-2603';
 
-/** Direct Mistral when its key is set, otherwise OpenRouter. */
-export const USING_MISTRAL: boolean = Boolean(process.env.MISTRAL_API_KEY);
+// Direct Mistral must be asked for explicitly.
+//
+// It used to switch on the mere presence of MISTRAL_API_KEY. That is a
+// trap: a MISTRAL key sitting in the shell environment silently moved the
+// whole app onto api.mistral.ai, which serves no CORS headers, so every
+// browser generation died with a bare "TypeError: Failed to fetch" while
+// OpenRouter sat idle. A provider switch that fails silently is worse than
+// no switch at all, so it now takes USE_MISTRAL_DIRECT=true.
+export const USING_MISTRAL: boolean =
+  String(process.env.USE_MISTRAL_DIRECT).toLowerCase() === 'true';
 export const PROVIDER_NAME: string = USING_MISTRAL ? 'mistral' : 'openrouter';
 export const ACTIVE_ENDPOINT: string = USING_MISTRAL ? MISTRAL_ENDPOINT : OPENROUTER_ENDPOINT;
 export const ACTIVE_MODEL: string = USING_MISTRAL ? MISTRAL_MODEL : OPENROUTER_MODEL;
@@ -61,7 +69,7 @@ export const ACTIVE_MODEL: string = USING_MISTRAL ? MISTRAL_MODEL : OPENROUTER_M
 // Backend-only auth: no client-side key entry UI. The key comes from
 // .env (local) or Railway variables (production) at build time.
 const getApiKey = (): string | undefined => {
-  if (USING_MISTRAL) return process.env.MISTRAL_API_KEY;
+  if (USING_MISTRAL) return process.env.MISTRAL_API_KEY || process.env.OPENROUTER_API_KEY;
   return process.env.OPENROUTER_API_KEY || process.env.DEEPSEEK_API_KEY;
 };
 
@@ -334,6 +342,26 @@ const extractJson = (raw: string): any => {
   throw new Error('AI response contained malformed JSON.');
 };
 
+/**
+ * Pulls the item list out of whatever envelope the model chose.
+ *
+ * A bare top-level array is what we ask for and what most models return.
+ * xiaomi/mimo-v2.6-flash will not produce one: given the same contract it
+ * replies with a single object, which is what silently reduced every card
+ * to a single question. Asking for a named "questions" array instead gets
+ * all N back from it, so the wrapper is checked alongside the array.
+ */
+const toItems = (parsed: unknown): unknown[] => {
+  if (Array.isArray(parsed)) return parsed;
+  if (parsed && typeof parsed === 'object') {
+    const bag = parsed as Record<string, unknown>;
+    for (const key of ['questions', 'items', 'exercises', 'results', 'data']) {
+      if (Array.isArray(bag[key])) return bag[key] as unknown[];
+    }
+  }
+  return [parsed];
+};
+
 const buildExercisePrompt = (
   exerciseType: ExerciseType,
   difficulty: Difficulty,
@@ -352,12 +380,12 @@ const buildExercisePrompt = (
 Generate ${amount} item${amount === 1 ? '' : 's'}.
 
 **Output contract:**
-- Respond with ONLY a JSON array. No prose, no markdown fences.
-- The array MUST contain exactly ${amount} object(s). Not one fewer, not one more.
+- Respond with ONLY JSON. No prose, no markdown fences.
+- The top level MUST be one object with exactly one key: "questions".
+- "questions" MUST be an array of exactly ${amount} object(s). Not one fewer, not one more.
 - Each element is a JSON object with exactly these fields: ${spec.shape}.
-- Your entire reply must start with [ and end with ].
-- Example shape for ${amount} item(s): [ { ${spec.shape} }, { ${spec.shape} } ]
-- Remember: exactly ${amount} item(s).`;
+- Example for ${amount} item(s): { "questions": [ { ${spec.shape} }, { ${spec.shape} } ] }
+- Remember: exactly ${amount} item(s) inside "questions".`;
 };
 
 // ---------------------------------------------------------------------------
@@ -406,7 +434,7 @@ export const generateExercise = async (
 
     const prompt = buildExercisePrompt(exerciseType, difficulty, tone, theme, amount, focusVocabulary, inclusionRate, focusGrammar, grammarInclusionRate);
     const parsed = extractJson(await chatCompletion([{ role: 'user', content: prompt }], true));
-    return Array.isArray(parsed) ? parsed : [parsed];
+    return toItems(parsed);
   } catch (error) {
     console.error('Error generating exercises:', error);
     return { error: `Failed to generate exercises: ${error instanceof Error ? error.message : 'unknown error'}` };

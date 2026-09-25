@@ -12,6 +12,7 @@ declare const process: {
     MISTRAL_API_KEY?: string;
     MISTRAL_BASE_URL?: string;
     MISTRAL_MODEL?: string;
+    USE_MISTRAL_DIRECT?: string;
     API_KEY?: string;
     GEMINI_API_KEY?: string;
   };
