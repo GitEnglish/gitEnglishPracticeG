@@ -27,24 +27,26 @@
         {exercise.text}
     </div>
     <div class="space-y-4">
-        {#each exercise.questions as q, i}
-            <div class="bg-fossil-50 p-3 rounded-xl border border-fossil-200">
-                <Field label={q.question} class="normal-case tracking-normal font-sans">
-                    {#snippet children(fid)}
-                        <input
-                            id={fid}
-                            type="text"
-                            class="w-full p-2 rounded-xl border-2 {colors.chip.border} bg-fossil-50 text-fossil-900 focus:ring-2 focus:ring-accent outline-none transition-all"
-                            placeholder="Answer here..."
-                            value={answers[i] || ''}
-                            oninput={(e) => {
-                                answers[i] = e.currentTarget.value;
-                                feedback = null;
-                            }}
-                        />
-                    {/snippet}
-                </Field>
-            </div>
+        {#each exercise.questions as item, idx}
+            <article class="rd-card p-3 rounded-xl border border-fossil-200 bg-fossil-50">
+                <div class="rd-field-wrap">
+                    <Field label={item.question} class="rd-lbl font-sans tracking-normal normal-case">
+                        {#snippet children(inputId)}
+                            <input
+                                id={inputId}
+                                type="text"
+                                class="rd-input border-2 {colors.chip.border} bg-fossil-50 text-fossil-900 focus:ring-2 focus:ring-accent outline-none w-full p-2 rounded-xl transition-all"
+                                placeholder="Type answer here..."
+                                value={answers[idx] || ''}
+                                oninput={(e) => {
+                                    answers[idx] = (e.currentTarget as HTMLInputElement).value;
+                                    feedback = null;
+                                }}
+                            />
+                        {/snippet}
+                    </Field>
+                </div>
+            </article>
         {/each}
     </div>
     <div class="mt-4">
