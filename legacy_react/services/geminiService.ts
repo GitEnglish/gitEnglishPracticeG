@@ -584,8 +584,7 @@ export const generateExercises = async (
   try {
     // Handle image generation separately for PicturePrompt exercise
     if (exerciseType === ExerciseType.PicturePrompt) {
-      const generatedExercises = [];
-      for (let i = 0; i < amount; i++) {
+      const generateImagePromise = async (i: number) => {
         const imagePrompt = `A compelling and slightly ambiguous scene about "${theme}". The style should be ${tone}. The image is for an ESL student at a ${difficulty} level to analyze. ${i > 0 ? `Variation ${i + 1}.` : ''}`;
 
         const response = await ai.models.generateContent({
@@ -600,15 +599,21 @@ export const generateExercises = async (
 
         const part = response.candidates?.[0]?.content?.parts?.[0];
         if (part?.inlineData) {
-          const base64ImageBytes: string = part.inlineData.data;
+          const base64ImageBytes: string = part.inlineData.data as string;
           const imageUrl = `data:image/png;base64,${base64ImageBytes}`;
-          generatedExercises.push({
+          return {
             title: `Picture Prompt #${i + 1}`,
             imageUrl: imageUrl,
             prompt: imagePrompt
-          });
+          };
         }
-      }
+        return null;
+      };
+
+      const promises = Array.from({ length: amount }).map((_, i) => generateImagePromise(i));
+      const results = await Promise.all(promises);
+      const generatedExercises = results.filter((result) => result !== null);
+
       if (generatedExercises.length === 0) {
         return { error: "Failed to generate any images for the picture prompt." };
       }
