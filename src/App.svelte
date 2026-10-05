@@ -198,20 +198,32 @@
           const clampX = (v: number) => Math.min(Math.max(v, viewLeft), Math.max(viewLeft, viewRight - width));
           const clampY = (v: number) => Math.min(Math.max(v, viewTop), Math.max(viewTop, viewBottom - height));
 
-          const isFree = (x: number, y: number) => !blocks.some((b) =>
-              x < b.x + b.width && x + width > b.x && y < b.y + b.height && y + height > b.y
-          );
-
           const step = 60;
           let positionFound = false;
           search:
           for (let y = viewTop; y <= viewBottom - height && !positionFound; y += step) {
-              for (let x = viewLeft; x <= viewRight - width; x += step) {
-                  if (isFree(x, y)) {
+              for (let x = viewLeft; x <= viewRight - width; ) {
+                  let maxSkipX = 0;
+                  let collision = false;
+
+                  for (let i = blocks.length - 1; i >= 0; i--) {
+                      const b = blocks[i];
+                      if (x < b.x + b.width && x + width > b.x && y < b.y + b.height && y + height > b.y) {
+                          collision = true;
+                          const skipX = viewLeft + Math.ceil((b.x + b.width - viewLeft) / step) * step;
+                          if (skipX > maxSkipX) {
+                              maxSkipX = skipX;
+                          }
+                      }
+                  }
+
+                  if (!collision) {
                       finalX = x;
                       finalY = y;
                       positionFound = true;
                       break search;
+                  } else {
+                      x = Math.max(x + step, maxSkipX);
                   }
               }
           }
