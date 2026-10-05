@@ -86,36 +86,54 @@
     const nx = x + wDelta, ny = y + hDelta;
     let snappedX = nx, snappedY = ny;
     const lines: { axis: 'x' | 'y'; position: number; start: number; end: number }[] = [];
-    const myV = [nx, nx + width / 2, nx + width];
-    const myH = [ny, ny + height / 2, ny + height];
+
+    const myV0 = nx, myV1 = nx + width / 2, myV2 = nx + width;
+    const myH0 = ny, myH1 = ny + height / 2, myH2 = ny + height;
+
     let bestV: { d: number; vp: number; i: number } | null = null;
-    for (const b of allBlocks) {
+    let bestH: { d: number; hp: number; i: number } | null = null;
+
+    let d: number;
+
+    for (let i = 0; i < allBlocks.length; i++) {
+      const b = allBlocks[i];
       if (b.id === id) continue;
-      for (const vp of [b.x, b.x + b.width / 2, b.x + b.width]) {
-        for (let i = 0; i < myV.length; i++) {
-          const d = Math.abs(myV[i] - vp);
-          if (d < SNAP_THRESHOLD && (!bestV || d < bestV.d)) {
-            bestV = { d, vp, i };
-          }
-        }
-      }
+
+      const vps0 = b.x, vps1 = b.x + b.width / 2, vps2 = b.x + b.width;
+      const hps0 = b.y, hps1 = b.y + b.height / 2, hps2 = b.y + b.height;
+
+      // Vertical Checks
+      d = Math.abs(myV0 - vps0); if (d < SNAP_THRESHOLD && (!bestV || d < bestV.d)) bestV = { d, vp: vps0, i: 0 };
+      d = Math.abs(myV1 - vps0); if (d < SNAP_THRESHOLD && (!bestV || d < bestV.d)) bestV = { d, vp: vps0, i: 1 };
+      d = Math.abs(myV2 - vps0); if (d < SNAP_THRESHOLD && (!bestV || d < bestV.d)) bestV = { d, vp: vps0, i: 2 };
+
+      d = Math.abs(myV0 - vps1); if (d < SNAP_THRESHOLD && (!bestV || d < bestV.d)) bestV = { d, vp: vps1, i: 0 };
+      d = Math.abs(myV1 - vps1); if (d < SNAP_THRESHOLD && (!bestV || d < bestV.d)) bestV = { d, vp: vps1, i: 1 };
+      d = Math.abs(myV2 - vps1); if (d < SNAP_THRESHOLD && (!bestV || d < bestV.d)) bestV = { d, vp: vps1, i: 2 };
+
+      d = Math.abs(myV0 - vps2); if (d < SNAP_THRESHOLD && (!bestV || d < bestV.d)) bestV = { d, vp: vps2, i: 0 };
+      d = Math.abs(myV1 - vps2); if (d < SNAP_THRESHOLD && (!bestV || d < bestV.d)) bestV = { d, vp: vps2, i: 1 };
+      d = Math.abs(myV2 - vps2); if (d < SNAP_THRESHOLD && (!bestV || d < bestV.d)) bestV = { d, vp: vps2, i: 2 };
+
+      // Horizontal Checks
+      d = Math.abs(myH0 - hps0); if (d < SNAP_THRESHOLD && (!bestH || d < bestH.d)) bestH = { d, hp: hps0, i: 0 };
+      d = Math.abs(myH1 - hps0); if (d < SNAP_THRESHOLD && (!bestH || d < bestH.d)) bestH = { d, hp: hps0, i: 1 };
+      d = Math.abs(myH2 - hps0); if (d < SNAP_THRESHOLD && (!bestH || d < bestH.d)) bestH = { d, hp: hps0, i: 2 };
+
+      d = Math.abs(myH0 - hps1); if (d < SNAP_THRESHOLD && (!bestH || d < bestH.d)) bestH = { d, hp: hps1, i: 0 };
+      d = Math.abs(myH1 - hps1); if (d < SNAP_THRESHOLD && (!bestH || d < bestH.d)) bestH = { d, hp: hps1, i: 1 };
+      d = Math.abs(myH2 - hps1); if (d < SNAP_THRESHOLD && (!bestH || d < bestH.d)) bestH = { d, hp: hps1, i: 2 };
+
+      d = Math.abs(myH0 - hps2); if (d < SNAP_THRESHOLD && (!bestH || d < bestH.d)) bestH = { d, hp: hps2, i: 0 };
+      d = Math.abs(myH1 - hps2); if (d < SNAP_THRESHOLD && (!bestH || d < bestH.d)) bestH = { d, hp: hps2, i: 1 };
+      d = Math.abs(myH2 - hps2); if (d < SNAP_THRESHOLD && (!bestH || d < bestH.d)) bestH = { d, hp: hps2, i: 2 };
     }
+
     if (bestV) {
       snappedX = bestV!.vp - (bestV!.i * (width / 2));
       lines.push({ axis: 'x', position: bestV!.vp, start: ny - 100, end: ny + height + 100 });
     }
-    let bestH: { d: number; hp: number; i: number } | null = null;
-    for (const b of allBlocks) {
-      if (b.id === id) continue;
-      for (const hp of [b.y, b.y + b.height / 2, b.y + b.height]) {
-        for (let i = 0; i < myH.length; i++) {
-          const d = Math.abs(myH[i] - hp);
-          if (d < SNAP_THRESHOLD && (!bestH || d < bestH.d)) {
-            bestH = { d, hp, i };
-          }
-        }
-      }
-    }
+
     if (bestH) {
       snappedY = bestH!.hp - (bestH!.i * (height / 2));
       lines.push({ axis: 'y', position: bestH!.hp, start: snappedX - 100, end: snappedX + width + 100 });
