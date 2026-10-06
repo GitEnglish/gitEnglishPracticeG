@@ -36,3 +36,10 @@
 - **2026-09-24 22:11** [fix] Switched generation to mistralai/mistral-small-24b-instruct-2501 after capturing the raw model response and proving mimo returns a single object not an array. Verified 5 questions in 6.1s locally. Production Railway variable still needs changing; CLI token unauthorized.
 - **2026-09-24 22:18** [feat] Added a direct Mistral provider (MISTRAL_API_KEY selects api.mistral.ai, model mistral-small-2603) with OpenRouter as the fallback. Needs a Mistral key in env to activate.
 - **2026-09-24 22:56** [fix] Removed Live/presentation mode entirely; fixed N-questions bug by asking for a named questions array (Mimo returns all 5 now, 4s); made direct Mistral opt-in via USE_MISTRAL_DIRECT after a stray MISTRAL_API_KEY silently broke all generation with a CORS failure.
+- **2026-10-05 12:40** [planning] Hydrated sizing issue context for FITB vs scramble plan
+- **2026-10-05 12:59** [coordination] Started sequential execution of sizing fix plan as coordinator
+- **2026-10-05 13:01** [coordination] Spawning Cell 1 worker (constants whole-fit + legacy heights)
+- **2026-10-05 13:05** [implementation] Cell 1: whole-fit amount formula + legacy heights in constants.ts
+- **2026-10-05 13:16** [review] Reviewed Cell 1 diff: constants whole-fit OK
+- **2026-10-05 13:16** [coordination] Approved Cell 1, spawning Cell 2 (ExerciseBlock inline numbers)
+- **2026-10-05 14:41** [implementation] Cell 2: inline numbered flex rows + unified spacing in ExerciseBlock

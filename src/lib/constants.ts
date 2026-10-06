@@ -188,6 +188,14 @@ export const PEDAGOGY_COLORS: Record<string, ColorScheme> = {
 };
 
 /**
+ * Per-item chrome the generated-content list adds beyond its content:
+ * pb-3 (12px) + border-b (1px) + space-y-3 gap (12px) = 25px. Whole-fit
+ * math folds this overhead into the divisor so the last question is never
+ * clipped at the card bottom.
+ */
+export const GENERATED_ITEM_OVERHEAD = 25;
+
+/**
  * Natural rendered height of ONE skeleton, in px, measured from a real browser
  * with the card forced tall so flex-stretch cannot distort the figure. The
  * amount calculation divides by these, so if a template changes its markup,
@@ -199,11 +207,15 @@ export const PEDAGOGY_COLORS: Record<string, ColorScheme> = {
  * if ExerciseTemplate's spacing changes these must be re-measured — an
  * over-generous budget is what made a 600px card show three half-drawn
  * questions and clip the last.
+ *
+ * The FITB, CollocationGapFill, PhrasalVerbGapFill and SentenceScramble values
+ * are legacy-measured (from the React source of truth); ExerciseTemplate's
+ * markup for these types is being restored to match, so those numbers hold.
  */
 export const TEMPLATE_HEIGHTS: Partial<Record<ExerciseType, number>> = {
-    [ExerciseType.FITB]: 95,
-    [ExerciseType.CollocationGapFill]: 95,
-    [ExerciseType.PhrasalVerbGapFill]: 95,
+    [ExerciseType.FITB]: 120,
+    [ExerciseType.CollocationGapFill]: 120,
+    [ExerciseType.PhrasalVerbGapFill]: 120,
     [ExerciseType.MultipleChoice]: 125,
     [ExerciseType.Prediction]: 125,
     [ExerciseType.RuleDiscovery]: 125,
@@ -213,7 +225,7 @@ export const TEMPLATE_HEIGHTS: Partial<Record<ExerciseType, number>> = {
     [ExerciseType.CollocationOddOneOut]: 125,
     [ExerciseType.Matching]: 61,
     [ExerciseType.FunctionMatching]: 61,
-    [ExerciseType.SentenceScramble]: 128,
+    [ExerciseType.SentenceScramble]: 230,
     [ExerciseType.StorySequencing]: 70,
     [ExerciseType.ClozeParagraph]: 88,
     [ExerciseType.DialogueCompletion]: 88,
@@ -288,14 +300,16 @@ export const SINGLE_INSTANCE_TYPES = [
  */
 export const calculateExerciseAmount = (exerciseType: ExerciseType, height: number): number => {
     if (SINGLE_INSTANCE_TYPES.includes(exerciseType)) return 1;
-    // Measured, not guessed: the card header is ~57px and the skeleton body
-    // carries p-4 (32px). The old figure of 70 was 43px short, which clipped
-    // the last question off every card.
-    const headerAndPaddingHeight = 92;
+    // Measured from the live header classes: py-3.5 (14+14) + one content
+    // line (~28px) + border-b (1px) => ~57, plus body p-4 (32px) => 89.
+    // The old 92 was unmeasured. Whole-fit math: each item costs
+    // templateHeight + GENERATED_ITEM_OVERHEAD, and the card holds the
+    // overhead once "free", so a partial last question can never be counted.
+    const headerAndPaddingHeight = 89;
     const availableHeight = height - headerAndPaddingHeight;
     const templateHeight = TEMPLATE_HEIGHTS[exerciseType] || DEFAULT_TEMPLATE_HEIGHT;
     if (templateHeight <= 0) return 1;
-    return Math.max(1, Math.floor(availableHeight / templateHeight));
+    return Math.max(1, Math.floor((availableHeight + GENERATED_ITEM_OVERHEAD) / (templateHeight + GENERATED_ITEM_OVERHEAD)));
 };
 
 

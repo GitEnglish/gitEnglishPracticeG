@@ -501,7 +501,7 @@
         {#if !isGenerated && !isLoading}
 
 <div class="h-full flex flex-col p-4 bg-fossil-50 overflow-hidden space-y-3">
-    <div class="w-full flex-grow space-y-2 max-w-2xl mx-auto flex flex-col justify-start">
+    <div class="w-full flex-grow space-y-3 flex flex-col justify-start">
         {#each Array(generateAmount) as _, i (i)}
             <ExerciseTemplate type={exerciseType} index={i} />
         {/each}
@@ -522,10 +522,12 @@
                   and its `current / total` arrows lived inside the isPresenting
                   branch, so they only ever appeared in presentation mode.
 
-                  This port was showing one item at a time in normal mode too,
-                  which left a 600px card holding a single 180px question and
-                  400px of empty space — the generated card no longer matched
-                  the shape of its own skeleton. Stacked again, filling the card.
+                  This port is stacked too, filling the card: each question is a
+                  flex row with its number inline-left of the question text, and
+                  the row rhythm — space-y-3 gap (12) + pb-3 padding (12) + 1px
+                  border = 25px overhead per item — matches GENERATED_ITEM_OVERHEAD
+                  in lib/constants.ts, which calculateExerciseAmount uses to size
+                  the list.
                 -->
                 {#if isPresenting}
                     {#if content.length > 1}
@@ -550,18 +552,20 @@
                     </div>
                 {:else}
                     <div class="flex-grow overflow-y-auto no-scrollbar p-4 h-full w-full">
-                        <div class="space-y-4 max-w-2xl mx-auto">
+                        <div class="space-y-3">
                             {#each content as item, i (i)}
                                 {@const Item = EXERCISE_RENDERERS[exerciseType as ExerciseType]}
-                                <div class="border-b border-fossil-200 pb-4 last:border-b-0 last:pb-0">
-                                    <span class="text-xs font-semibold text-ink-muted select-none">{i + 1}.</span>
-                                    {#if item?.error}
-                                        <div class="p-3 bg-cinnabar-50 text-cinnabar-600 rounded-lg border border-cinnabar-200 text-sm">{item.error}</div>
-                                    {:else if Item}
-                                        <Item exercise={mapItemForRenderer(item)} {colors} />
-                                    {:else}
-                                        <pre class="text-xs whitespace-pre-wrap text-fossil-600 bg-fossil-50 p-3 rounded">{JSON.stringify(item, null, 2)}</pre>
-                                    {/if}
+                                <div class="border-b border-fossil-200 pb-3 last:border-b-0 last:pb-0 flex items-start gap-3">
+                                    <span class="text-xs font-semibold text-ink-muted select-none mt-0.5 shrink-0">{i + 1}.</span>
+                                    <div class="flex-1 min-w-0">
+                                        {#if item?.error}
+                                            <div class="p-3 bg-cinnabar-50 text-cinnabar-600 rounded-lg border border-cinnabar-200 text-sm">{item.error}</div>
+                                        {:else if Item}
+                                            <Item exercise={mapItemForRenderer(item)} {colors} />
+                                        {:else}
+                                            <pre class="text-xs whitespace-pre-wrap text-fossil-600 bg-fossil-50 p-3 rounded">{JSON.stringify(item, null, 2)}</pre>
+                                        {/if}
+                                    </div>
                                 </div>
                             {/each}
                         </div>
