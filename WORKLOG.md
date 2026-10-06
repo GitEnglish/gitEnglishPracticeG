@@ -43,3 +43,10 @@
 - **2026-10-05 13:16** [review] Reviewed Cell 1 diff: constants whole-fit OK
 - **2026-10-05 13:16** [coordination] Approved Cell 1, spawning Cell 2 (ExerciseBlock inline numbers)
 - **2026-10-05 14:41** [implementation] Cell 2: inline numbered flex rows + unified spacing in ExerciseBlock
+- **2026-10-06 02:09** [deployment] Pushed a8c0190 (sizing cells 1-2) to main; no service restore, live version untouched
+- **2026-10-06 09:01** [diagnosis] Diagnosed live :3000 bun dev server + build failure; origin/main==local, sizing baseline correction started
+- **2026-10-06 09:05** [constraint] CONSTRAINT from user: AI works as-is; NEVER recreate/restore aiService or deepseekService; project dev server port is 5173; :3000 belongs to treeLover - do not touch
+- **2026-10-06 09:06** [handoff] Produced handoff prompt: sizing mission state, cells 1-2 pushed, 3-5 not done, user constraints recorded
+- **2026-10-06 09:08** [status] Confirmed to user: sizing NOT fixed (cells 1-2 pushed, visible fixes never done); offered revert or corrected completion
+- **2026-10-06 09:15** [constraint] CONSTRAINT: NO PUSHES - all sizing work stays local until user pushes
+- **2026-10-06 11:49** [implementation] Sizing fix complete locally: measured TEMPLATE_HEIGHTS, whole-fit formula, inline numbers, tightened scramble skeleton, unboxed scramble bank. NO PUSH - awaiting user visual verification

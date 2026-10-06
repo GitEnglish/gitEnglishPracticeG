@@ -188,62 +188,58 @@ export const PEDAGOGY_COLORS: Record<string, ColorScheme> = {
 };
 
 /**
- * Per-item chrome the generated-content list adds beyond its content:
- * pb-3 (12px) + border-b (1px) + space-y-3 gap (12px) = 25px. Whole-fit
- * math folds this overhead into the divisor so the last question is never
- * clipped at the card bottom.
- */
-export const GENERATED_ITEM_OVERHEAD = 25;
-
-/**
  * Natural rendered height of ONE skeleton, in px, measured from a real browser
  * with the card forced tall so flex-stretch cannot distort the figure. The
  * amount calculation divides by these, so if a template changes its markup,
  * re-measure -- otherwise the skeletons stop fitting the card.
  */
 /**
+ * Divider chrome each generated/skeleton row adds beyond its content:
+ * pb-3 (12px) + border-b (1px) + space-y-3 gap (12px) = 25px.
+ * calculateExerciseAmount folds it into the divisor so a question that would
+ * land half-cut at the card bottom is never counted.
+ */
+export const GENERATED_ITEM_OVERHEAD = 25;
+
+/**
  * Per-question row heights, measured from the rendered skeleton rather than
  * guessed. These decide how many questions a card of a given height holds, so
  * if ExerciseTemplate's spacing changes these must be re-measured — an
  * over-generous budget is what made a 600px card show three half-drawn
  * questions and clip the last.
- *
- * The FITB, CollocationGapFill, PhrasalVerbGapFill and SentenceScramble values
- * are legacy-measured (from the React source of truth); ExerciseTemplate's
- * markup for these types is being restored to match, so those numbers hold.
  */
 export const TEMPLATE_HEIGHTS: Partial<Record<ExerciseType, number>> = {
-    [ExerciseType.FITB]: 120,
-    [ExerciseType.CollocationGapFill]: 120,
-    [ExerciseType.PhrasalVerbGapFill]: 120,
-    [ExerciseType.MultipleChoice]: 125,
-    [ExerciseType.Prediction]: 125,
-    [ExerciseType.RuleDiscovery]: 125,
-    [ExerciseType.SpotTheDifference]: 125,
-    [ExerciseType.PolitenessScenarios]: 125,
-    [ExerciseType.InferringMeaning]: 125,
-    [ExerciseType.CollocationOddOneOut]: 125,
-    [ExerciseType.Matching]: 61,
-    [ExerciseType.FunctionMatching]: 61,
-    [ExerciseType.SentenceScramble]: 230,
-    [ExerciseType.StorySequencing]: 70,
-    [ExerciseType.ClozeParagraph]: 88,
-    [ExerciseType.DialogueCompletion]: 88,
-    [ExerciseType.WordFormation]: 90,
-    [ExerciseType.ErrorCorrection]: 90,
-    [ExerciseType.ReadingGist]: 134,
-    [ExerciseType.ReadingDetail]: 134,
-    [ExerciseType.DictoGloss]: 134,
-    [ExerciseType.InformationTransfer]: 134,
-    [ExerciseType.ListeningSpecificInfo]: 134,
-    [ExerciseType.PicturePrompt]: 126,
-    [ExerciseType.MoralDilemma]: 126,
-    [ExerciseType.FunctionalWriting]: 126,
-    [ExerciseType.ProblemSolvingScenario]: 126,
-    [ExerciseType.RolePlayScenario]: 126,
-    [ExerciseType.StorytellingFromPrompts]: 126,
-    [ExerciseType.JustifyYourOpinion]: 126,
-    [ExerciseType.PictureComparison]: 126,
+    [ExerciseType.FITB]: 90,
+    [ExerciseType.CollocationGapFill]: 90,
+    [ExerciseType.PhrasalVerbGapFill]: 90,
+    [ExerciseType.MultipleChoice]: 120,
+    [ExerciseType.Prediction]: 120,
+    [ExerciseType.RuleDiscovery]: 120,
+    [ExerciseType.SpotTheDifference]: 120,
+    [ExerciseType.PolitenessScenarios]: 120,
+    [ExerciseType.InferringMeaning]: 120,
+    [ExerciseType.CollocationOddOneOut]: 120,
+    [ExerciseType.Matching]: 56,
+    [ExerciseType.FunctionMatching]: 56,
+    [ExerciseType.SentenceScramble]: 104,
+    [ExerciseType.StorySequencing]: 64,
+    [ExerciseType.ClozeParagraph]: 80,
+    [ExerciseType.DialogueCompletion]: 80,
+    [ExerciseType.WordFormation]: 84,
+    [ExerciseType.ErrorCorrection]: 84,
+    [ExerciseType.ReadingGist]: 136,
+    [ExerciseType.ReadingDetail]: 136,
+    [ExerciseType.DictoGloss]: 136,
+    [ExerciseType.InformationTransfer]: 136,
+    [ExerciseType.ListeningSpecificInfo]: 136,
+    [ExerciseType.PicturePrompt]: 136,
+    [ExerciseType.MoralDilemma]: 136,
+    [ExerciseType.FunctionalWriting]: 136,
+    [ExerciseType.ProblemSolvingScenario]: 136,
+    [ExerciseType.RolePlayScenario]: 136,
+    [ExerciseType.StorytellingFromPrompts]: 136,
+    [ExerciseType.JustifyYourOpinion]: 136,
+    [ExerciseType.PictureComparison]: 136,
 };
 export const DEFAULT_TEMPLATE_HEIGHT = 126;
 
@@ -300,11 +296,12 @@ export const SINGLE_INSTANCE_TYPES = [
  */
 export const calculateExerciseAmount = (exerciseType: ExerciseType, height: number): number => {
     if (SINGLE_INSTANCE_TYPES.includes(exerciseType)) return 1;
-    // Measured from the live header classes: py-3.5 (14+14) + one content
-    // line (~28px) + border-b (1px) => ~57, plus body p-4 (32px) => 89.
-    // The old 92 was unmeasured. Whole-fit math: each item costs
-    // templateHeight + GENERATED_ITEM_OVERHEAD, and the card holds the
-    // overhead once "free", so a partial last question can never be counted.
+    // Measured, not guessed: the card header is ~57px and the body carries
+    // p-4 (32px). Whole-fit math: each row costs its content plus the divider
+    // chrome (pb-3 + border-b + gap = 25px), and the trailing gap of the last
+    // row is "free" — folding the overhead into the divisor is what stops the
+    // last question from being counted when it would land half-cut at the
+    // bottom of the card.
     const headerAndPaddingHeight = 89;
     const availableHeight = height - headerAndPaddingHeight;
     const templateHeight = TEMPLATE_HEIGHTS[exerciseType] || DEFAULT_TEMPLATE_HEIGHT;

@@ -47,7 +47,7 @@
         {:else if type === ExerciseType.SentenceScramble}
             <div class="space-y-2">
                 {@render templateTextLine("w-3/4")}
-                {@render templateBox("h-14 w-full border")}
+                {@render templateBox("h-10 w-full border")}
                 <div class="flex flex-wrap gap-2 justify-center">
                     {@render templateChip()}{@render templateChip()}{@render templateChip()}{@render templateChip()}
                     {@render templateChip()}{@render templateChip()}{@render templateChip()}

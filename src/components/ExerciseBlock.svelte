@@ -522,12 +522,10 @@
                   and its `current / total` arrows lived inside the isPresenting
                   branch, so they only ever appeared in presentation mode.
 
-                  This port is stacked too, filling the card: each question is a
-                  flex row with its number inline-left of the question text, and
-                  the row rhythm — space-y-3 gap (12) + pb-3 padding (12) + 1px
-                  border = 25px overhead per item — matches GENERATED_ITEM_OVERHEAD
-                  in lib/constants.ts, which calculateExerciseAmount uses to size
-                  the list.
+                  This port was showing one item at a time in normal mode too,
+                  which left a 600px card holding a single 180px question and
+                  400px of empty space — the generated card no longer matched
+                  the shape of its own skeleton. Stacked again, filling the card.
                 -->
                 {#if isPresenting}
                     {#if content.length > 1}

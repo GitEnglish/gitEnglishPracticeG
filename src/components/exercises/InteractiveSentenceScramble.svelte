@@ -59,7 +59,7 @@
         {/each}
     </div>
 
-    <div class="flex flex-wrap gap-2 p-3 bg-fossil-100 rounded-2xl border-2 border-fossil-200">
+    <div class="mt-4 flex flex-wrap gap-3 justify-center">
         {#if bank.length === 0}
              <span class="text-fossil-400 italic text-sm w-full text-center">All words used.</span>
         {/if}
