@@ -44,10 +44,41 @@ export const DIFFICULTY_LABELS: Record<Difficulty, string> = {
  * gives a uniform question count -- which is the behaviour the "drag the edge
  * to get more questions" resize is meant to express.
  */
-export const DEFAULT_BLOCK_DIMENSIONS = { width: 700, height: 600 };
+export const DEFAULT_BLOCK_DIMENSIONS = { width: 800, height: 600 };
 
 export const EXERCISE_SIZE_OVERRIDES: Partial<Record<ExerciseType, { width: number; height: number }>> = {
-    [ExerciseType.PicturePrompt]: { width: 760, height: 680 },
+    [ExerciseType.FITB]: { width: 700, height: 600 },
+    [ExerciseType.MultipleChoice]: { width: 700, height: 800 },
+    [ExerciseType.SentenceScramble]: { width: 700, height: 700 },
+    [ExerciseType.Matching]: { width: 700, height: 600 },
+    [ExerciseType.ClozeParagraph]: { width: 800, height: 700 },
+    [ExerciseType.DialogueCompletion]: { width: 800, height: 600 },
+    [ExerciseType.ErrorCorrection]: { width: 700, height: 600 },
+    [ExerciseType.StorySequencing]: { width: 700, height: 700 },
+    [ExerciseType.Prediction]: { width: 700, height: 700 },
+    [ExerciseType.RuleDiscovery]: { width: 800, height: 700 },
+    [ExerciseType.SpotTheDifference]: { width: 800, height: 700 },
+    [ExerciseType.PicturePrompt]: { width: 600, height: 750 },
+    [ExerciseType.MoralDilemma]: { width: 700, height: 600 },
+    [ExerciseType.ReadingGist]: { width: 800, height: 700 },
+    [ExerciseType.ReadingDetail]: { width: 800, height: 800 },
+    [ExerciseType.FunctionalWriting]: { width: 700, height: 600 },
+    [ExerciseType.DictoGloss]: { width: 700, height: 600 },
+    [ExerciseType.CollocationGapFill]: { width: 700, height: 600 },
+    [ExerciseType.WordFormation]: { width: 700, height: 600 },
+    [ExerciseType.PhrasalVerbGapFill]: { width: 700, height: 600 },
+    [ExerciseType.CollocationOddOneOut]: { width: 700, height: 600 },
+    [ExerciseType.InformationTransfer]: { width: 800, height: 700 },
+    [ExerciseType.ListeningSpecificInfo]: { width: 700, height: 700 },
+    [ExerciseType.ProblemSolvingScenario]: { width: 700, height: 600 },
+    [ExerciseType.RolePlayScenario]: { width: 700, height: 600 },
+    [ExerciseType.StorytellingFromPrompts]: { width: 700, height: 600 },
+    [ExerciseType.JustifyYourOpinion]: { width: 700, height: 600 },
+    [ExerciseType.PictureComparison]: { width: 800, height: 700 },
+    [ExerciseType.FunctionMatching]: { width: 700, height: 600 },
+    [ExerciseType.RegisterSort]: { width: 800, height: 700 },
+    [ExerciseType.PolitenessScenarios]: { width: 700, height: 700 },
+    [ExerciseType.InferringMeaning]: { width: 700, height: 700 },
 };
 
 export const EXERCISE_PEDAGOGY: Record<ExerciseType, string> = {
@@ -209,39 +240,26 @@ export const GENERATED_ITEM_OVERHEAD = 25;
  * questions and clip the last.
  */
 export const TEMPLATE_HEIGHTS: Partial<Record<ExerciseType, number>> = {
-    [ExerciseType.FITB]: 90,
-    [ExerciseType.CollocationGapFill]: 90,
-    [ExerciseType.PhrasalVerbGapFill]: 90,
-    [ExerciseType.MultipleChoice]: 120,
-    [ExerciseType.Prediction]: 120,
-    [ExerciseType.RuleDiscovery]: 120,
-    [ExerciseType.SpotTheDifference]: 120,
-    [ExerciseType.PolitenessScenarios]: 120,
-    [ExerciseType.InferringMeaning]: 120,
+    [ExerciseType.SentenceScramble]: 230,
+    [ExerciseType.Matching]: 100,
+    [ExerciseType.FunctionMatching]: 100,
+    [ExerciseType.StorySequencing]: 120,
+    [ExerciseType.FITB]: 120,
+    [ExerciseType.CollocationGapFill]: 120,
+    [ExerciseType.PhrasalVerbGapFill]: 120,
+    [ExerciseType.MultipleChoice]: 150,
+    [ExerciseType.Prediction]: 150,
+    [ExerciseType.RuleDiscovery]: 180,
+    [ExerciseType.SpotTheDifference]: 180,
+    [ExerciseType.PolitenessScenarios]: 150,
+    [ExerciseType.InferringMeaning]: 180,
     [ExerciseType.CollocationOddOneOut]: 120,
-    [ExerciseType.Matching]: 56,
-    [ExerciseType.FunctionMatching]: 56,
-    [ExerciseType.SentenceScramble]: 104,
-    [ExerciseType.StorySequencing]: 64,
-    [ExerciseType.ClozeParagraph]: 80,
-    [ExerciseType.DialogueCompletion]: 80,
-    [ExerciseType.WordFormation]: 84,
-    [ExerciseType.ErrorCorrection]: 84,
-    [ExerciseType.ReadingGist]: 136,
-    [ExerciseType.ReadingDetail]: 136,
-    [ExerciseType.DictoGloss]: 136,
-    [ExerciseType.InformationTransfer]: 136,
-    [ExerciseType.ListeningSpecificInfo]: 136,
-    [ExerciseType.PicturePrompt]: 136,
-    [ExerciseType.MoralDilemma]: 136,
-    [ExerciseType.FunctionalWriting]: 136,
-    [ExerciseType.ProblemSolvingScenario]: 136,
-    [ExerciseType.RolePlayScenario]: 136,
-    [ExerciseType.StorytellingFromPrompts]: 136,
-    [ExerciseType.JustifyYourOpinion]: 136,
-    [ExerciseType.PictureComparison]: 136,
+    [ExerciseType.ClozeParagraph]: 140,
+    [ExerciseType.DialogueCompletion]: 140,
+    [ExerciseType.WordFormation]: 160,
+    [ExerciseType.ErrorCorrection]: 150,
 };
-export const DEFAULT_TEMPLATE_HEIGHT = 126;
+export const DEFAULT_TEMPLATE_HEIGHT = 150;
 
 export const ESTIMATED_TIME: Record<ExerciseType, { base: number; perItem: number }> = {
     [ExerciseType.FITB]: { base: 1, perItem: 1 },
@@ -302,11 +320,11 @@ export const calculateExerciseAmount = (exerciseType: ExerciseType, height: numb
     // row is "free" — folding the overhead into the divisor is what stops the
     // last question from being counted when it would land half-cut at the
     // bottom of the card.
-    const headerAndPaddingHeight = 89;
+    const headerAndPaddingHeight = 70;
     const availableHeight = height - headerAndPaddingHeight;
     const templateHeight = TEMPLATE_HEIGHTS[exerciseType] || DEFAULT_TEMPLATE_HEIGHT;
     if (templateHeight <= 0) return 1;
-    return Math.max(1, Math.floor((availableHeight + GENERATED_ITEM_OVERHEAD) / (templateHeight + GENERATED_ITEM_OVERHEAD)));
+    return Math.max(1, Math.floor(availableHeight / templateHeight));
 };
 
 
