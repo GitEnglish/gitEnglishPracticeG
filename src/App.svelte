@@ -46,6 +46,7 @@
   }
   let paths = $state<any[]>(initialPaths);
   let isDrawingMode = $state(false);
+  let isErasing = $state(false);
 
   // Global Settings State
   let isGlobalSettingsOpen = $state(false);
@@ -139,6 +140,15 @@
   const handleClearBoard = () => {
       if (window.confirm("Are you sure you want to clear the entire whiteboard? This cannot be undone unless you have exported your project.")) {
           blocks = [];
+          paths = [];
+      }
+  };
+
+  const handleClearDrawings = () => {
+      if (paths.length === 0) return;
+      if (window.confirm("Delete all handwriting? Your exercise cards will stay.")) {
+          paths = [];
+          isErasing = false;
       }
   };
 
@@ -307,7 +317,16 @@
     difficulty={globalDifficulty}
     onCycleDifficulty={cycleDifficulty}
     isDrawingMode={isDrawingMode}
-    onToggleDrawingMode={() => isDrawingMode = !isDrawingMode}
+    onToggleDrawingMode={() => {
+      isDrawingMode = !isDrawingMode;
+      if (isDrawingMode) isErasing = false;
+    }}
+    isErasing={isErasing}
+    onToggleEraser={() => {
+      isErasing = !isErasing;
+      if (isErasing) isDrawingMode = false;
+    }}
+    onClearDrawings={handleClearDrawings}
   />
 
 
@@ -348,6 +367,7 @@
       {blocks}
       {paths}
       {isDrawingMode}
+      {isErasing}
       onPathsChange={(newPaths) => paths = newPaths}
       onAddBlock={handleAddBlock}
       onUpdateBlock={handleUpdateBlock}

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { BookOpen, ChevronDown, Puzzle, Settings as SettingsIcon, PenTool as PenToolIcon, Info as InfoIcon } from 'lucide-svelte';
+  import { BookOpen, ChevronDown, Puzzle, Settings as SettingsIcon, PenTool as PenToolIcon, Info as InfoIcon, Eraser as EraserIcon, Trash2 as ClearDrawingsIcon } from 'lucide-svelte';
   import { motion } from '@humanspeak/svelte-motion';
   import DifficultyMeter from '../lib/components/DifficultyMeter.svelte';
   import { EXERCISE_CATEGORIES, EXERCISE_PEDAGOGY, PEDAGOGY_COLORS } from '../lib/constants';
@@ -89,7 +89,10 @@
       difficulty,
       onCycleDifficulty,
       isDrawingMode,
-      onToggleDrawingMode
+      onToggleDrawingMode,
+      isErasing,
+      onToggleEraser,
+      onClearDrawings
   } = $props<{
       isSidebarOpen?: boolean;
       onAddExercise?: (type: string) => void;
@@ -109,6 +112,9 @@
       onCycleDifficulty?: () => void;
       isDrawingMode?: boolean;
       onToggleDrawingMode?: () => void;
+      isErasing?: boolean;
+      onToggleEraser?: () => void;
+      onClearDrawings?: () => void;
   }>();
 
   let isVocabOpen = $state(false);
@@ -214,6 +220,12 @@
           </button>
           <button onclick={onToggleDrawingMode} class="p-2 rounded-lg transition-all {isDrawingMode ? 'text-accent bg-accent/15' : 'text-fossil-400 hover:text-fossil-50 hover:bg-fossil-50/10'}" title="Drawing mode" aria-pressed={isDrawingMode ?? false} aria-label="Toggle drawing mode">
             <PenToolIcon class="w-4 h-4" />
+          </button>
+          <button onclick={onToggleEraser} class="p-2 rounded-lg transition-all {isErasing ? 'text-accent bg-accent/15' : 'text-fossil-400 hover:text-fossil-50 hover:bg-fossil-50/10'}" title="Eraser — click or drag over handwriting to delete it" aria-pressed={isErasing ?? false} aria-label="Toggle eraser">
+            <EraserIcon class="w-4 h-4" />
+          </button>
+          <button onclick={onClearDrawings} class="p-2 rounded-lg text-fossil-400 hover:text-cinnabar-400 hover:bg-cinnabar-500/10 transition-all" title="Delete all handwriting (keeps exercise cards)" aria-label="Delete all handwriting">
+            <ClearDrawingsIcon class="w-4 h-4" />
           </button>
         </div>
       </div>

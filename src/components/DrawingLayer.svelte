@@ -11,15 +11,19 @@
   let {
     paths = [],
     isDrawingMode = false,
+    isErasing = false,
     scale = 1,
     pan = { x: 0, y: 0 },
-    onPathAdded = (path: DrawingPath) => {}
+    onPathAdded = (path: DrawingPath) => {},
+    onPathsChange = (paths: DrawingPath[]) => {}
   } = $props<{
     paths: DrawingPath[];
     isDrawingMode: boolean;
+    isErasing: boolean;
     scale: number;
     pan: { x: number; y: number };
     onPathAdded: (path: DrawingPath) => void;
+    onPathsChange: (paths: DrawingPath[]) => void;
   }>();
 
   let svgRef: SVGSVGElement;
@@ -57,7 +61,52 @@
     return { x, y };
   };
 
+  // Eraser: delete any stroke within reach of the pointer. Radius is in
+  // world coordinates (points are already unscaled), so a stroke drawn
+  // with width w erases when the pointer comes within 12px + w/2 of it.
+  const ERASE_RADIUS = 12;
+
+  const distToSegment = (
+    px: number, py: number,
+    ax: number, ay: number,
+    bx: number, by: number
+  ) => {
+    const dx = bx - ax;
+    const dy = by - ay;
+    const lenSq = dx * dx + dy * dy;
+    let t = lenSq === 0 ? 0 : ((px - ax) * dx + (py - ay) * dy) / lenSq;
+    t = Math.max(0, Math.min(1, t));
+    return Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
+  };
+
+  const pathHit = (path: DrawingPath, x: number, y: number) => {
+    const reach = ERASE_RADIUS + path.width / 2;
+    const pts = path.points;
+    for (let i = 0; i < pts.length; i++) {
+      if (Math.hypot(pts[i].x - x, pts[i].y - y) <= reach) return true;
+      if (
+        i > 0 &&
+        distToSegment(x, y, pts[i - 1].x, pts[i - 1].y, pts[i].x, pts[i].y) <= reach
+      ) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const eraseAt = (e: MouseEvent | TouchEvent) => {
+    const { x, y } = getCoordinates(e);
+    const remaining = paths.filter((p: DrawingPath) => !pathHit(p, x, y));
+    if (remaining.length !== paths.length) onPathsChange(remaining);
+    if (e.cancelable) e.preventDefault();
+  };
+
   const handlePointerDown = (e: MouseEvent | TouchEvent) => {
+    if (isErasing) {
+      isDrawing = true;
+      eraseAt(e);
+      return;
+    }
     if (!isDrawingMode || (e instanceof MouseEvent && e.button !== 0)) return;
 
     isDrawing = true;
@@ -75,7 +124,14 @@
   };
 
   const handlePointerMove = (e: MouseEvent | TouchEvent) => {
-    if (!isDrawing || !currentPath) return;
+    if (!isDrawing) return;
+
+    if (isErasing) {
+      eraseAt(e);
+      return;
+    }
+
+    if (!currentPath) return;
 
     const coords = getCoordinates(e);
     currentPath = {
@@ -87,9 +143,12 @@
   };
 
   const handlePointerUp = () => {
-    if (!isDrawing || !currentPath) return;
-
+    if (!isDrawing) return;
     isDrawing = false;
+    if (isErasing || !currentPath) {
+      currentPath = null;
+      return;
+    }
     onPathAdded(currentPath);
     currentPath = null;
   };
@@ -115,7 +174,7 @@
 <svg
   bind:this={svgRef}
   class="absolute top-0 left-0 w-full h-full pointer-events-none"
-  style="pointer-events: {isDrawingMode ? 'auto' : 'none'}; touch-action: none; z-index: 9999999;"
+  style="pointer-events: {isDrawingMode || isErasing ? 'auto' : 'none'}; touch-action: none; z-index: 9999999; cursor: {isErasing ? 'cell' : isDrawingMode ? 'crosshair' : 'default'};"
   role="presentation"
   onmousedown={handlePointerDown}
   onmousemove={handlePointerMove}

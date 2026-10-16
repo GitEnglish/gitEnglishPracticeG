@@ -9,6 +9,7 @@
     blocks,
     paths = [],
     isDrawingMode = false,
+    isErasing = false,
     onPathsChange,
     onAddBlock,
     onUpdateBlock,
@@ -23,6 +24,7 @@
     blocks: ExerciseBlockState[];
     paths?: any[];
     isDrawingMode?: boolean;
+    isErasing?: boolean;
     onPathsChange?: (paths: any[]) => void;
     onAddBlock?: (type: string, x: number, y: number) => void;
     onUpdateBlock: (id: number, updates: Partial<ExerciseBlockState>) => void;
@@ -125,7 +127,7 @@
     const target = e.target as HTMLElement;
     const isBackground = target.id === 'whiteboard-background' || target.id === 'whiteboard-main';
 
-    if (e.button === 1 || e.button === 2 || (e.button === 0 && isBackground && !isDrawingMode)) {
+    if (e.button === 1 || e.button === 2 || (e.button === 0 && isBackground && !isDrawingMode && !isErasing)) {
       isPanning = true;
       lastMousePos = { x: e.clientX, y: e.clientY };
       e.preventDefault();
@@ -244,7 +246,7 @@
   oncontextmenu={(e) => e.preventDefault()}
   ondrop={handleDrop}
   ondragover={(e) => e.preventDefault()}
-  class="flex-grow bg-transparent relative overflow-hidden font-sans h-full w-full {isPanning ? 'cursor-grabbing' : (isDrawingMode ? 'cursor-crosshair' : 'cursor-grab')}"
+  class="flex-grow bg-transparent relative overflow-hidden font-sans h-full w-full {isPanning ? 'cursor-grabbing' : (isErasing ? 'cursor-cell' : (isDrawingMode ? 'cursor-crosshair' : 'cursor-grab'))}"
 >
   {#if blocks.length === 0}
   <div class="absolute inset-0 flex flex-col justify-center items-center text-center text-ink-muted pointer-events-none p-4 z-0 select-none">
@@ -266,10 +268,14 @@
     <DrawingLayer
       {paths}
       {isDrawingMode}
+      {isErasing}
       {scale}
       {pan}
       onPathAdded={(newPath) => {
         if (onPathsChange) onPathsChange([...paths, newPath]);
+      }}
+      onPathsChange={(newPaths) => {
+        if (onPathsChange) onPathsChange(newPaths);
       }}
     />
     {#each blocks as block (block.id)}
