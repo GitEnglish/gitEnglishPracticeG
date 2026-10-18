@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import Sidebar from './components/Sidebar.svelte';
   import Whiteboard from './components/Whiteboard.svelte';
   import GlobalSettings from './components/GlobalSettings.svelte';
@@ -10,6 +11,62 @@
   $effect(() => {
     initActivityLogger('practice-genie', 'student_default');
     getActivityLogger()?.startSession();
+  });
+
+  onMount(() => {
+    // Mount Handshake
+    if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: 'PRACTICE_READY' }, '*');
+    }
+
+    // Parse URL params
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('theme')) {
+      globalTheme = params.get('theme') || '';
+    }
+    if (params.has('inclusionRate')) {
+      const ir = parseFloat(params.get('inclusionRate')!);
+      if (!isNaN(ir)) globalInclusionRate = ir;
+    }
+    if (params.has('grammarRate')) {
+      const gr = parseFloat(params.get('grammarRate')!);
+      if (!isNaN(gr)) globalGrammarInclusionRate = gr;
+    }
+
+    // Context Listener
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data?.type === 'PRACTICE_INIT' && event.data?.payload) {
+        const p = event.data.payload;
+        if (Array.isArray(p.focusVocabulary) && p.focusVocabulary.length > 0) {
+          globalFocusVocabulary = p.focusVocabulary;
+          localStorage.setItem('practiceGenie-focusVocabulary', JSON.stringify(p.focusVocabulary));
+        }
+        if (Array.isArray(p.focusGrammar) && p.focusGrammar.length > 0) {
+          globalFocusGrammar = p.focusGrammar;
+          localStorage.setItem('practiceGenie-focusGrammar', JSON.stringify(p.focusGrammar));
+        }
+        if (typeof p.inclusionRate === 'number') {
+          globalInclusionRate = p.inclusionRate;
+          localStorage.setItem('practiceGenie-inclusionRate', p.inclusionRate.toString());
+        }
+        if (typeof p.grammarInclusionRate === 'number') {
+          globalGrammarInclusionRate = p.grammarInclusionRate;
+          localStorage.setItem('practiceGenie-grammarInclusionRate', p.grammarInclusionRate.toString());
+        }
+        if (p.theme && typeof p.theme === 'string') {
+          globalTheme = p.theme;
+        }
+        if (p.difficulty) {
+          globalDifficulty = p.difficulty;
+        }
+      }
+    };
+    
+    window.addEventListener('message', handleMessage);
+
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
   });
 
   let isSidebarOpen = $state(true);

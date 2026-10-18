@@ -233,6 +233,14 @@ export class ActivityLogger {
     this.activities.push(activity);
     console.log(`[ActivityLogger] Activity ended: ${activity.activity_name}. Stream events: ${activity.stream_data.length}`);
     this.currentActivity = null;
+
+    if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'ACTIVITY_LOG',
+        event: 'activity_completed',
+        activity: activity
+      }, '*');
+    }
   }
 
   /**
@@ -247,7 +255,7 @@ export class ActivityLogger {
     this.timestampEnd = new Date().toISOString();
     console.log(`[ActivityLogger] Session ended.`);
 
-    return {
+    const sessionPayload = {
       module_id: this.moduleId,
       student_id: this.studentId,
       session_id: this.sessionId,
@@ -255,6 +263,16 @@ export class ActivityLogger {
       timestamp_end: this.timestampEnd,
       activities: this.activities,
     };
+
+    if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'ACTIVITY_LOG',
+        event: 'session_completed',
+        session: sessionPayload
+      }, '*');
+    }
+
+    return sessionPayload;
   }
 
   /**
