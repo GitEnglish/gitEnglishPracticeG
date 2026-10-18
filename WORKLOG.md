@@ -50,3 +50,16 @@
 - **2026-10-06 09:08** [status] Confirmed to user: sizing NOT fixed (cells 1-2 pushed, visible fixes never done); offered revert or corrected completion
 - **2026-10-06 09:15** [constraint] CONSTRAINT: NO PUSHES - all sizing work stays local until user pushes
 - **2026-10-06 11:49** [implementation] Sizing fix complete locally: measured TEMPLATE_HEIGHTS, whole-fit formula, inline numbers, tightened scramble skeleton, unboxed scramble bank. NO PUSH - awaiting user visual verification
+- **2026-10-06 15:59** [deployment] Pushed complete sizing fix (4 files) to origin - user approved push to verify live on Railway
+- **2026-10-13 19:33** [bugfix] Fixed main-branch build: restored DrawingLayer.svelte, deepseekService.ts and aiService.ts (deleted in bcf39e3 with imports left behind), committed as 0b8e567; vite build now passes
+- **2026-10-15 15:56** [status] Checked rebase merge status for Kimi/Jules commits
+- **2026-10-15 15:57** [status] Verified Jules PRs 138-141 rebased and merged, not discarded
+- **2026-10-15 16:26** [sync] Fast-forwarded local main to origin/main cac4939
+- **2026-10-15 16:27** [bugfix] Restored ActivityLogger.ts deleted in cac4939, build passes
+- **2026-10-15 16:28** [deployment] Pushed ActivityLogger restore ec1aed0 to origin/main
+- **2026-10-15 16:29** [analysis] Deep-dived duplicate files: 8 src/legacy collisions + 3 identical icon pairs
+- **2026-10-15 17:51** [cleanup] Removed dead duplicate icons VocabularyIcon and ProductionIcon
+- **2026-10-15 22:54** [feature] Added stroke eraser + clear-drawings, trash now clears ink
+- **2026-10-15 22:55** [deployment] Committed and pushed whiteboard eraser feature fc57e1e
+- **2026-10-17 16:22** [verification] Verified local repo is a byte-for-byte mirror image of Railway live deployment
+- **2026-10-17 19:08** [bugfix] Fixed Generate clickability, drawing layer z-index trapping, sidebar header layout overflow, and API fallback

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { BookOpen, ChevronDown, Puzzle, Settings as SettingsIcon, PenTool as PenToolIcon, Info as InfoIcon, Eraser as EraserIcon, Trash2 as ClearDrawingsIcon } from 'lucide-svelte';
+  import { BookOpen, ChevronDown, Puzzle, Settings as SettingsIcon, PenTool as PenToolIcon, Info as InfoIcon } from 'lucide-svelte';
   import { motion } from '@humanspeak/svelte-motion';
   import DifficultyMeter from '../lib/components/DifficultyMeter.svelte';
   import { EXERCISE_CATEGORIES, EXERCISE_PEDAGOGY, PEDAGOGY_COLORS } from '../lib/constants';
@@ -197,35 +197,27 @@
 
     <div class="px-6 pt-7 pb-6 border-b border-hairline/60">
       <div class="flex items-center gap-3">
-        <div class="h-8 w-8 rounded-lg bg-gradient-to-br from-citrine-300 via-accent to-citrine-700 p-1.5 flex items-center justify-center shadow-[0_0_12px_rgba(229,149,0,0.5)] border border-citrine-200/40 flex-shrink-0">
+        <div class="h-8 w-8 rounded-lg bg-gradient-to-br from-citrine-300 via-accent to-citrine-700 p-1.5 flex items-center justify-center shadow-[0_0_12px_rgba(229,149,0,0.5)] border border-citrine-200/40 shrink-0">
           <svg class="w-full h-full text-ink" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" viewBox="0 0 24 24">
             <circle cx="12" cy="12" r="9.5"></circle>
             <polygon fill="currentColor" points="12 4 14.5 10.5 20 12 14.5 13.5 12 20 9.5 13.5 4 12 9.5 10.5 12 4"></polygon>
           </svg>
         </div>
-        <div class="min-w-0">
-          <div class="flex items-center">
-            <span class="text-fossil-50 text-lg font-semibold tracking-tight antialiased">
-              gitEnglish<sup class="text-[9px] font-semibold tracking-widest text-accent ml-0.5">™</sup>
-            </span>
-          </div>
+        <div class="shrink-0 flex items-center">
+          <span class="text-fossil-50 text-lg font-semibold tracking-tight antialiased whitespace-nowrap">
+            gitEnglish<sup class="text-[9px] font-semibold tracking-widest text-accent ml-0.5">™</sup>
+          </span>
         </div>
-        <!-- These four were the radial menu. The orb is gone; the functions stay. -->
-        <div class="ml-auto flex items-center gap-1.5">
+        <!-- Primary controls -->
+        <div class="ml-auto flex items-center gap-1.5 shrink-0">
           <button onclick={onToggleSettings} class="p-2 rounded-lg text-fossil-400 hover:text-fossil-50 hover:bg-fossil-50/10 transition-all" title="Global settings" aria-label="Global settings">
             <SettingsIcon class="w-4 h-4" />
           </button>
           <button onclick={onCycleDifficulty} class="px-2 py-1 rounded-lg border border-hairline text-sm font-semibold tracking-widest text-accent hover:bg-fossil-50/10 transition-all whitespace-nowrap" title="Cycle difficulty (CEFR)" aria-label="Cycle difficulty">
             {difficulty ?? 'B1'}
           </button>
-          <button onclick={onToggleDrawingMode} class="p-2 rounded-lg transition-all {isDrawingMode ? 'text-accent bg-accent/15' : 'text-fossil-400 hover:text-fossil-50 hover:bg-fossil-50/10'}" title="Drawing mode" aria-pressed={isDrawingMode ?? false} aria-label="Toggle drawing mode">
+          <button onclick={onToggleDrawingMode} class="p-2 rounded-lg transition-all {isDrawingMode || isErasing ? 'text-accent bg-accent/15' : 'text-fossil-400 hover:text-fossil-50 hover:bg-fossil-50/10'}" title="Drawing mode" aria-pressed={isDrawingMode || isErasing} aria-label="Toggle drawing mode">
             <PenToolIcon class="w-4 h-4" />
-          </button>
-          <button onclick={onToggleEraser} class="p-2 rounded-lg transition-all {isErasing ? 'text-accent bg-accent/15' : 'text-fossil-400 hover:text-fossil-50 hover:bg-fossil-50/10'}" title="Eraser — click or drag over handwriting to delete it" aria-pressed={isErasing ?? false} aria-label="Toggle eraser">
-            <EraserIcon class="w-4 h-4" />
-          </button>
-          <button onclick={onClearDrawings} class="p-2 rounded-lg text-fossil-400 hover:text-cinnabar-400 hover:bg-cinnabar-500/10 transition-all" title="Delete all handwriting (keeps exercise cards)" aria-label="Delete all handwriting">
-            <ClearDrawingsIcon class="w-4 h-4" />
           </button>
         </div>
       </div>

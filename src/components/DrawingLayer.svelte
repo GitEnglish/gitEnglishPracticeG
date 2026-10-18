@@ -174,7 +174,7 @@
 <svg
   bind:this={svgRef}
   class="absolute top-0 left-0 w-full h-full pointer-events-none"
-  style="pointer-events: {isDrawingMode || isErasing ? 'auto' : 'none'}; touch-action: none; z-index: 9999999; cursor: {isErasing ? 'cell' : isDrawingMode ? 'crosshair' : 'default'};"
+  style="pointer-events: {isDrawingMode || isErasing ? 'auto' : 'none'}; touch-action: none; z-index: 2; cursor: {isErasing ? 'cell' : isDrawingMode ? 'crosshair' : 'default'};"
   role="presentation"
   onmousedown={handlePointerDown}
   onmousemove={handlePointerMove}

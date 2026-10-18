@@ -59,6 +59,16 @@
   $effect(() => { localStorage.setItem(TONE_KEY, globalTone); });
   $effect(() => { localStorage.setItem(THEME_KEY, globalTheme); });
   $effect(() => { localStorage.setItem(PATHS_KEY, JSON.stringify(paths)); });
+  $effect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && (isDrawingMode || isErasing)) {
+        isDrawingMode = false;
+        isErasing = false;
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  });
 
   let globalMakerTemperature = $state<number>(parseFloat(localStorage.getItem('deepseek_maker_temp') || '0.7'));
   let globalCheckerTemperature = $state<number>(parseFloat(localStorage.getItem('deepseek_checker_temp') || '0.2'));
@@ -317,16 +327,16 @@
     difficulty={globalDifficulty}
     onCycleDifficulty={cycleDifficulty}
     isDrawingMode={isDrawingMode}
-    onToggleDrawingMode={() => {
-      isDrawingMode = !isDrawingMode;
-      if (isDrawingMode) isErasing = false;
-    }}
     isErasing={isErasing}
-    onToggleEraser={() => {
-      isErasing = !isErasing;
-      if (isErasing) isDrawingMode = false;
+    onToggleDrawingMode={() => {
+      if (isDrawingMode || isErasing) {
+        isDrawingMode = false;
+        isErasing = false;
+      } else {
+        isDrawingMode = true;
+        isErasing = false;
+      }
     }}
-    onClearDrawings={handleClearDrawings}
   />
 
 
@@ -378,6 +388,19 @@
       onExitPresentation={() => presentingBlockId = null}
       onNextSlide={() => {}}
       onPrevSlide={() => {}}
+      onToggleDrawingMode={() => {
+        isDrawingMode = true;
+        isErasing = false;
+      }}
+      onToggleEraser={() => {
+        isErasing = true;
+        isDrawingMode = false;
+      }}
+      onClearDrawings={handleClearDrawings}
+      onExitDrawingMode={() => {
+        isDrawingMode = false;
+        isErasing = false;
+      }}
     />
   </div>
 </div>

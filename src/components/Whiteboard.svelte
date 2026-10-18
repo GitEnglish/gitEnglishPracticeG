@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Wand2 } from 'lucide-svelte';
+  import { Wand2, PenTool, Eraser, Trash2, X } from 'lucide-svelte';
   import type { ExerciseBlockState, ExerciseType } from '../lib/types';
   import { EXERCISE_SIZE_OVERRIDES, DEFAULT_BLOCK_DIMENSIONS } from '../lib/constants';
   import ExerciseBlock from './ExerciseBlock.svelte';
@@ -19,7 +19,11 @@
     onEnterPresentation,
     onExitPresentation,
     onNextSlide,
-    onPrevSlide
+    onPrevSlide,
+    onToggleDrawingMode,
+    onToggleEraser,
+    onClearDrawings,
+    onExitDrawingMode
   } = $props<{
     blocks: ExerciseBlockState[];
     paths?: any[];
@@ -35,6 +39,10 @@
     onExitPresentation: () => void;
     onNextSlide: () => void;
     onPrevSlide: () => void;
+    onToggleDrawingMode?: () => void;
+    onToggleEraser?: () => void;
+    onClearDrawings?: () => void;
+    onExitDrawingMode?: () => void;
   }>();
 
   let scale = $state(1);
@@ -260,6 +268,52 @@
   </div>
   {/if}
 
+  {#if isDrawingMode || isErasing}
+    <div class="absolute top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-chrome/95 border border-hairline shadow-xl backdrop-blur-md text-sm font-ui select-none pointer-events-auto">
+      <span class="text-xs font-semibold uppercase tracking-wider text-accent pl-1 pr-2 border-r border-hairline/80">
+        {isErasing ? 'Eraser' : 'Pen'}
+      </span>
+      <button
+        onclick={onToggleDrawingMode}
+        class="px-2.5 py-1 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 {isDrawingMode ? 'bg-accent text-fossil-50 shadow-sm' : 'text-fossil-300 hover:text-fossil-50 hover:bg-fossil-50/10'}"
+        title="Draw mode"
+        type="button"
+      >
+        <PenTool class="w-3.5 h-3.5" />
+        <span>Draw</span>
+      </button>
+      <button
+        onclick={onToggleEraser}
+        class="px-2.5 py-1 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 {isErasing ? 'bg-accent text-fossil-50 shadow-sm' : 'text-fossil-300 hover:text-fossil-50 hover:bg-fossil-50/10'}"
+        title="Eraser mode — click or drag over handwriting to delete it"
+        type="button"
+      >
+        <Eraser class="w-3.5 h-3.5" />
+        <span>Erase</span>
+      </button>
+      <button
+        onclick={onClearDrawings}
+        class="px-2.5 py-1 rounded-full text-xs font-semibold text-fossil-300 hover:text-cinnabar-400 hover:bg-cinnabar-500/10 transition-all flex items-center gap-1.5"
+        title="Delete all handwriting (keeps exercise cards)"
+        type="button"
+      >
+        <Trash2 class="w-3.5 h-3.5" />
+        <span>Clear Ink</span>
+      </button>
+      <span class="w-px h-4 bg-hairline mx-1" aria-hidden="true"></span>
+      <button
+        onclick={onExitDrawingMode}
+        class="px-2.5 py-1 rounded-full text-xs font-semibold text-fossil-300 hover:text-fossil-50 hover:bg-fossil-50/15 transition-all flex items-center gap-1.5"
+        title="Exit drawing mode (Esc)"
+        type="button"
+      >
+        <X class="w-3.5 h-3.5" />
+        <span>Done</span>
+        <kbd class="text-[10px] opacity-60 bg-black/30 px-1 py-0.5 rounded ml-0.5 font-mono">Esc</kbd>
+      </button>
+    </div>
+  {/if}
+
   <div
       id="whiteboard-background"
       class="absolute origin-top-left will-change-transform {isPanning ? 'pointer-events-none' : ''}"
@@ -303,7 +357,7 @@
                     ? `left:${line.position}px;top:${line.start}px;width:${1/scale}px;height:${line.end - line.start}px;`
                     : `top:${line.position}px;left:${line.start}px;height:${1/scale}px;width:${line.end - line.start}px;`
             }
-        />
+        ></div>
     {/each}
     {#if draggedSidebarType}
         {@const dims = EXERCISE_SIZE_OVERRIDES[draggedSidebarType as ExerciseType] || DEFAULT_BLOCK_DIMENSIONS}
