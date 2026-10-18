@@ -151,6 +151,23 @@
   const handleRemove = () => {
       if (isRemoving) return;
       isRemoving = true;
+      if (content && content.length > 0 && typeof window !== 'undefined' && window.parent && window.parent !== window) {
+          try {
+              window.parent.postMessage({
+                  type: 'EXERCISE_RECORD',
+                  exercise: {
+                      id: String(id),
+                      type: exerciseType,
+                      theme: theme || 'General Practice',
+                      difficulty: difficulty || 'B1',
+                      questions: content,
+                      completedAt: Date.now()
+                  }
+              }, '*');
+          } catch (e) {
+              console.warn('[ExerciseBlock] Failed to emit EXERCISE_RECORD:', e);
+          }
+      }
       setTimeout(() => onRemove(id), 170);
   };
   const handleRegenerate = () => { if (!isLoading) handleGenerate(); };

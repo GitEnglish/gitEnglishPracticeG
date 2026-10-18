@@ -343,6 +343,24 @@
   };
 
   const handleRemoveBlock = (id: number) => {
+      const block = blocks.find(b => b.id === id);
+      if (block && block.content && block.content.length > 0 && typeof window !== 'undefined' && window.parent && window.parent !== window) {
+          try {
+              window.parent.postMessage({
+                  type: 'EXERCISE_RECORD',
+                  exercise: {
+                      id: String(id),
+                      type: block.exerciseType,
+                      theme: block.theme || 'General Practice',
+                      difficulty: block.difficulty || 'B1',
+                      questions: block.content,
+                      completedAt: Date.now()
+                  }
+              }, '*');
+          } catch (e) {
+              console.warn('[App] Failed to emit EXERCISE_RECORD:', e);
+          }
+      }
       blocks = blocks.filter(b => b.id !== id);
       if (presentingBlockId === id) presentingBlockId = null;
   };
