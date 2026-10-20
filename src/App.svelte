@@ -59,6 +59,13 @@
         if (p.difficulty) {
           globalDifficulty = p.difficulty;
         }
+        if (p.lac) {
+          try {
+            localStorage.setItem('practiceGenie-lac', JSON.stringify(p.lac));
+          } catch (e) {
+            console.warn('[PracticeGenie] Could not serialize LAC to localStorage:', e);
+          }
+        }
       }
     };
     
