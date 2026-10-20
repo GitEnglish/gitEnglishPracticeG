@@ -63,3 +63,5 @@
 - **2026-10-15 22:55** [deployment] Committed and pushed whiteboard eraser feature fc57e1e
 - **2026-10-17 16:22** [verification] Verified local repo is a byte-for-byte mirror image of Railway live deployment
 - **2026-10-17 19:08** [bugfix] Fixed Generate clickability, drawing layer z-index trapping, sidebar header layout overflow, and API fallback
+- **2026-10-17 21:04** [deployment] Pushed fix 1b1bb88 to origin/main; verified live Railway deployment 7149178599 success
+- **2026-10-20 03:47** [refactor] Purged legacy_react, removed deepseek references, and renamed to openrouterService

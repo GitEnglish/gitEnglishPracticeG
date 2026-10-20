@@ -6,7 +6,7 @@
   import { useResponsiveScale } from '../hooks/useResponsiveScale';
   import { useAttentionTracker } from '../hooks/useAttentionTracker';
   import { getActivityLogger } from '../services/ActivityLogger';
-  import { generateExercise } from '../services/deepseekService';
+  import { generateExercise } from '../services/aiService';
   import type { Component } from 'svelte';
 
   import ExerciseTemplate from './ExerciseTemplate.svelte';
@@ -199,7 +199,7 @@
   // propagation on interactive zones prevents the drag system from capturing.
   const stopPointer = (e: PointerEvent) => e.stopPropagation();
 
-  // Real generation via OpenRouter (DeepSeek) — see services/deepseekService.ts
+  // Exercise generation via OpenRouter — see services/openrouterService.ts
   const handleGenerate = async () => {
     isLoading = true;
     onFocus(id);

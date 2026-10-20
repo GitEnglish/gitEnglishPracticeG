@@ -26,15 +26,11 @@ export default defineConfig(({ mode }) => {
       svelte()
     ],
     define: {
-      // Legacy Gemini vars (kept for compatibility with the legacy_react reference)
-      'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-      // OpenRouter / DeepSeek (OpenAI-compatible) — set in .env locally or Railway vars in prod
-      'process.env.OPENROUTER_API_KEY': JSON.stringify(env.OPENROUTER_API_KEY ?? env.DEEPSEEK_API_KEY),
+      // OpenRouter (OpenAI-compatible) — set in .env locally or Railway vars in prod
+      'process.env.OPENROUTER_API_KEY': JSON.stringify(env.OPENROUTER_API_KEY || ''),
       'process.env.OPENROUTER_MODEL': JSON.stringify(env.OPENROUTER_MODEL || 'xiaomi/mimo-v2.6-flash'),
       'process.env.OPENROUTER_BASE_URL': JSON.stringify(env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1'),
-      // Direct Mistral. When MISTRAL_API_KEY is set the app talks to
-      // api.mistral.ai and ignores the OpenRouter variables entirely.
+      // Direct Mistral. When MISTRAL_API_KEY is set and USE_MISTRAL_DIRECT is true, talks to api.mistral.ai
       'process.env.MISTRAL_API_KEY': JSON.stringify(env.MISTRAL_API_KEY || ''),
       'process.env.MISTRAL_BASE_URL': JSON.stringify(env.MISTRAL_BASE_URL || 'https://api.mistral.ai/v1'),
       'process.env.MISTRAL_MODEL': JSON.stringify(env.MISTRAL_MODEL || 'mistral-small-2603'),

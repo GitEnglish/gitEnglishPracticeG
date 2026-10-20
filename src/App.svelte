@@ -134,8 +134,8 @@
     return () => window.removeEventListener('keydown', handleKeyDown);
   });
 
-  let globalMakerTemperature = $state<number>(parseFloat(localStorage.getItem('deepseek_maker_temp') || '0.7'));
-  let globalCheckerTemperature = $state<number>(parseFloat(localStorage.getItem('deepseek_checker_temp') || '0.2'));
+  let globalMakerTemperature = $state<number>(parseFloat(localStorage.getItem('openrouter_maker_temp') || '0.7'));
+  let globalCheckerTemperature = $state<number>(parseFloat(localStorage.getItem('openrouter_checker_temp') || '0.2'));
 
 
   // Focus Settings State
@@ -435,13 +435,13 @@
         makerTemperature={globalMakerTemperature}
         setMakerTemperature={(t) => {
             globalMakerTemperature = t;
-            localStorage.setItem('deepseek_maker_temp', t.toString());
+            localStorage.setItem('openrouter_maker_temp', t.toString());
 
         }}
         checkerTemperature={globalCheckerTemperature}
         setCheckerTemperature={(t) => {
             globalCheckerTemperature = t;
-            localStorage.setItem('deepseek_checker_temp', t.toString());
+            localStorage.setItem('openrouter_checker_temp', t.toString());
 
         }}
       />

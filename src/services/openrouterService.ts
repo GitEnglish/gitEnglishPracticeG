@@ -2,17 +2,14 @@
 import { ExerciseType, Difficulty, Tone } from '../lib/types';
 
 /**
- * deepseekService.ts
- * ==================
- * AI exercise generation via OpenRouter (OpenAI-compatible Chat Completions API),
- * serving DeepSeek models by default. This replaces the legacy Gemini
- * implementation (legacy_react/services/geminiService.ts) while porting its
- * prompt engineering and structured-output contracts 1:1.
+ * openrouterService.ts
+ * ====================
+ * AI exercise generation via OpenRouter (OpenAI-compatible Chat Completions API).
  *
  * Configuration (injected by vite.config.ts via `define`, picked up from
  * .env locally or Railway environment variables in production):
- *   - OPENROUTER_API_KEY  (required; DEEPSEEK_API_KEY is accepted as a fallback)
- *   - OPENROUTER_MODEL    (optional; default `mistralai/mistral-small-24b-instruct-2501`)
+ *   - OPENROUTER_API_KEY  (required)
+ *   - OPENROUTER_MODEL    (optional; default `xiaomi/mimo-v2.6-flash`)
  *   - OPENROUTER_BASE_URL (optional; default `https://openrouter.ai/api/v1`)
  */
 
@@ -70,7 +67,7 @@ export const ACTIVE_MODEL: string = USING_MISTRAL ? MISTRAL_MODEL : OPENROUTER_M
 // .env (local) or Railway variables (production) at build time.
 const getApiKey = (): string | undefined => {
   if (USING_MISTRAL) return process.env.MISTRAL_API_KEY || process.env.OPENROUTER_API_KEY;
-  return process.env.OPENROUTER_API_KEY || process.env.DEEPSEEK_API_KEY;
+  return process.env.OPENROUTER_API_KEY;
 };
 
 // ---------------------------------------------------------------------------
@@ -395,7 +392,7 @@ Generate ${amount} item${amount === 1 ? '' : 's'}.
 export type GenerationResult = any[] | { error: string };
 
 /**
- * Generates exercises via OpenRouter (DeepSeek by default).
+ * Generates exercises via OpenRouter.
  * Returns an array of exercise items, or { error } on failure.
  */
 export const generateExercise = async (
@@ -416,7 +413,7 @@ export const generateExercise = async (
 
   try {
     if (exerciseType === ExerciseType.PicturePrompt) {
-      // DeepSeek cannot emit images; generate a rich scene description and
+      // Models cannot emit raw images; generate a rich scene description and
       // render it with a keyless placeholder-image service (pollinations).
       const spec = EXERCISE_SPECS[ExerciseType.PicturePrompt];
       const prompt = `${BASE_PROMPT(difficulty, tone, theme)}${VOCAB_FOCUS(focusVocabulary, inclusionRate)}
