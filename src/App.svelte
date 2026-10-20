@@ -32,6 +32,51 @@
       const gr = parseFloat(params.get('grammarRate')!);
       if (!isNaN(gr)) globalGrammarInclusionRate = gr;
     }
+    if (params.has('focusVocabulary')) {
+      try {
+        const v = JSON.parse(params.get('focusVocabulary')!);
+        if (Array.isArray(v)) {
+          globalFocusVocabulary = v;
+          localStorage.setItem('practiceGenie-focusVocabulary', JSON.stringify(v));
+        }
+      } catch (e) {}
+    }
+    if (params.has('focusGrammar')) {
+      try {
+        const g = JSON.parse(params.get('focusGrammar')!);
+        if (Array.isArray(g)) {
+          globalFocusGrammar = g;
+          localStorage.setItem('practiceGenie-focusGrammar', JSON.stringify(g));
+        }
+      } catch (e) {}
+    }
+    if (params.has('payload')) {
+      try {
+        const p = JSON.parse(decodeURIComponent(params.get('payload')!));
+        if (Array.isArray(p.focusVocabulary)) {
+          globalFocusVocabulary = p.focusVocabulary;
+          localStorage.setItem('practiceGenie-focusVocabulary', JSON.stringify(p.focusVocabulary));
+        }
+        if (Array.isArray(p.focusGrammar)) {
+          globalFocusGrammar = p.focusGrammar;
+          localStorage.setItem('practiceGenie-focusGrammar', JSON.stringify(p.focusGrammar));
+        }
+        if (p.theme) globalTheme = p.theme;
+        if (typeof p.inclusionRate === 'number') {
+          globalInclusionRate = p.inclusionRate;
+          localStorage.setItem('practiceGenie-inclusionRate', p.inclusionRate.toString());
+        }
+        if (typeof p.grammarInclusionRate === 'number') {
+          globalGrammarInclusionRate = p.grammarInclusionRate;
+          localStorage.setItem('practiceGenie-grammarInclusionRate', p.grammarInclusionRate.toString());
+        }
+        if (p.lac) {
+          try {
+            localStorage.setItem('practiceGenie-lac', JSON.stringify(p.lac));
+          } catch (e) {}
+        }
+      } catch (e) {}
+    }
 
     // Context Listener
     const handleMessage = (event: MessageEvent) => {
