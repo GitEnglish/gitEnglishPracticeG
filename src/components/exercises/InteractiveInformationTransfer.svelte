@@ -4,9 +4,10 @@
   import { checkAnswerWithAI } from '../../services/aiService';
   import Field from '../../lib/components/Field.svelte';
 
-  let { exercise, colors } = $props<{
+  let { exercise, colors, onAnswer } = $props<{
     exercise: IInformationTransferExercise;
     colors: any;
+    onAnswer?: (attempt: { concept?: string; category?: 'Vocabulary' | 'Grammar'; isCorrect: boolean; studentAnswer: any; questionText?: string }) => void;
   }>();
 
   let answers = $state<Record<number, string>>({});
@@ -18,6 +19,13 @@
       const result = await checkAnswerWithAI('Information Transfer', exercise, answers);
       feedback = result || null;
       loading = false;
+      onAnswer?.({
+        concept: exercise.title || 'Information Transfer',
+        category: 'Vocabulary',
+        isCorrect: Boolean(result && !/incorrect|wrong/i.test(result)),
+        studentAnswer: answers,
+        questionText: exercise.text
+      });
   };
 </script>
 

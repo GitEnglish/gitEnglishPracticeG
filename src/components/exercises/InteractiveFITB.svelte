@@ -2,21 +2,41 @@
   import type { IFITBExercise, ICollocationExercise, IPhrasalVerbGapFillExercise } from '../../lib/types';
   import Chip from './Chip.svelte';
 
-  let { exercise, colors } = $props<{
+  let { exercise, colors, onAnswer } = $props<{
     exercise: IFITBExercise | ICollocationExercise | IPhrasalVerbGapFillExercise;
     colors: any;
+    onAnswer?: (attempt: { concept?: string; category?: 'Vocabulary' | 'Grammar'; isCorrect: boolean; studentAnswer: any; questionText?: string }) => void;
   }>();
 
   let droppedWord = $state<string | null>(null);
   let status = $state<'correct' | 'incorrect' | 'neutral'>('neutral');
 
+  let questionParts = $derived((exercise?.question || '').split(/\[BLANK\]|_{2,}/));
+  let wordBank = $derived(Array.isArray(exercise?.wordBank) ? exercise.wordBank : []);
+
+  const selectWord = (word: string) => {
+      if (!word) return;
+      droppedWord = word;
+      const isCorrect = word === exercise.answer;
+      status = isCorrect ? 'correct' : 'incorrect';
+      const concept =
+        ('collocation' in exercise && exercise.collocation) ||
+        ('phrasalVerb' in exercise && exercise.phrasalVerb) ||
+        exercise.answer ||
+        word;
+      onAnswer?.({
+        concept,
+        category: 'Vocabulary',
+        isCorrect,
+        studentAnswer: word,
+        questionText: exercise.question
+      });
+  };
+
   const handleDrop = (e: DragEvent) => {
       e.preventDefault();
       const word = e.dataTransfer?.getData('text/plain');
-      if (word) {
-          droppedWord = word;
-          status = word === exercise.answer ? 'correct' : 'incorrect';
-      }
+      if (word) selectWord(word);
   };
 </script>
 
@@ -28,7 +48,7 @@
       <p class="text-sm italic opacity-70 mb-2 font-playful">Phrasal Verb: {exercise.phrasalVerb}</p>
   {/if}
   <p class="leading-loose">
-      {exercise.question.split('[BLANK]')[0]}
+      {questionParts[0] ?? ''}
       <!-- svelte-ignore a11y_no_static_element_interactions -->
       <span
           ondrop={handleDrop}
@@ -38,16 +58,19 @@
           {#if droppedWord}
               {droppedWord}
           {:else}
-              <span class="opacity-30 text-xs font-normal">drop here</span>
+              <span class="opacity-30 text-xs font-normal">drop or tap</span>
           {/if}
       </span>
-      {exercise.question.split('[BLANK]')[1]}
+      {#if questionParts.length > 1}
+          {questionParts.slice(1).join(' ')}
+      {/if}
   </p>
   <div class="mt-4 flex flex-wrap gap-3">
-      {#each exercise.wordBank as word}
+      {#each wordBank as word}
           <Chip
               text={word}
               draggable={true}
+              onclick={() => selectWord(word)}
               ondragstart={(e: DragEvent) => {
                   if (e.dataTransfer) {
                       e.dataTransfer.setData('text/plain', word);

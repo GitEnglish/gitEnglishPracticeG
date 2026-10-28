@@ -18,7 +18,7 @@
 
   const handleAddGrammar = () => {
       const newGrammar = inputValue.trim();
-      if (newGrammar && !focusGrammar.includes(newGrammar)) {
+      if (newGrammar && !focusGrammar.some((g: string) => g.toLowerCase() === newGrammar.toLowerCase())) {
           onUpdateFocusGrammar([...focusGrammar, newGrammar]);
           inputValue = '';
       }

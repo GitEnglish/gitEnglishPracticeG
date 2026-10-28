@@ -2,9 +2,10 @@
   import type { IMatchingExercise, IFunctionMatchingExercise } from '../../lib/types';
   import { shuffleArray } from './utils';
 
-  let { exercise, colors } = $props<{
+  let { exercise, colors, onAnswer } = $props<{
     exercise: IMatchingExercise | IFunctionMatchingExercise;
     colors: any;
+    onAnswer?: (attempt: { concept?: string; category?: 'Vocabulary' | 'Grammar'; isCorrect: boolean; studentAnswer: any; questionText?: string }) => void;
   }>();
 
   type MatchInfo = { answerIndex: number; isCorrect: boolean };
@@ -15,7 +16,7 @@
 
   $effect(() => {
     // Reset state when exercise changes
-    shuffledAnswers = shuffleArray(exercise.answers);
+    shuffledAnswers = shuffleArray(exercise.answers || []);
     selectedPrompt = null;
     matches = {};
   });
@@ -31,8 +32,16 @@
       }
 
       const isCorrect = exercise.answers[selectedPrompt] === shuffledAnswers[answerIndex];
+      const promptText = exercise.prompts?.[selectedPrompt] || '';
       matches[selectedPrompt] = { answerIndex, isCorrect };
       selectedPrompt = null;
+      onAnswer?.({
+        concept: promptText,
+        category: 'Vocabulary',
+        isCorrect,
+        studentAnswer: shuffledAnswers[answerIndex],
+        questionText: promptText
+      });
   };
 </script>
 

@@ -67,3 +67,4 @@
 - **2026-10-20 03:47** [refactor] Purged legacy_react, removed deepseek references, and renamed to openrouterService
 - **2026-10-20 04:35** [feat] Support direct URL parameter hydration for focus vocabulary and grammar
 - 2026-10-28 12:04:30 - performance - Optimized nextId and maxZIndex max ID calculation using reduce instead of map + spread (src/App.svelte)
+- **2026-10-28 10:16** [audit-fix] Executed all 14 ponytail-audit fixes: removed leaked API keys from client bundle, routed AI requests via postMessage/hub proxy, surfaced generation errors, wired interactive answer telemetry across all 15 exercise components, wired temperature sliders, added FITB click/tap + null guards, added unit tests, and deleted 31 dead files

@@ -3,9 +3,10 @@
   import FeedbackSection from './FeedbackSection.svelte';
   import { checkAnswerWithAI } from '../../services/aiService';
 
-  let { exercise, colors } = $props<{
+  let { exercise, colors, onAnswer } = $props<{
     exercise: IDictoGlossExercise;
     colors: any;
+    onAnswer?: (attempt: { concept?: string; category?: 'Vocabulary' | 'Grammar'; isCorrect: boolean; studentAnswer: any; questionText?: string }) => void;
   }>();
 
   let showText = $state(true);
@@ -18,6 +19,13 @@
       const result = await checkAnswerWithAI('Dicto-Gloss', exercise, response);
       feedback = result || null;
       loading = false;
+      onAnswer?.({
+        concept: exercise.title || 'Dicto-Gloss',
+        category: 'Grammar',
+        isCorrect: Boolean(result && !/incorrect|wrong/i.test(result)),
+        studentAnswer: response,
+        questionText: exercise.text
+      });
   };
 
   let buttonBg = $derived(colors.textOnLight.replace('text-', 'bg-'));

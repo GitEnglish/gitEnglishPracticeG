@@ -4,9 +4,10 @@
   import { checkAnswerWithAI } from '../../services/aiService';
   import Field from '../../lib/components/Field.svelte';
 
-  let { exercise, colors } = $props<{
+  let { exercise, colors, onAnswer } = $props<{
     exercise: IPicturePromptExercise;
     colors: any;
+    onAnswer?: (attempt: { concept?: string; category?: 'Vocabulary' | 'Grammar'; isCorrect: boolean; studentAnswer: any; questionText?: string }) => void;
   }>();
 
   let response = $state('');
@@ -18,6 +19,13 @@
       const result = await checkAnswerWithAI('Picture Prompt Questions', exercise, response);
       feedback = result || null;
       loading = false;
+      onAnswer?.({
+        concept: exercise.title || 'Picture Prompt',
+        category: 'Vocabulary',
+        isCorrect: Boolean(result && !/incorrect|wrong/i.test(result)),
+        studentAnswer: response,
+        questionText: exercise.prompt
+      });
   };
 </script>
 

@@ -190,9 +190,6 @@
   let globalGrammarInclusionRate = $state<number>(parseFloat(localStorage.getItem('practiceGenie-grammarInclusionRate') || '50'));
 
   // App State
-
-  let presentingBlockId = $state<number | null>(null);
-
   let nextId = $derived(blocks.length > 0 ? blocks.reduce((max, b) => b.id > max ? b.id : max, -Infinity) + 1 : 1);
   let maxZIndex = $derived(blocks.length > 0 ? blocks.reduce((max, b) => b.zIndex > max ? b.zIndex : max, -Infinity) : 10);
 
@@ -414,7 +411,6 @@
           }
       }
       blocks = blocks.filter(b => b.id !== id);
-      if (presentingBlockId === id) presentingBlockId = null;
   };
 
   const handleFocusBlock = (id: number) => {
@@ -510,11 +506,6 @@
       onUpdateBlock={handleUpdateBlock}
       onRemoveBlock={handleRemoveBlock}
       onFocusBlock={handleFocusBlock}
-      {presentingBlockId}
-      onEnterPresentation={(id) => presentingBlockId = id}
-      onExitPresentation={() => presentingBlockId = null}
-      onNextSlide={() => {}}
-      onPrevSlide={() => {}}
       onToggleDrawingMode={() => {
         isDrawingMode = true;
         isErasing = false;

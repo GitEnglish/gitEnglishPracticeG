@@ -3,28 +3,26 @@
   import Chip from './Chip.svelte';
   import { shuffleArray } from './utils';
 
-  let { exercise, colors } = $props<{
+  let { exercise, colors, onAnswer } = $props<{
     exercise: IRegisterSortExercise;
     colors: any;
+    onAnswer?: (attempt: { concept?: string; category?: 'Vocabulary' | 'Grammar'; isCorrect: boolean; studentAnswer: any; questionText?: string }) => void;
   }>();
 
   let unclassified = $state<string[]>([]);
   let classified = $state<Record<string, string[]>>({});
 
   $effect(() => {
-      unclassified = shuffleArray(exercise.phrases);
+      unclassified = shuffleArray(exercise.phrases || []);
       const newClassified: Record<string, string[]> = {};
-      exercise.categories.forEach((cat: string) => {
+      (exercise.categories || []).forEach((cat: string) => {
           newClassified[cat] = [];
       });
       classified = newClassified;
   });
 
-  const handleDrop = (e: DragEvent, category: string) => {
-      e.preventDefault();
-      const phrase = e.dataTransfer?.getData('text/plain');
+  const assignPhrase = (phrase: string, category: string) => {
       if (!phrase) return;
-
       const newClassified = { ...classified };
       for (const cat in newClassified) {
           if (newClassified[cat].includes(phrase)) {
@@ -32,13 +30,27 @@
               break;
           }
       }
-
       newClassified[category] = [...(newClassified[category] || []), phrase];
       classified = newClassified;
-
       if (unclassified.includes(phrase)) {
           unclassified = unclassified.filter(p => p !== phrase);
       }
+
+      const sol = (exercise.solution || []).find((s: any) => s.phrase === phrase);
+      const isCorrect = sol ? sol.category === category : true;
+      onAnswer?.({
+        concept: phrase,
+        category: 'Vocabulary',
+        isCorrect,
+        studentAnswer: category,
+        questionText: exercise.title
+      });
+  };
+
+  const handleDrop = (e: DragEvent, category: string) => {
+      e.preventDefault();
+      const phrase = e.dataTransfer?.getData('text/plain');
+      if (phrase) assignPhrase(phrase, category);
   };
 
   const handleDragStart = (e: DragEvent, phrase: string) => {

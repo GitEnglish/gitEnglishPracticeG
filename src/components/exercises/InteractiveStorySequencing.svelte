@@ -2,9 +2,10 @@
   import type { IStorySequencingExercise } from '../../lib/types';
   import { shuffleArray } from './utils';
 
-  let { exercise, colors } = $props<{
+  let { exercise, colors, onAnswer } = $props<{
     exercise: IStorySequencingExercise;
     colors: any;
+    onAnswer?: (attempt: { concept?: string; category?: 'Vocabulary' | 'Grammar'; isCorrect: boolean; studentAnswer: any; questionText?: string }) => void;
   }>();
 
   let parts = $state<string[]>([]);
@@ -39,8 +40,15 @@
   };
 
   const checkAnswer = () => {
-      const isCorrect = parts.join('') === exercise.storyParts.join('');
+      const isCorrect = parts.join('') === (exercise.storyParts || []).join('');
       status = isCorrect ? 'correct' : 'incorrect';
+      onAnswer?.({
+        concept: exercise.title || 'Story Sequencing',
+        category: 'Vocabulary',
+        isCorrect,
+        studentAnswer: parts,
+        questionText: exercise.title
+      });
   };
 </script>
 

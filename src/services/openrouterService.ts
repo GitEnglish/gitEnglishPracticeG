@@ -4,70 +4,35 @@ import { ExerciseType, Difficulty, Tone } from '../lib/types';
 /**
  * openrouterService.ts
  * ====================
- * AI exercise generation via OpenRouter (OpenAI-compatible Chat Completions API).
- *
- * Configuration (injected by vite.config.ts via `define`, picked up from
- * .env locally or Railway environment variables in production):
- *   - OPENROUTER_API_KEY  (required)
- *   - OPENROUTER_MODEL    (optional; default `xiaomi/mimo-v2.6-flash`)
- *   - OPENROUTER_BASE_URL (optional; default `https://openrouter.ai/api/v1`)
+ * AI exercise generation routed via the server-side proxy on gitenglish-admin
+ * (`/api/internal/practice-genie/ai`) or `window.parent.postMessage` bridge so
+ * secret API keys never enter the browser bundle.
  */
 
-// The endpoint is built defensively so a misconfigured variable cannot break
-// generation again:
-//   - a trailing slash would produce `.../v1//chat/completions` (404)
-//   - a variable that already includes `/chat/completions` would otherwise
-//     have it appended twice
-// Either mistake produced a 404 with no CORS headers, which the browser
-// reports as "TypeError: Failed to fetch" -- indistinguishable from a dead
-// button. Normalising here means the value can be set either way.
-const CHAT_PATH = '/chat/completions';
-const normaliseBaseUrl = (url: string): string => {
-    const trimmed = url.trim().replace(/\/+$/, '');
-    return trimmed.endsWith(CHAT_PATH) ? trimmed.slice(0, -CHAT_PATH.length) : trimmed;
+declare const process: { env: Record<string, string | undefined> };
+
+export const PROXY_ENDPOINT: string =
+  process.env.PRACTICE_GENIE_AI_PROXY_URL || 'https://gitenglish.com/api/internal/practice-genie/ai';
+export const ACTIVE_MODEL: string = process.env.OPENROUTER_MODEL || 'xiaomi/mimo-v2.6-flash';
+
+const getMakerTemp = (): number => {
+  try {
+    if (typeof localStorage !== 'undefined') {
+      const v = parseFloat(localStorage.getItem('openrouter_maker_temp') || '0.7');
+      if (!Number.isNaN(v)) return Math.max(0, Math.min(2, v));
+    }
+  } catch { /* ignore */ }
+  return 0.7;
 };
 
-export const OPENROUTER_BASE_URL: string = normaliseBaseUrl(
-    process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1'
-);
-export const OPENROUTER_ENDPOINT: string = `${OPENROUTER_BASE_URL}${CHAT_PATH}`;
-export const OPENROUTER_MODEL: string = process.env.OPENROUTER_MODEL || 'xiaomi/mimo-v2.6-flash';
-// Direct Mistral, used whenever MISTRAL_API_KEY is present.
-//
-// Mistral Small 4 (`mistral-small-2603`) is GA and speaks the same
-// OpenAI-shaped chat/completions schema, so the request builder below is
-// shared. Going direct skips the OpenRouter hop, and it is the path that
-// actually honours the requested item count: xiaomi/mimo-v2.6-flash answers
-// a "JSON array of N" contract with a single object, which collapsed every
-// card to one question.
-//
-//   docs:  https://docs.mistral.ai/models/mistral-small-4-0-26-03
-//   price: $0.15 / M input, $0.60 / M output
-export const MISTRAL_BASE_URL: string = normaliseBaseUrl(
-    process.env.MISTRAL_BASE_URL || 'https://api.mistral.ai/v1'
-);
-export const MISTRAL_ENDPOINT: string = `${MISTRAL_BASE_URL}${CHAT_PATH}`;
-export const MISTRAL_MODEL: string = process.env.MISTRAL_MODEL || 'mistral-small-2603';
-
-// Direct Mistral must be asked for explicitly.
-//
-// It used to switch on the mere presence of MISTRAL_API_KEY. That is a
-// trap: a MISTRAL key sitting in the shell environment silently moved the
-// whole app onto api.mistral.ai, which serves no CORS headers, so every
-// browser generation died with a bare "TypeError: Failed to fetch" while
-// OpenRouter sat idle. A provider switch that fails silently is worse than
-// no switch at all, so it now takes USE_MISTRAL_DIRECT=true.
-export const USING_MISTRAL: boolean =
-  String(process.env.USE_MISTRAL_DIRECT).toLowerCase() === 'true';
-export const PROVIDER_NAME: string = USING_MISTRAL ? 'mistral' : 'openrouter';
-export const ACTIVE_ENDPOINT: string = USING_MISTRAL ? MISTRAL_ENDPOINT : OPENROUTER_ENDPOINT;
-export const ACTIVE_MODEL: string = USING_MISTRAL ? MISTRAL_MODEL : OPENROUTER_MODEL;
-
-// Backend-only auth: no client-side key entry UI. The key comes from
-// .env (local) or Railway variables (production) at build time.
-const getApiKey = (): string | undefined => {
-  if (USING_MISTRAL) return process.env.MISTRAL_API_KEY || process.env.OPENROUTER_API_KEY;
-  return process.env.OPENROUTER_API_KEY;
+const getCheckerTemp = (): number => {
+  try {
+    if (typeof localStorage !== 'undefined') {
+      const v = parseFloat(localStorage.getItem('openrouter_checker_temp') || '0.2');
+      if (!Number.isNaN(v)) return Math.max(0, Math.min(2, v));
+    }
+  } catch { /* ignore */ }
+  return 0.2;
 };
 
 // ---------------------------------------------------------------------------
@@ -258,47 +223,93 @@ interface ChatMessage { role: 'system' | 'user' | 'assistant'; content: string; 
 
 const BACKSLASH = String.fromCharCode(92);
 
-const chatCompletion = async (messages: ChatMessage[], jsonMode: boolean): Promise<string> => {
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-      'Authorization': `Bearer ${getApiKey()}`,
-  };
-  // OpenRouter attribution headers (optional but recommended)
-  try {
-    if (typeof location !== 'undefined') headers['HTTP-Referer'] = location.origin;
-    headers['X-Title'] = 'gitEnglish Practice Genie';
-  } catch { /* ignore */ }
+const chatCompletionViaPostMessage = (
+  messages: ChatMessage[],
+  jsonMode: boolean,
+  temperature: number
+): Promise<string> | null => {
+  if (typeof window === 'undefined' || !window.parent || window.parent === window) {
+    return null;
+  }
+  const requestId = `pg_ai_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+  return new Promise<string>((resolve, reject) => {
+    const timer = setTimeout(() => {
+      window.removeEventListener('message', onMsg);
+      reject(new Error('POSTMESSAGE_TIMEOUT'));
+    }, 60000);
 
-  const body: Record<string, unknown> = {
-    model: ACTIVE_MODEL,
-    messages,
-    max_tokens: 4096,
-  };
-  if (jsonMode) body.response_format = { type: 'json_object' };
+    const onMsg = (ev: MessageEvent) => {
+      if (ev.data?.type === 'PRACTICE_AI_RESPONSE' && ev.data?.requestId === requestId) {
+        clearTimeout(timer);
+        window.removeEventListener('message', onMsg);
+        if (ev.data.error) {
+          reject(new Error(ev.data.error));
+        } else {
+          resolve(ev.data.text || '');
+        }
+      }
+    };
 
-  const response = await fetch(ACTIVE_ENDPOINT, {
+    window.addEventListener('message', onMsg);
+    window.parent.postMessage(
+      {
+        type: 'PRACTICE_AI_REQUEST',
+        requestId,
+        payload: {
+          model: ACTIVE_MODEL,
+          messages,
+          jsonMode,
+          temperature
+        }
+      },
+      '*'
+    );
+  });
+};
+
+const chatCompletion = async (
+  messages: ChatMessage[],
+  jsonMode: boolean,
+  temperature: number = 0.7
+): Promise<string> => {
+  // 1. Prefer parent postMessage bridge when embedded inside /practice/genie
+  const parentPromise = chatCompletionViaPostMessage(messages, jsonMode, temperature);
+  if (parentPromise) {
+    try {
+      return await parentPromise;
+    } catch (err) {
+      // Only fall back to direct HTTP proxy if parent bridge timed out
+      if (!(err instanceof Error && err.message === 'POSTMESSAGE_TIMEOUT')) {
+        throw err;
+      }
+    }
+  }
+
+  // 2. Direct HTTP POST to server-side proxy
+  const response = await fetch(PROXY_ENDPOINT, {
     method: 'POST',
-    headers,
-    body: JSON.stringify(body),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: ACTIVE_MODEL,
+      messages,
+      jsonMode,
+      temperature
+    })
   });
 
   if (!response.ok) {
-    // Some OpenRouter providers reject response_format — retry once without it.
-    if (jsonMode && response.status === 400) {
-      return chatCompletion(messages, false);
-    }
     const detail = await response.text().catch(() => '');
     throw new Error(`AI request failed (HTTP ${response.status}): ${detail.slice(0, 300)}`);
   }
 
   const data = await response.json();
-  const text: string | undefined = data?.choices?.[0]?.message?.content;
+  const text: string | undefined = data?.text ?? data?.choices?.[0]?.message?.content;
   if (!text) throw new Error('AI returned an empty response.');
   return text;
 };
 
 /** Extracts a JSON value from model output, tolerating markdown fences and prose. */
-const extractJson = (raw: string): any => {
+export const extractJson = (raw: string): any => {
   let text = raw.trim();
   const FENCE = "```";
   if (text.startsWith(FENCE)) {
@@ -348,7 +359,7 @@ const extractJson = (raw: string): any => {
  * to a single question. Asking for a named "questions" array instead gets
  * all N back from it, so the wrapper is checked alongside the array.
  */
-const toItems = (parsed: unknown): unknown[] => {
+export const toItems = (parsed: unknown): unknown[] => {
   if (Array.isArray(parsed)) return parsed;
   if (parsed && typeof parsed === 'object') {
     const bag = parsed as Record<string, unknown>;
@@ -392,7 +403,7 @@ Generate ${amount} item${amount === 1 ? '' : 's'}.
 export type GenerationResult = any[] | { error: string };
 
 /**
- * Generates exercises via OpenRouter.
+ * Generates exercises via the server-side AI proxy.
  * Returns an array of exercise items, or { error } on failure.
  */
 export const generateExercise = async (
@@ -406,10 +417,7 @@ export const generateExercise = async (
   focusGrammar: string[] = [],
   grammarInclusionRate = 0.5,
 ): Promise<GenerationResult> => {
-  if (!getApiKey()) {
-    console.warn('OPENROUTER_API_KEY is not set. Exercise generation is disabled.');
-    return { error: 'AI generation is not configured. Set OPENROUTER_API_KEY in your .env (locally) or Railway variables (production), then reload.' };
-  }
+  const makerTemp = getMakerTemp();
 
   try {
     if (exerciseType === ExerciseType.PicturePrompt) {
@@ -423,14 +431,14 @@ export const generateExercise = async (
 **Output contract:**
 - Respond with ONLY a JSON object. No prose, no markdown fences.
 - Fields: ${spec.shape}.`;
-      const parsed = extractJson(await chatCompletion([{ role: 'user', content: prompt }], true));
+      const parsed = extractJson(await chatCompletion([{ role: 'user', content: prompt }], true, makerTemp));
       const scene: string = parsed.scene || parsed.prompt || theme;
       const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(scene)}?width=640&height=480&nologo=true`;
       return [{ title: parsed.title || 'Picture Prompt', imageUrl, prompt: scene }];
     }
 
     const prompt = buildExercisePrompt(exerciseType, difficulty, tone, theme, amount, focusVocabulary, inclusionRate, focusGrammar, grammarInclusionRate);
-    const parsed = extractJson(await chatCompletion([{ role: 'user', content: prompt }], true));
+    const parsed = extractJson(await chatCompletion([{ role: 'user', content: prompt }], true, makerTemp));
     return toItems(parsed);
   } catch (error) {
     console.error('Error generating exercises:', error);
@@ -449,9 +457,7 @@ export const checkAnswerWithAI = async (
   exerciseContext: any,
   userResponse: any,
 ): Promise<string> => {
-  if (!getApiKey()) {
-    return 'AI feedback is unavailable: OPENROUTER_API_KEY is not configured.';
-  }
+  const checkerTemp = getCheckerTemp();
 
   const prompt = `
     You are an expert ESL teacher's assistant.
@@ -470,7 +476,7 @@ export const checkAnswerWithAI = async (
   `;
 
   try {
-    return await chatCompletion([{ role: 'user', content: prompt }], false);
+    return await chatCompletion([{ role: 'user', content: prompt }], false, checkerTemp);
   } catch (error) {
     console.error('Error checking answer:', error);
     return 'Could not retrieve feedback at this time.';

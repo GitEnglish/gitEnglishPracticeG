@@ -2,9 +2,6 @@
     import type { ExerciseBlockState } from '../lib/types';
   import { ExerciseType, Difficulty, Tone } from '../lib/types';
   import { EXERCISE_PEDAGOGY, PEDAGOGY_COLORS, calculateExerciseAmount, calculateExerciseDuration, SINGLE_INSTANCE_TYPES, DIFFICULTY_LEVELS, DIFFICULTY_LABELS, TONES } from '../lib/constants';
-  import { useDebounce } from '../hooks/useDebounce';
-  import { useResponsiveScale } from '../hooks/useResponsiveScale';
-  import { useAttentionTracker } from '../hooks/useAttentionTracker';
   import { getActivityLogger } from '../services/ActivityLogger';
   import { generateExercise } from '../services/aiService';
   import type { Component } from 'svelte';
@@ -12,7 +9,7 @@
   import ExerciseTemplate from './ExerciseTemplate.svelte';
 
   // Icon Imports
-  import { Trash2, Settings, X, ChevronLeft, ChevronRight, Wand2, RotateCcw } from 'lucide-svelte';
+  import { Trash2, Settings, Wand2, RotateCcw } from 'lucide-svelte';
   import { motion } from '@humanspeak/svelte-motion';
   import Button from '../lib/components/Button.svelte';
   import Field from '../lib/components/Field.svelte';
@@ -42,11 +39,6 @@
     onRemove,
     onFocus,
     bounds = "parent",
-    isPresenting = false,
-    onEnterPresentation,
-    onExitPresentation,
-    onNextSlide,
-    onPrevSlide,
     scale = 1
   } = $props<{
     blockState: ExerciseBlockState;
@@ -54,11 +46,6 @@
     onRemove: (id: number) => void;
     onFocus: (id: number) => void;
     bounds?: string;
-    isPresenting?: boolean;
-    onEnterPresentation: () => void;
-    onExitPresentation: () => void;
-    onNextSlide: () => void;
-    onPrevSlide: () => void;
     scale?: number;
     allBlocks?: { x: number; y: number; width: number; height: number; id: number }[];
     onSnapLines?: (lines: { axis: 'x' | 'y'; position: number; start: number; end: number }[]) => void;
@@ -66,14 +53,9 @@
 
   let { id, x, y, width, height, zIndex, exerciseType, difficulty, tone, theme, focusVocabulary, inclusionRate, focusGrammar, grammarInclusionRate, isGenerated, quantity } = $derived(blockState);
 
-  // Content lives in the block state, not in component memory. It used to be
-  // local $state, which meant a reload (and the JSON export) lost every
-  // generated question. Content is only ever assigned wholesale, never
-  // mutated, so deriving it from the block is safe.
   let content = $derived<any[]>(blockState.content ?? []);
   let isLoading = $state(false);
   let isSettingsOpen = $state(false);
-  let currentSlide = $state(0);
   let generateAmount = $derived(quantity ?? calculateExerciseAmount(exerciseType, height));
 
   // Snap-to-align — ported from legacy Whiteboard. While the block is being
@@ -172,18 +154,6 @@
   };
   const handleRegenerate = () => { if (!isLoading) handleGenerate(); };
 
-  // Arrow-key slide nav in presentation mode — ported from legacy
-  $effect(() => {
-      if (!isPresenting) return;
-      const onKey = (e: KeyboardEvent) => {
-          if (e.key === 'ArrowRight') onNextSlide();
-          else if (e.key === 'ArrowLeft') onPrevSlide();
-          else if (e.key === 'Escape') onExitPresentation();
-      };
-      window.addEventListener('keydown', onKey);
-      return () => window.removeEventListener('keydown', onKey);
-  });
-
   // If the block is marked as generated (e.g. from local storage reload) but content is empty,
   // revert it to un-generated so the user can see the generate button and prevent crashes.
   $effect(() => {
@@ -192,28 +162,22 @@
       }
   });
 
-
-  // svelte-motion attaches setPointerCapture on the block at pointerdown, which
-  // retargets pointerup/click to the block — child buttons (Generate, Settings,
-  // Remove, slide nav) and inputs would never receive clicks. Stopping
-  // propagation on interactive zones prevents the drag system from capturing.
   const stopPointer = (e: PointerEvent) => e.stopPropagation();
 
-  // Exercise generation via OpenRouter — see services/openrouterService.ts
+  // Exercise generation via server-side OpenRouter proxy
   const handleGenerate = async () => {
     isLoading = true;
     onFocus(id);
-    currentSlide = 0;
     try {
         const amount = quantity ?? calculateExerciseAmount(exerciseType, height);
         const result = await generateExercise(exerciseType, difficulty, tone, theme, amount, focusVocabulary, inclusionRate, focusGrammar, grammarInclusionRate);
         if (Array.isArray(result)) {
             onUpdate(id, { isGenerated: true, content: result });
         } else {
-            onUpdate(id, { content: [result] }); // { error } payload
+            onUpdate(id, { isGenerated: true, content: [result] }); // { error } payload shown on card
         }
     } catch (e) {
-        onUpdate(id, { content: [{ error: 'Generation failed: ' + (e instanceof Error ? e.message : String(e)) }] });
+        onUpdate(id, { isGenerated: true, content: [{ error: 'Generation failed: ' + (e instanceof Error ? e.message : String(e)) }] });
     } finally {
         isLoading = false;
     }
@@ -256,9 +220,6 @@
     [ExerciseType.PictureComparison]: InteractiveOpenResponseTask,
   };
 
-  let ActiveExercise = $derived(EXERCISE_RENDERERS[exerciseType as ExerciseType]);
-  let activeItem = $derived(content[currentSlide] ?? content[0]);
-
   // Adapts a generated item to the shape its renderer expects.
   const mapItemForRenderer = (item: any): any => {
     if (!item || item.error) return item;
@@ -272,34 +233,34 @@
     onUpdate(id, updates);
   };
 
+  const handleAnswerItem = (index: number, attempt: { concept?: string; category?: 'Vocabulary' | 'Grammar'; isCorrect: boolean; studentAnswer: any; questionText?: string }) => {
+    const logger = getActivityLogger();
+    const concept = attempt.concept || theme || exerciseType;
+    const cat = attempt.category || 'Vocabulary';
+    if (logger) {
+      logger.startActivity(`block_${id}_q_${index}`, 'drill', `${exerciseType} Q${index + 1}`);
+      logger.logFocusItem(
+        cat,
+        concept,
+        0,
+        attempt.isCorrect ? 1.0 : 0.0,
+        1,
+        attempt.isCorrect ? [] : [String(attempt.studentAnswer)],
+        attempt.questionText || null
+      );
+      logger.endActivity();
+    }
+    const updatedContent = content.map((item: any, idx: number) =>
+      idx === index ? { ...item, studentAnswer: attempt.studentAnswer, correct: attempt.isCorrect } : item
+    );
+    onUpdate(id, { content: updatedContent });
+  };
+
   let pedagogy = $derived((EXERCISE_PEDAGOGY as Record<string, string>)[exerciseType] || 'Default');
-  // The type names carry their pedagogy in parens ("Dicto-Gloss (C-R)") and the
-  // header prints the pedagogy chip right behind the title, so strip a trailing
-  // "(<pedagogy>)" from the displayed title. Anything else in parens stays.
   let displayTitle = $derived(
     exerciseType.endsWith(`(${pedagogy})`) ? exerciseType.split('(')[0].trim() : exerciseType
   );
   let colors: any = $derived((PEDAGOGY_COLORS as Record<string, any>)[pedagogy] || (PEDAGOGY_COLORS as Record<string, any>)['Default']);
-  let isSingleInstance = $derived(SINGLE_INSTANCE_TYPES.includes(exerciseType));
-
-
-  let dragControls = $state(null);
-
-  // Calculate scaled positions for framer motion if whiteboard is zoomed
-  let scaledX = $derived(x * scale);
-  let scaledY = $derived(y * scale);
-
-  // No snap-to-content ResizeObserver.
-  //
-  // It looked helpful and was actively harmful. Shrinking the card to fit its
-  // content created a spiral, because the question count is derived from the
-  // height: one question made a short card, and the short card then asked for
-  // one question again. Making it grow-only was worse — the content fills the
-  // card, so the observer grew the card, which grew the content, forever. The
-  // user hit Generate and watched a card inflate without end.
-  //
-  // The height is the user's setting and the count follows from it, so nothing
-  // but the user resizes a card.
   let contentEl = $state<HTMLElement | null>(null);
 
   // Resize State
@@ -366,78 +327,55 @@
 
 </script>
 
-<!-- Simplified ExerciseBlock implementation for step 6, focusing on Svelte Motion mechanics -->
-<!-- Simplified ExerciseBlock implementation -->
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <motion.div
     role="region"
     aria-roledescription="exercise block"
-    drag={!isPresenting && !isResizing}
+    drag={!isResizing}
     dragMomentum={false}
     dragSnapToOrigin={true}
     dragElastic={0}
     onDragStart={() => {
-        if (!isPresenting && !isResizing) {
+        if (!isResizing) {
             onFocus(id);
             onSnapLines([]);
         }
     }}
     onDrag={(e: PointerEvent, info: any) => {
-        if (isPresenting || isResizing) return;
-        // Alignment guides only. This used to also rewrite `info.offset` every
-        // frame to soft-correct toward the snap, while `dragSnapToOrigin`
-        // animated the card back to its layout origin and the x/y state update
-        // on release moved it a third time. Three writers on one transform is
-        // what made the drag feel like it was moving through mud. Now the card
-        // tracks the pointer exactly, and the snap is applied once on release.
+        if (isResizing) return;
         const { lines } = computeSnap(info.offset.x, info.offset.y);
         onSnapLines(lines);
     }}
     onDragEnd={(e: PointerEvent, info: any) => {
-        if (isPresenting || isResizing) return;
+        if (isResizing) return;
         const { snappedX, snappedY } = computeSnap(info.offset.x, info.offset.y);
         onSnapLines([]);
         onUpdate(id, { x: Math.round(snappedX), y: Math.round(snappedY) });
     }}
     onmousedown={() => onFocus(id)}
-    class="bg-fossil-50 rounded-[22px] shadow-card border panel-outline-light overflow-hidden flex flex-col origin-center hover:scale-[1.006] transition-[opacity,scale] duration-150 ease-out transition-[opacity,scale] duration-[170ms] ease-out {isRemoving ? 'opacity-0 scale-[0.97] pointer-events-none' : ''} {isResizing ? 'select-none' : ''} {isPresenting ? 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] scale-150 !rounded-none !border-0 w-screen h-screen' : 'absolute cursor-grab active:cursor-grabbing'}"
-    style="left: {x}px; top: {y}px; width: {isPresenting ? '900px' : width + 'px'}; height: {isPresenting ? 'auto' : height + 'px'}; min-height: {isPresenting ? 'auto' : '150px'}; z-index: {isPresenting ? 9999 : zIndex};"
+    class="bg-fossil-50 rounded-[22px] shadow-card border panel-outline-light overflow-hidden flex flex-col origin-center hover:scale-[1.006] transition-[opacity,scale] duration-[170ms] ease-out {isRemoving ? 'opacity-0 scale-[0.97] pointer-events-none' : ''} {isResizing ? 'select-none' : ''} absolute cursor-grab active:cursor-grabbing"
+    style="left: {x}px; top: {y}px; width: {width}px; height: {height}px; min-height: 150px; z-index: {zIndex};"
 >
-    <!-- Hover lives on this inner wrapper, not on the motion root. svelte-motion
-         owns `transform` on the root for dragging, and the whiteboard zoom
-         already scales the parent, so a hover transform there fights both.
-         Inside, a CSS scale composes freely and cannot disturb a drag. -->
     <div class="h-full w-full flex flex-col">
     <!-- Top Gradient Bar -->
     <div class="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-accent to-transparent"></div>
 
     <!-- Resize Handles -->
-    {#if !isPresenting}
-        <div class="absolute -top-1 left-2 right-2 h-3 cursor-ns-resize z-50 hover:bg-ink-faint/20 rounded-full" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'n')} role="separator" aria-orientation="horizontal" tabindex="-1"></div>
-        <div class="absolute -bottom-1 left-2 right-2 h-3 cursor-ns-resize z-50 hover:bg-ink-faint/20 rounded-full" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 's')} role="separator" aria-orientation="horizontal" tabindex="-1"></div>
-        <div class="absolute -left-1 top-2 bottom-2 w-3 cursor-ew-resize z-50 hover:bg-ink-faint/20 rounded-full" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'w')} role="separator" aria-orientation="vertical" tabindex="-1"></div>
-        <div class="absolute -right-1 top-2 bottom-2 w-3 cursor-ew-resize z-50 hover:bg-ink-faint/20 rounded-full" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'e')} role="separator" aria-orientation="vertical" tabindex="-1"></div>
+    <div class="absolute -top-1 left-2 right-2 h-3 cursor-ns-resize z-50 hover:bg-ink-faint/20 rounded-full" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'n')} role="separator" aria-orientation="horizontal" tabindex="-1"></div>
+    <div class="absolute -bottom-1 left-2 right-2 h-3 cursor-ns-resize z-50 hover:bg-ink-faint/20 rounded-full" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 's')} role="separator" aria-orientation="horizontal" tabindex="-1"></div>
+    <div class="absolute -left-1 top-2 bottom-2 w-3 cursor-ew-resize z-50 hover:bg-ink-faint/20 rounded-full" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'w')} role="separator" aria-orientation="vertical" tabindex="-1"></div>
+    <div class="absolute -right-1 top-2 bottom-2 w-3 cursor-ew-resize z-50 hover:bg-ink-faint/20 rounded-full" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'e')} role="separator" aria-orientation="vertical" tabindex="-1"></div>
 
-        <div class="absolute -top-1 -left-1 w-4 h-4 cursor-nwse-resize z-50 hover:bg-ink-faint/25 rounded" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'nw')} role="separator" tabindex="-1"></div>
-        <div class="absolute -top-1 -right-1 w-4 h-4 cursor-nesw-resize z-50 hover:bg-ink-faint/25 rounded" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'ne')} role="separator" tabindex="-1"></div>
-        <div class="absolute -bottom-1 -left-1 w-4 h-4 cursor-nesw-resize z-50 hover:bg-ink-faint/25 rounded" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'sw')} role="separator" tabindex="-1"></div>
-        <div class="absolute -bottom-1 -right-1 w-4 h-4 cursor-nwse-resize z-50 hover:bg-ink-faint/25 rounded" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'se')} role="separator" tabindex="-1"></div>
-    {/if}
+    <div class="absolute -top-1 -left-1 w-4 h-4 cursor-nwse-resize z-50 hover:bg-ink-faint/25 rounded" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'nw')} role="separator" tabindex="-1"></div>
+    <div class="absolute -top-1 -right-1 w-4 h-4 cursor-nesw-resize z-50 hover:bg-ink-faint/25 rounded" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'ne')} role="separator" tabindex="-1"></div>
+    <div class="absolute -bottom-1 -left-1 w-4 h-4 cursor-nesw-resize z-50 hover:bg-ink-faint/25 rounded" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'sw')} role="separator" tabindex="-1"></div>
+    <div class="absolute -bottom-1 -right-1 w-4 h-4 cursor-nwse-resize z-50 hover:bg-ink-faint/25 rounded" onpointerdown={stopPointer} onmousedown={(e) => startResize(e, 'se')} role="separator" tabindex="-1"></div>
 
-    <!-- Header — ported from the pre-refactor block. The title column is
-         min-w-0 flex-1 with truncate so it can never push into the controls,
-         and every control stops the drag-capture workaround on pointerdown. -->
-    <!-- svelte-ignore a11y_no_static_element_interactions
-         stopPointer only stops svelte-motion from capturing the pointer so the
-         buttons inside stay clickable. It adds no behaviour of its own, so a
-         role here would misrepresent the element to assistive tech. -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div class="@container px-6 py-3.5 flex items-center justify-between gap-3 border-b border-hairline bg-chrome text-ink-invert flex-shrink-0 relative z-10 font-ui" style="touch-action: none;" onpointerdown={stopPointer}>
         <div class="flex items-center gap-4 min-w-0 flex-1">
             <div class="flex items-center gap-3 min-w-0">
-                <!-- min-w-0 is load-bearing: without it a flex item will not shrink
-                     below its text width, so `truncate` never engages and the title
-                     is clipped out of existence by the controls beside it. -->
-                <h3 class="font-semibold text-lg tracking-tight truncate min-w-0 flex-1 select-none {isPresenting ? 'text-2xl' : ''}">{displayTitle}</h3>
+                <h3 class="font-semibold text-lg tracking-tight truncate min-w-0 flex-1 select-none">{displayTitle}</h3>
                 <span class="text-sm px-2 py-1 uppercase tracking-widest font-semibold bg-black/40 text-fossil-300 rounded-full border border-hairline select-none whitespace-nowrap shrink-0 @max-md:hidden">{pedagogy}</span>
                 <span class="text-sm px-2 py-1 font-semibold bg-black/30 text-fossil-300 rounded-full border border-hairline select-none items-center gap-1 whitespace-nowrap shrink-0 @max-lg:hidden" title="Estimated completion time">
                     <span>⏱</span> ~{estimatedDuration}m
@@ -446,58 +384,26 @@
         </div>
 
         <div class="flex items-center gap-2 flex-shrink-0 relative z-50">
-            {#if isPresenting && content.length > 1}
-                <div class="flex items-center gap-3 mr-2 border-r border-hairline pr-3">
-                    <span class="text-sm font-mono font-medium text-fossil-300">{currentSlide + 1} / {content.length}</span>
-                    <Button variant="subtle" size="icon" onpointerdown={stop} onclick={(e) => { stop(e); currentSlide = Math.max(0, currentSlide - 1); }} disabled={currentSlide === 0} aria-label="Previous item">
-                        <ChevronLeft class="w-5 h-5" />
-                    </Button>
-                    <Button variant="subtle" size="icon" onpointerdown={stop} onclick={(e) => { stop(e); currentSlide = Math.min(content.length - 1, currentSlide + 1); }} disabled={currentSlide >= content.length - 1} aria-label="Next item">
-                        <ChevronRight class="w-5 h-5" />
-                    </Button>
-                </div>
-            {/if}
-
-            <!--
-              No quantity stepper. The card's own height decides how many
-              questions render — drag the edge and the count follows, which is
-              the only way this is meant to work. calculateExerciseAmount
-              already reads the height, so removing the control leaves the
-              height as the single source. The `quantity` field stays in the
-              block state so older saved projects still load, it is just no
-              longer settable from the header.
-            -->
-
-            <!--
-              The Live / presentation button is gone. It never worked as
-              intended and the user asked for it out; the pill did nothing
-              observable, so removing it deletes the feature rather than
-              hiding it. Nothing sets isPresenting any more, so the exit
-              button and the slide arrows above are unreachable too.
-            -->
-
-            {#if !isPresenting}
-                {#if isGenerated}
-                    <Button variant="ghost" size="icon" onpointerdown={stop} onclick={(e) => { stop(e); handleRegenerate(); }} title="Regenerate" class="text-accent hover:bg-accent/15">
-                        <RotateCcw class="w-4 h-4" />
-                    </Button>
-                {:else if !isLoading}
-                    <Button variant="primary" size="sm" onpointerdown={stop} onclick={(e) => { stop(e); handleGenerate(); }} title="Generate" class="px-3 py-1.5">
-                        <Wand2 class="h-3.5 w-3.5" />
-                        <span>Generate</span>
-                    </Button>
-                {/if}
-                <Button variant="ghost" size="icon" onpointerdown={stop} onclick={(e) => { stop(e); isSettingsOpen = !isSettingsOpen; }} title="Settings" class={isSettingsOpen ? 'bg-fossil-50/15 text-ink-invert' : 'text-fossil-300'}>
-                    <Settings class="w-4 h-4" />
+            {#if isGenerated}
+                <Button variant="ghost" size="icon" onpointerdown={stop} onclick={(e) => { stop(e); handleRegenerate(); }} title="Regenerate" class="text-accent hover:bg-accent/15">
+                    <RotateCcw class="w-4 h-4" />
                 </Button>
-                <Button variant="danger" size="icon" onpointerdown={stop} onclick={(e) => { stop(e); handleRemove(); }} title="Remove" class="text-cinnabar-400 {isRemoving ? 'opacity-40' : ''}">
-                    <Trash2 class="w-4 h-4" />
+            {:else if !isLoading}
+                <Button variant="primary" size="sm" onpointerdown={stop} onclick={(e) => { stop(e); handleGenerate(); }} title="Generate" class="px-3 py-1.5">
+                    <Wand2 class="h-3.5 w-3.5" />
+                    <span>Generate</span>
                 </Button>
             {/if}
+            <Button variant="ghost" size="icon" onpointerdown={stop} onclick={(e) => { stop(e); isSettingsOpen = !isSettingsOpen; }} title="Settings" class={isSettingsOpen ? 'bg-fossil-50/15 text-ink-invert' : 'text-fossil-300'}>
+                <Settings class="w-4 h-4" />
+            </Button>
+            <Button variant="danger" size="icon" onpointerdown={stop} onclick={(e) => { stop(e); handleRemove(); }} title="Remove" class="text-cinnabar-400 {isRemoving ? 'opacity-40' : ''}">
+                <Trash2 class="w-4 h-4" />
+            </Button>
         </div>
     </div>
     <div class="flex-grow flex flex-col bg-fossil-50 overflow-hidden relative w-full h-full" role="presentation" onpointerdown={stopPointer}>
-        {#if isSettingsOpen && !isPresenting}
+        {#if isSettingsOpen}
             <div class="p-3 border-b border-rule bg-surface grid grid-cols-2 gap-3 flex-shrink-0 relative z-10" role="presentation" onpointerdown={stopPointer}>
                 <label class="sr-only" for="block-difficulty-{id}">Block difficulty</label>
                 <select
@@ -534,14 +440,13 @@
         {/if}
 
         {#if !isGenerated && !isLoading}
-
-<div class="h-full flex flex-col p-4 bg-fossil-50 overflow-hidden space-y-3">
-    <div class="w-full flex-grow space-y-3 flex flex-col justify-start">
-        {#each Array(generateAmount) as _, i (i)}
-            <ExerciseTemplate type={exerciseType} index={i} />
-        {/each}
-    </div>
-</div>
+            <div class="h-full flex flex-col p-4 bg-fossil-50 overflow-hidden space-y-3">
+                <div class="w-full flex-grow space-y-3 flex flex-col justify-start">
+                    {#each Array(generateAmount) as _, i (i)}
+                        <ExerciseTemplate type={exerciseType} index={i} />
+                    {/each}
+                </div>
+            </div>
         {:else if isLoading}
             <div class="h-full flex items-center justify-center">
                 <div class="flex flex-col items-center gap-3">
@@ -550,60 +455,26 @@
                 </div>
             </div>
         {:else}
-            <div class="content-wrapper flex flex-col" bind:this={contentEl}>
-                <!--
-                  The legacy rendered every generated question, stacked:
-                    <div className="space-y-8">{content.map((ex, i) => renderExercise(ex, i))}</div>
-                  and its `current / total` arrows lived inside the isPresenting
-                  branch, so they only ever appeared in presentation mode.
-
-                  This port was showing one item at a time in normal mode too,
-                  which left a 600px card holding a single 180px question and
-                  400px of empty space — the generated card no longer matched
-                  the shape of its own skeleton. Stacked again, filling the card.
-                -->
-                {#if isPresenting}
-                    {#if content.length > 1}
-                        <div class="flex items-center justify-between mb-2 text-sm font-medium text-fossil-500 flex-shrink-0">
-                            <button class="p-1 rounded hover:bg-fossil-100 disabled:opacity-30" onclick={() => currentSlide = Math.max(0, currentSlide - 1)} disabled={currentSlide === 0} aria-label="Previous item">
-                                <ChevronLeft class="w-4 h-4" />
-                            </button>
-                            <span>{currentSlide + 1} / {content.length}</span>
-                            <button class="p-1 rounded hover:bg-fossil-100 disabled:opacity-30" onclick={() => currentSlide = Math.min(content.length - 1, currentSlide + 1)} disabled={currentSlide >= content.length - 1} aria-label="Next item">
-                                <ChevronRight class="w-4 h-4" />
-                            </button>
-                        </div>
-                    {/if}
-                    <div class="flex-grow overflow-hidden p-4 h-full w-full">
-                        {#if activeItem?.error}
-                            <div class="p-4 bg-cinnabar-50 text-cinnabar-600 rounded-xl border border-cinnabar-200 text-sm">{activeItem.error}</div>
-                        {:else if ActiveExercise}
-                            <ActiveExercise exercise={mapItemForRenderer(activeItem)} {colors} />
-                        {:else if activeItem}
-                            <pre class="text-xs whitespace-pre-wrap text-fossil-600 bg-fossil-50 p-3 rounded">{JSON.stringify(activeItem, null, 2)}</pre>
-                        {/if}
-                    </div>
-                {:else}
-                    <div class="flex-grow overflow-y-auto no-scrollbar p-4 h-full w-full">
-                        <div class="space-y-3">
-                            {#each content as item, i (i)}
-                                {@const Item = EXERCISE_RENDERERS[exerciseType as ExerciseType]}
-                                <div class="border-b border-fossil-200 pb-3 last:border-b-0 last:pb-0 flex items-start gap-3">
-                                    <span class="text-xs font-semibold text-ink-muted select-none mt-0.5 shrink-0">{i + 1}.</span>
-                                    <div class="flex-1 min-w-0">
-                                        {#if item?.error}
-                                            <div class="p-3 bg-cinnabar-50 text-cinnabar-600 rounded-lg border border-cinnabar-200 text-sm">{item.error}</div>
-                                        {:else if Item}
-                                            <Item exercise={mapItemForRenderer(item)} {colors} />
-                                        {:else}
-                                            <pre class="text-xs whitespace-pre-wrap text-fossil-600 bg-fossil-50 p-3 rounded">{JSON.stringify(item, null, 2)}</pre>
-                                        {/if}
-                                    </div>
+            <div class="content-wrapper flex flex-col h-full overflow-hidden" bind:this={contentEl}>
+                <div class="flex-grow overflow-y-auto no-scrollbar p-4 h-full w-full">
+                    <div class="space-y-3">
+                        {#each content as item, i (i)}
+                            {@const Item = EXERCISE_RENDERERS[exerciseType as ExerciseType]}
+                            <div class="border-b border-fossil-200 pb-3 last:border-b-0 last:pb-0 flex items-start gap-3">
+                                <span class="text-xs font-semibold text-ink-muted select-none mt-0.5 shrink-0">{i + 1}.</span>
+                                <div class="flex-1 min-w-0">
+                                    {#if item?.error}
+                                        <div class="p-3 bg-cinnabar-50 text-cinnabar-600 rounded-lg border border-cinnabar-200 text-sm">{item.error}</div>
+                                    {:else if Item}
+                                        <Item exercise={mapItemForRenderer(item)} {colors} onAnswer={(attempt: any) => handleAnswerItem(i, attempt)} />
+                                    {:else}
+                                        <pre class="text-xs whitespace-pre-wrap text-fossil-600 bg-fossil-50 p-3 rounded">{JSON.stringify(item, null, 2)}</pre>
+                                    {/if}
                                 </div>
-                            {/each}
-                        </div>
+                            </div>
+                        {/each}
                     </div>
-                {/if}
+                </div>
             </div>
         {/if}
     </div>

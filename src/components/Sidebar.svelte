@@ -117,37 +117,6 @@
       onClearDrawings?: () => void;
   }>();
 
-  let isVocabOpen = $state(false);
-  let vocabInput = $state('');
-
-  let isGrammarOpen = $state(false);
-  let grammarInput = $state('');
-
-  const handleAddVocab = () => {
-        const newVocab = vocabInput.trim();
-        if (newVocab && !focusVocabulary.includes(newVocab.toLowerCase())) {
-            onUpdateFocusVocabulary && onUpdateFocusVocabulary([...focusVocabulary, newVocab.toLowerCase()]);
-            vocabInput = '';
-        }
-  };
-
-  const handleRemoveVocab = (vocabToRemove: string) => {
-        onUpdateFocusVocabulary && onUpdateFocusVocabulary(focusVocabulary.filter((v: string) => v !== vocabToRemove));
-  };
-
-  const handleAddGrammar = () => {
-        const newGrammar = grammarInput.trim();
-        if (newGrammar && !focusGrammar.includes(newGrammar.toLowerCase())) {
-            onUpdateFocusGrammar && onUpdateFocusGrammar([...focusGrammar, newGrammar.toLowerCase()]);
-            grammarInput = '';
-        }
-  };
-
-  const handleRemoveGrammar = (grammarToRemove: string) => {
-        onUpdateFocusGrammar && onUpdateFocusGrammar(focusGrammar.filter((g: string) => g !== grammarToRemove));
-  };
-
-
   let openCategory: string | null = $state('PPP');
   let expandedInfo: string | null = $state(null);
 

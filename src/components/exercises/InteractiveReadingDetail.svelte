@@ -4,9 +4,10 @@
   import { checkAnswerWithAI } from '../../services/aiService';
   import Field from '../../lib/components/Field.svelte';
 
-  let { exercise, colors } = $props<{
+  let { exercise, colors, onAnswer } = $props<{
     exercise: IReadingDetailExercise;
     colors: any;
+    onAnswer?: (attempt: { concept?: string; category?: 'Vocabulary' | 'Grammar'; isCorrect: boolean; studentAnswer: any; questionText?: string }) => void;
   }>();
 
   let answers = $state<Record<number, string>>({});
@@ -18,6 +19,16 @@
       const result = await checkAnswerWithAI('Reading for Detail', exercise, answers);
       feedback = result || null;
       loading = false;
+      (exercise.questions || []).forEach((q: any, idx: number) => {
+        const given = answers[idx] || '';
+        onAnswer?.({
+          concept: q.answer || exercise.title || 'Reading Detail',
+          category: 'Vocabulary',
+          isCorrect: given.trim().toLowerCase() === (q.answer || '').trim().toLowerCase() || Boolean(result && /^correct|^perfect/i.test(result.trim())),
+          studentAnswer: given,
+          questionText: q.question
+        });
+      });
   };
 </script>
 

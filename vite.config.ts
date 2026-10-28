@@ -2,6 +2,27 @@ import { defineConfig, loadEnv } from 'vite'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
 import tailwindcss from '@tailwindcss/vite'
 
+function healthCheckPlugin() {
+  const handler = (req: any, res: any, next: any) => {
+    const url = req.url?.split('?')[0];
+    if (url === '/api/health' || url === '/health') {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ status: 'ok', uptime: process.uptime() }));
+      return;
+    }
+    next();
+  };
+  return {
+    name: 'vite-plugin-health-check',
+    configureServer(server: any) {
+      server.middlewares.use(handler);
+    },
+    configurePreviewServer(server: any) {
+      server.middlewares.use(handler);
+    }
+  };
+}
+
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
@@ -11,9 +32,6 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         input: {
           main: 'index.html',
-          // Motion study page for the deck menu, so the motion can be judged on
-          // the deployed site rather than only on a local dev server.
-          deck: 'deck-demo.html',
         },
       },
     },
@@ -21,20 +39,22 @@ export default defineConfig(({ mode }) => {
       port: 3000,
       host: '0.0.0.0',
     },
+    preview: {
+      port: 3000,
+      host: '0.0.0.0',
+    },
     plugins: [
       tailwindcss(),
-      svelte()
+      svelte(),
+      healthCheckPlugin()
     ],
     define: {
-      // OpenRouter (OpenAI-compatible) — set in .env locally or Railway vars in prod
-      'process.env.OPENROUTER_API_KEY': JSON.stringify(env.OPENROUTER_API_KEY || ''),
-      'process.env.OPENROUTER_MODEL': JSON.stringify(env.OPENROUTER_MODEL || 'xiaomi/mimo-v2.6-flash'),
-      'process.env.OPENROUTER_BASE_URL': JSON.stringify(env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1'),
-      // Direct Mistral. When MISTRAL_API_KEY is set and USE_MISTRAL_DIRECT is true, talks to api.mistral.ai
-      'process.env.MISTRAL_API_KEY': JSON.stringify(env.MISTRAL_API_KEY || ''),
-      'process.env.MISTRAL_BASE_URL': JSON.stringify(env.MISTRAL_BASE_URL || 'https://api.mistral.ai/v1'),
-      'process.env.MISTRAL_MODEL': JSON.stringify(env.MISTRAL_MODEL || 'mistral-small-2603'),
-      'process.env.USE_MISTRAL_DIRECT': JSON.stringify(env.USE_MISTRAL_DIRECT || '')
+      // Never embed secret API keys into the browser bundle.
+      // AI requests are proxied through the gitEnglish server (/api/internal/practice-genie/ai).
+      'process.env.PRACTICE_GENIE_AI_PROXY_URL': JSON.stringify(
+        env.PRACTICE_GENIE_AI_PROXY_URL || 'https://gitenglish.com/api/internal/practice-genie/ai'
+      ),
+      'process.env.OPENROUTER_MODEL': JSON.stringify(env.OPENROUTER_MODEL || 'xiaomi/mimo-v2.6-flash')
     }
   }
 })

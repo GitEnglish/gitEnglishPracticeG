@@ -1,9 +1,10 @@
 <script lang="ts">
   import type { IMultipleChoiceExercise, IRuleDiscoveryExercise, ISpotTheDifferenceExercise, IPredictionExercise, IReadingGistExercise, IPolitenessScenariosExercise, IInferringMeaningExercise } from '../../lib/types';
 
-  let { exercise, colors } = $props<{
+  let { exercise, colors, onAnswer } = $props<{
     exercise: IMultipleChoiceExercise | IRuleDiscoveryExercise | ISpotTheDifferenceExercise | IPredictionExercise | IReadingGistExercise | IPolitenessScenariosExercise | IInferringMeaningExercise;
     colors: any;
+    onAnswer?: (attempt: { concept?: string; category?: 'Vocabulary' | 'Grammar'; isCorrect: boolean; studentAnswer: any; questionText?: string }) => void;
   }>();
 
   let selectedOption = $state<string | null>(null);
@@ -11,7 +12,15 @@
 
   const handleSelect = (option: string) => {
       selectedOption = option;
-      status = option === exercise.correctAnswer ? 'correct' : 'incorrect';
+      const isCorrect = option === exercise.correctAnswer;
+      status = isCorrect ? 'correct' : 'incorrect';
+      onAnswer?.({
+        concept: exercise.correctAnswer || option,
+        category: 'sentences' in exercise || 'sentenceA' in exercise ? 'Grammar' : 'Vocabulary',
+        isCorrect,
+        studentAnswer: option,
+        questionText: 'question' in exercise ? exercise.question : undefined
+      });
   };
 </script>
 

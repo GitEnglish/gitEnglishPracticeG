@@ -4,9 +4,10 @@
   import FeedbackSection from './FeedbackSection.svelte';
   import { checkAnswerWithAI } from '../../services/aiService';
 
-  let { exercise, colors } = $props<{
+  let { exercise, colors, onAnswer } = $props<{
     exercise: ISentenceScrambleExercise;
     colors: any;
+    onAnswer?: (attempt: { concept?: string; category?: 'Vocabulary' | 'Grammar'; isCorrect: boolean; studentAnswer: any; questionText?: string }) => void;
   }>();
 
   type ScrambledWord = { word: string; id: number };
@@ -18,7 +19,7 @@
 
   $effect(() => {
       // Setup initial state when exercise changes
-      bank = exercise.scrambledWords.map((word: string, index: number) => ({ word, id: index }));
+      bank = (exercise.scrambledWords || []).map((word: string, index: number) => ({ word, id: index }));
       solution = [];
       feedback = null;
   });
@@ -37,19 +38,24 @@
 
   const handleCheck = async () => {
       loading = true;
-      const result = await checkAnswerWithAI('Sentence Scramble', exercise, solution.map(w => w.word).join(' '));
+      const attemptStr = solution.map(w => w.word).join(' ');
+      const result = await checkAnswerWithAI('Sentence Scramble', exercise, attemptStr);
       feedback = result || null;
       loading = false;
+      const isCorrect = Boolean(result && (/^correct|^perfect|🌟🌟🌟/i.test(result.trim()) || attemptStr.toLowerCase() === (exercise.correct || '').toLowerCase()));
+      onAnswer?.({
+        concept: exercise.correct || attemptStr,
+        category: 'Grammar',
+        isCorrect,
+        studentAnswer: attemptStr,
+        questionText: exercise.correct
+      });
   };
-
 </script>
 
 <div class="text-sm font-casual {colors.textOnLight}">
     <p class="mb-2 font-bold opacity-70 text-sm uppercase">Build the sentence</p>
     <div class="min-h-[4rem] p-3 rounded-2xl border-4 flex flex-wrap gap-2 items-center transition-colors mb-4 border-dashed border-fossil-300 bg-fossil-50">
-        {#if solution.length === 0}
-
-        {/if}
         {#each solution as w (w.id)}
              <Chip
                 text={w.word}

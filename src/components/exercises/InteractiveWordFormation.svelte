@@ -3,9 +3,10 @@
   import FeedbackSection from './FeedbackSection.svelte';
   import { checkAnswerWithAI } from '../../services/aiService'; // Ensure this export exists or port it
 
-  let { exercise, colors } = $props<{
+  let { exercise, colors, onAnswer } = $props<{
     exercise: IWordFormationExercise;
     colors: any;
+    onAnswer?: (attempt: { concept?: string; category?: 'Vocabulary' | 'Grammar'; isCorrect: boolean; studentAnswer: any; questionText?: string }) => void;
   }>();
 
   let userInput = $state('');
@@ -17,6 +18,16 @@
       const result = await checkAnswerWithAI('Word Formation', exercise, userInput);
       feedback = result || null;
       loading = false;
+      const isCorrect =
+        userInput.trim().toLowerCase() === (exercise.answer || '').trim().toLowerCase() ||
+        Boolean(result && /^correct|^perfect|🌟🌟🌟/i.test(result.trim()));
+      onAnswer?.({
+        concept: exercise.answer || exercise.rootWord,
+        category: 'Vocabulary',
+        isCorrect,
+        studentAnswer: userInput.trim(),
+        questionText: exercise.question
+      });
   };
 </script>
 

@@ -15,11 +15,6 @@
     onUpdateBlock,
     onRemoveBlock,
     onFocusBlock,
-    presentingBlockId,
-    onEnterPresentation,
-    onExitPresentation,
-    onNextSlide,
-    onPrevSlide,
     onToggleDrawingMode,
     onToggleEraser,
     onClearDrawings,
@@ -34,11 +29,6 @@
     onUpdateBlock: (id: number, updates: Partial<ExerciseBlockState>) => void;
     onRemoveBlock: (id: number) => void;
     onFocusBlock: (id: number) => void;
-    presentingBlockId: number | null;
-    onEnterPresentation: (id: number) => void;
-    onExitPresentation: () => void;
-    onNextSlide: () => void;
-    onPrevSlide: () => void;
     onToggleDrawingMode?: () => void;
     onToggleEraser?: () => void;
     onClearDrawings?: () => void;
@@ -338,11 +328,6 @@
         onUpdate={onUpdateBlock}
         onRemove={onRemoveBlock}
         onFocus={onFocusBlock}
-        isPresenting={presentingBlockId === block.id}
-        {onEnterPresentation}
-        {onExitPresentation}
-        {onNextSlide}
-        {onPrevSlide}
         {scale}
         allBlocks={blocks}
         onSnapLines={(l) => (snapLines = l)}
@@ -373,8 +358,4 @@
         </div>
     {/if}
   </div>
-
-  {#if presentingBlockId !== null}
-      <div class="fixed inset-0 bg-fossil-900/90 z-50 transition-opacity flex items-center justify-center pointer-events-none"></div>
-  {/if}
 </main>

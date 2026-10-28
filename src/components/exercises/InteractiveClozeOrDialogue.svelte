@@ -3,13 +3,14 @@
   import FeedbackSection from './FeedbackSection.svelte';
   import { checkAnswerWithAI } from '../../services/aiService';
 
-  let { exercise, colors } = $props<{
+  let { exercise, colors, onAnswer } = $props<{
     exercise: IClozeParagraphExercise | IDialogueCompletionExercise;
     colors: any;
+    onAnswer?: (attempt: { concept?: string; category?: 'Vocabulary' | 'Grammar'; isCorrect: boolean; studentAnswer: any; questionText?: string }) => void;
   }>();
 
-  let text = $derived('paragraph' in exercise ? exercise.paragraph : exercise.dialogue);
-  let textParts = $derived(text.split('[BLANK]'));
+  let text = $derived(('paragraph' in exercise ? exercise.paragraph : exercise.dialogue) || '');
+  let textParts = $derived(text.split(/\[BLANK\]|_{2,}/));
 
   let answers = $state<Record<number, string>>({});
   let feedback = $state<string | null>(null);
@@ -28,6 +29,17 @@
       const result = await checkAnswerWithAI('Cloze/Dialogue', exercise, answers);
       feedback = result || null;
       loading = false;
+      const expected = Array.isArray(exercise.answers) ? exercise.answers : [];
+      expected.forEach((ans: string, idx: number) => {
+        const given = answers[idx] || '';
+        onAnswer?.({
+          concept: ans,
+          category: 'Vocabulary',
+          isCorrect: given.trim().toLowerCase() === ans.trim().toLowerCase(),
+          studentAnswer: given,
+          questionText: text
+        });
+      });
   };
 
   const handleChange = (index: number, value: string) => {
