@@ -66,3 +66,4 @@
 - **2026-10-17 21:04** [deployment] Pushed fix 1b1bb88 to origin/main; verified live Railway deployment 7149178599 success
 - **2026-10-20 03:47** [refactor] Purged legacy_react, removed deepseek references, and renamed to openrouterService
 - **2026-10-20 04:35** [feat] Support direct URL parameter hydration for focus vocabulary and grammar
+- 2026-10-28 12:04:30 - performance - Optimized nextId and maxZIndex max ID calculation using reduce instead of map + spread (src/App.svelte)

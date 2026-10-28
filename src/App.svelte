@@ -193,8 +193,8 @@
 
   let presentingBlockId = $state<number | null>(null);
 
-  let nextId = $derived(blocks.length > 0 ? Math.max(...blocks.map(b => b.id)) + 1 : 1);
-  let maxZIndex = $derived(blocks.length > 0 ? Math.max(...blocks.map(b => b.zIndex)) : 10);
+  let nextId = $derived(blocks.length > 0 ? blocks.reduce((max, b) => b.id > max ? b.id : max, -Infinity) + 1 : 1);
+  let maxZIndex = $derived(blocks.length > 0 ? blocks.reduce((max, b) => b.zIndex > max ? b.zIndex : max, -Infinity) : 10);
 
 
   const handleExportState = () => {
