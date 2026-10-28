@@ -26,12 +26,19 @@
       if (!phrase) return;
 
       const newClassified = { ...classified };
-      for(const cat in newClassified) {
-          newClassified[cat] = newClassified[cat].filter(p => p !== phrase);
+      for (const cat in newClassified) {
+          if (newClassified[cat].includes(phrase)) {
+              newClassified[cat] = newClassified[cat].filter(p => p !== phrase);
+              break;
+          }
       }
-      newClassified[category] = [...newClassified[category], phrase];
+
+      newClassified[category] = [...(newClassified[category] || []), phrase];
       classified = newClassified;
-      unclassified = unclassified.filter(p => p !== phrase);
+
+      if (unclassified.includes(phrase)) {
+          unclassified = unclassified.filter(p => p !== phrase);
+      }
   };
 
   const handleDragStart = (e: DragEvent, phrase: string) => {
