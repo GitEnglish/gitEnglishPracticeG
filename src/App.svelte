@@ -53,7 +53,8 @@
     if (params.has('payload')) {
       try {
         const p = JSON.parse(decodeURIComponent(params.get('payload')!));
-        if (Array.isArray(p.focusVocabulary)) {
+        if (p && typeof p === 'object' && !Array.isArray(p)) {
+          if (Array.isArray(p.focusVocabulary)) {
           globalFocusVocabulary = p.focusVocabulary;
           localStorage.setItem('practiceGenie-focusVocabulary', JSON.stringify(p.focusVocabulary));
         }
@@ -71,9 +72,10 @@
           localStorage.setItem('practiceGenie-grammarInclusionRate', p.grammarInclusionRate.toString());
         }
         if (p.lac) {
-          try {
-            localStorage.setItem('practiceGenie-lac', JSON.stringify(p.lac));
-          } catch (e) {}
+            try {
+              localStorage.setItem('practiceGenie-lac', JSON.stringify(p.lac));
+            } catch (e) {}
+          }
         }
       } catch (e) {}
     }
@@ -82,7 +84,8 @@
     const handleMessage = (event: MessageEvent) => {
       if (event.data?.type === 'PRACTICE_INIT' && event.data?.payload) {
         const p = event.data.payload;
-        if (Array.isArray(p.focusVocabulary) && p.focusVocabulary.length > 0) {
+        if (p && typeof p === 'object' && !Array.isArray(p)) {
+          if (Array.isArray(p.focusVocabulary) && p.focusVocabulary.length > 0) {
           globalFocusVocabulary = p.focusVocabulary;
           localStorage.setItem('practiceGenie-focusVocabulary', JSON.stringify(p.focusVocabulary));
         }
@@ -105,10 +108,11 @@
           globalDifficulty = p.difficulty;
         }
         if (p.lac) {
-          try {
-            localStorage.setItem('practiceGenie-lac', JSON.stringify(p.lac));
-          } catch (e) {
-            console.warn('[PracticeGenie] Could not serialize LAC to localStorage:', e);
+            try {
+              localStorage.setItem('practiceGenie-lac', JSON.stringify(p.lac));
+            } catch (e) {
+              console.warn('[PracticeGenie] Could not serialize LAC to localStorage:', e);
+            }
           }
         }
       }
@@ -244,7 +248,7 @@
           try {
               const result = event.target?.result as string;
               const data = JSON.parse(result);
-              if (data && data.state) {
+              if (data && typeof data === 'object' && !Array.isArray(data) && data.state) {
                   const state = data.state;
                   if (state.blocks) blocks = state.blocks;
                   if (state.difficulty) globalDifficulty = state.difficulty;
