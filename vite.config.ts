@@ -26,6 +26,7 @@ function healthCheckPlugin() {
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
+  const publicDomain = process.env.RAILWAY_PUBLIC_DOMAIN;
   return {
     base: './',
     build: {
@@ -38,6 +39,10 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 3000,
       host: '0.0.0.0',
+      allowedHosts: [publicDomain].filter((host): host is string => Boolean(host)),
+      hmr: publicDomain
+        ? { protocol: 'wss', host: publicDomain, clientPort: 443 }
+        : undefined,
     },
     preview: {
       port: 3000,

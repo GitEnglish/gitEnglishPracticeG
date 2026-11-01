@@ -2,7 +2,6 @@
   import { onMount } from 'svelte';
   import Sidebar from './components/Sidebar.svelte';
   import Whiteboard from './components/Whiteboard.svelte';
-  import GlobalSettings from './components/GlobalSettings.svelte';
   import type { ExerciseBlockState } from './lib/types';
   import { Difficulty, Tone, ExerciseType } from './lib/types';
   import { initActivityLogger, getActivityLogger } from './services/ActivityLogger';
@@ -162,7 +161,6 @@
   let isErasing = $state(false);
 
   // Global Settings State
-  let isGlobalSettingsOpen = $state(false);
   let globalDifficulty = $state<Difficulty>((localStorage.getItem(DIFFICULTY_KEY) as Difficulty) || Difficulty.B1);
   let globalTone = $state<Tone>((localStorage.getItem(TONE_KEY) as Tone) || Tone.Casual);
   let globalTheme = $state<string>(localStorage.getItem(THEME_KEY) || '');
@@ -444,24 +442,30 @@
       blocks = blocks.map(b => b.id === id ? { ...b, zIndex: maxZIndex + 1 } : b);
   };
 
-  const cycleDifficulty = () => {
-      const diffs = Object.values(Difficulty);
-      const idx = diffs.indexOf(globalDifficulty);
-      globalDifficulty = diffs[(idx + 1) % diffs.length];
-  };
 </script>
 
 <div class="h-screen w-screen flex font-sans antialiased overflow-hidden bg-shell">
 
-  <!-- The floating radial menu is gone. Its four functions live in the
-       sidebar header: settings, difficulty cycle, export, drawing mode. -->
-  
-
-
-
   <Sidebar
     {isSidebarOpen}
     onAddExercise={handleAddBlock}
+    difficulty={globalDifficulty}
+    onUpdateDifficulty={(d) => globalDifficulty = d}
+    tone={globalTone}
+    onUpdateTone={(t) => globalTone = t}
+    theme={globalTheme}
+    onUpdateTheme={(t) => globalTheme = t}
+    totalTime={blocks.reduce((acc, b) => acc + (b.quantity || 1), 0)}
+    makerTemperature={globalMakerTemperature}
+    onUpdateMakerTemperature={(t) => {
+      globalMakerTemperature = t;
+      localStorage.setItem('openrouter_maker_temp', t.toString());
+    }}
+    checkerTemperature={globalCheckerTemperature}
+    onUpdateCheckerTemperature={(t) => {
+      globalCheckerTemperature = t;
+      localStorage.setItem('openrouter_checker_temp', t.toString());
+    }}
     focusVocabulary={globalFocusVocabulary}
     onUpdateFocusVocabulary={(v: string[]) => { globalFocusVocabulary = v; localStorage.setItem('practiceGenie-focusVocabulary', JSON.stringify(v)); }}
     inclusionRate={globalInclusionRate}
@@ -473,9 +477,6 @@
     onExportState={handleExportState}
     onImportState={handleImportState}
     onClearBoard={handleClearBoard}
-    onToggleSettings={() => isGlobalSettingsOpen = true}
-    difficulty={globalDifficulty}
-    onCycleDifficulty={cycleDifficulty}
     isDrawingMode={isDrawingMode}
     isErasing={isErasing}
     onToggleDrawingMode={() => {
@@ -488,32 +489,6 @@
       }
     }}
   />
-
-
-  {#if isGlobalSettingsOpen}
-      <GlobalSettings
-        onClose={() => isGlobalSettingsOpen = false}
-        difficulty={globalDifficulty}
-        setDifficulty={(d) => globalDifficulty = d}
-        tone={globalTone}
-        setTone={(t) => globalTone = t}
-        theme={globalTheme}
-        setTheme={(t) => globalTheme = t}
-        totalTime={blocks.reduce((acc, b) => acc + (b.quantity || 1), 0)}
-        makerTemperature={globalMakerTemperature}
-        setMakerTemperature={(t) => {
-            globalMakerTemperature = t;
-            localStorage.setItem('openrouter_maker_temp', t.toString());
-
-        }}
-        checkerTemperature={globalCheckerTemperature}
-        setCheckerTemperature={(t) => {
-            globalCheckerTemperature = t;
-            localStorage.setItem('openrouter_checker_temp', t.toString());
-
-        }}
-      />
-  {/if}
 
   <!-- Overlay for mobile - Smooth transition -->
   <div

@@ -1,11 +1,10 @@
 <script lang="ts">
+  import { ChevronDown, SlidersHorizontal } from 'lucide-svelte';
   import { type Difficulty, type Tone } from '../lib/types';
   import { DIFFICULTY_LEVELS, TONES, DIFFICULTY_LABELS } from '../lib/constants';
   import DifficultyIcon from './icons/DifficultyIcon.svelte';
   import ToneIcon from './icons/ToneIcon.svelte';
   import ThemeIcon from './icons/ThemeIcon.svelte';
-  import XMarkIcon from './icons/XMarkIcon.svelte';
-  import SettingsIcon from './icons/SettingsIcon.svelte';
 
   let {
     difficulty,
@@ -15,7 +14,6 @@
     theme,
     setTheme,
     totalTime,
-    onClose,
     makerTemperature,
     setMakerTemperature,
     checkerTemperature,
@@ -28,43 +26,38 @@
     theme: string;
     setTheme: (t: string) => void;
     totalTime: number;
-    onClose: () => void;
     makerTemperature: number;
     setMakerTemperature: (t: number) => void;
     checkerTemperature: number;
     setCheckerTemperature: (t: number) => void;
   }>();
+
+  let isSettingsOpen = $state(false);
+  let isAISettingsOpen = $state(false);
 </script>
 
-<div class="fixed inset-0 z-[90] flex items-center justify-center pointer-events-none">
-    <button
-        class="absolute inset-0 bg-fossil-900/40 backdrop-blur-sm pointer-events-auto animate-in fade-in duration-200 border-none cursor-default"
-        onclick={onClose}
-        aria-label="Close settings">
-    </button>
-
-    <div class="bg-surface rounded-2xl shadow-2xl border border-rule p-6 w-full max-w-md pointer-events-auto transform transition-all animate-in fade-in zoom-in-95 duration-200 relative">
-        <button onclick={onClose} class="absolute top-4 right-4 text-fossil-400 hover:text-fossil-600 transition-colors" aria-label="Close settings">
-            <XMarkIcon class="w-5 h-5" />
+<section class="rounded-xl border border-hairline/80 bg-chrome-raised/50 p-3" data-purpose="lesson-configuration">
+        <button type="button" class="flex w-full items-center justify-between gap-2 text-left text-sm font-semibold text-fossil-50 hover:text-accent" aria-expanded={isSettingsOpen} aria-controls="lesson-configuration-panel" onclick={() => isSettingsOpen = !isSettingsOpen}>
+            <span class="flex items-center gap-2">
+                <SlidersHorizontal class="h-4 w-4 text-accent" />
+                Lesson Configuration
+            </span>
+            <ChevronDown class={`h-4 w-4 text-fossil-400 transition-transform ${isSettingsOpen ? 'rotate-180' : ''}`} />
         </button>
+        <div id="lesson-configuration-panel" class={isSettingsOpen ? 'pt-3' : 'hidden'}>
+        <p class="mb-4 text-xs leading-relaxed text-fossil-400">Defaults for new exercises. You can still adjust an exercise individually.</p>
 
-        <h2 class="text-2xl font-bold text-fossil-800 mb-1 flex items-center gap-3 font-playful">
-            <SettingsIcon class="w-6 h-6 text-accent" />
-            Lesson Configuration
-        </h2>
-        <p class="text-sm text-fossil-600 mb-6 font-casual">Set the default parameters for new exercises.</p>
-
-        <div class="space-y-5">
+        <div class="space-y-4">
             <div class="space-y-2">
-                <label for="global-difficulty" class="flex items-center text-sm font-bold text-fossil-700 uppercase tracking-wide font-casual">
-                    <DifficultyIcon class="w-4 h-4 mr-2 text-accent" />
-                    Difficulty Level
+                <label for="global-difficulty" class="flex items-center text-xs font-semibold uppercase tracking-wide text-fossil-300">
+                    <DifficultyIcon class="mr-2 h-4 w-4 text-accent" />
+                    Default difficulty
                 </label>
                 <select
                     id="global-difficulty"
                     value={difficulty}
                     onchange={(e) => setDifficulty(e.currentTarget.value as Difficulty)}
-                    class="w-full bg-fossil-50 text-fossil-900 font-medium border border-fossil-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-accent focus:border-accent outline-none transition-all appearance-none font-casual"
+                    class="w-full rounded-lg border border-hairline bg-chrome px-3 py-2 text-sm text-fossil-50 outline-none transition-all focus:border-accent focus:ring-2 focus:ring-accent/40"
                 >
                     {#each DIFFICULTY_LEVELS as opt}
                         <option value={opt}>
@@ -75,15 +68,15 @@
             </div>
 
             <div class="space-y-2">
-                 <label for="global-tone" class="flex items-center text-sm font-bold text-fossil-700 uppercase tracking-wide font-casual">
-                    <ToneIcon class="w-4 h-4 mr-2 text-accent" />
-                    Tone & Style
+                 <label for="global-tone" class="flex items-center text-xs font-semibold uppercase tracking-wide text-fossil-300">
+                    <ToneIcon class="mr-2 h-4 w-4 text-accent" />
+                    Tone &amp; style
                 </label>
                 <select
                     id="global-tone"
                     value={tone}
                     onchange={(e) => setTone(e.currentTarget.value as Tone)}
-                    class="w-full bg-fossil-50 text-fossil-900 font-medium border border-fossil-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-accent focus:border-accent outline-none transition-all appearance-none font-casual"
+                    class="w-full rounded-lg border border-hairline bg-chrome px-3 py-2 text-sm text-fossil-50 outline-none transition-all focus:border-accent focus:ring-2 focus:ring-accent/40"
                 >
                     {#each TONES as opt}
                         <option value={opt}>{opt}</option>
@@ -92,9 +85,9 @@
             </div>
 
             <div class="space-y-2">
-                <label for="global-theme" class="flex items-center text-sm font-bold text-fossil-700 uppercase tracking-wide font-casual">
-                    <ThemeIcon class="w-4 h-4 mr-2 text-malachite-500" />
-                    Content Theme
+                <label for="global-theme" class="flex items-center text-xs font-semibold uppercase tracking-wide text-fossil-300">
+                    <ThemeIcon class="mr-2 h-4 w-4 text-malachite-400" />
+                    Content theme
                 </label>
                 <input
                     id="global-theme"
@@ -102,49 +95,57 @@
                     value={theme}
                     oninput={(e) => setTheme(e.currentTarget.value)}
                     placeholder="e.g. Travel, Business, Sci-Fi..."
-                    class="w-full bg-fossil-50 text-fossil-900 font-medium border border-fossil-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-malachite-500 focus:border-malachite-500 outline-none transition-all placeholder-fossil-500 font-casual"
+                    class="w-full rounded-lg border border-hairline bg-chrome px-3 py-2 text-sm text-fossil-50 outline-none transition-all placeholder:text-fossil-500 focus:border-malachite-400 focus:ring-2 focus:ring-malachite-400/40"
                 />
             </div>
 
-            <!-- AI keys are backend-only (.env / Railway). No client-side key entry UI. -->
-
-            <div class="grid grid-cols-2 gap-4">
-                <div class="space-y-2">
-                    <label for="maker-temp" class="flex items-center justify-between text-xs font-bold text-fossil-700 uppercase tracking-wide font-casual">
-                        <span>Maker Temp</span>
-                        <span class="text-fossil-500">{makerTemperature}</span>
-                    </label>
-                    <input
-                        id="maker-temp"
-                        type="range"
-                        min="0" max="2" step="0.1"
-                        value={makerTemperature}
-                        oninput={(e) => setMakerTemperature(parseFloat(e.currentTarget.value))}
-                        class="w-full"
-                    />
-                </div>
-                <div class="space-y-2">
-                    <label for="checker-temp" class="flex items-center justify-between text-xs font-bold text-fossil-700 uppercase tracking-wide font-casual">
-                        <span>Checker Temp</span>
-                        <span class="text-fossil-500">{checkerTemperature}</span>
-                    </label>
-                    <input
-                        id="checker-temp"
-                        type="range"
-                        min="0" max="2" step="0.1"
-                        value={checkerTemperature}
-                        oninput={(e) => setCheckerTemperature(parseFloat(e.currentTarget.value))}
-                        class="w-full"
-                    />
+            <div class="rounded-lg border border-hairline/70 bg-chrome/70">
+                <button type="button" class="flex w-full cursor-pointer items-center justify-between gap-2 px-3 py-2.5 text-left text-xs font-semibold text-fossil-200 hover:text-fossil-50" aria-expanded={isAISettingsOpen} aria-controls="ai-variation-settings" onclick={() => isAISettingsOpen = !isAISettingsOpen}>
+                    <span>AI variation (advanced)</span>
+                    <ChevronDown class={`h-3.5 w-3.5 transition-transform ${isAISettingsOpen ? 'rotate-180' : ''}`} />
+                </button>
+                <div id="ai-variation-settings" class={isAISettingsOpen ? 'space-y-4 border-t border-hairline/70 px-3 py-3' : 'hidden'}>
+                    <p class="text-xs leading-relaxed text-fossil-400">Temperature changes how varied the AI responses are; it does not make them more accurate. Lower is more consistent, higher is more varied. Accuracy still depends on the model and prompt.</p>
+                    <div class="space-y-4">
+                        <div class="space-y-1.5">
+                            <label for="maker-temp" class="flex items-center justify-between text-xs font-semibold text-fossil-300">
+                                <span>Exercise generation</span>
+                                <span class="font-mono text-fossil-400">{makerTemperature.toFixed(1)}</span>
+                            </label>
+                            <input
+                                id="maker-temp"
+                                type="range"
+                                min="0" max="2" step="0.1"
+                                value={makerTemperature}
+                                oninput={(e) => setMakerTemperature(parseFloat(e.currentTarget.value))}
+                                aria-describedby="temperature-help"
+                                class="w-full accent-[var(--color-accent)]"
+                            />
+                        </div>
+                        <div class="space-y-1.5">
+                            <label for="checker-temp" class="flex items-center justify-between text-xs font-semibold text-fossil-300">
+                                <span>Answer feedback</span>
+                                <span class="font-mono text-fossil-400">{checkerTemperature.toFixed(1)}</span>
+                            </label>
+                            <input
+                                id="checker-temp"
+                                type="range"
+                                min="0" max="2" step="0.1"
+                                value={checkerTemperature}
+                                oninput={(e) => setCheckerTemperature(parseFloat(e.currentTarget.value))}
+                                aria-describedby="temperature-help"
+                                class="w-full accent-[var(--color-accent)]"
+                            />
+                        </div>
+                    </div>
+                    <p id="temperature-help" class="sr-only">Lower values make AI responses more consistent; higher values allow more variation. Temperature does not guarantee accuracy.</p>
                 </div>
             </div>
 
-
-
-            <div class="pt-4 border-t border-fossil-100 flex justify-between items-center font-casual">
-                <span class="text-xs font-bold text-fossil-500 uppercase tracking-wider">Est. Lesson Time</span>
-                <span class="text-lg font-black text-malachite-600 bg-malachite-50 px-3 py-1 rounded-lg border border-malachite-100">~{totalTime} min</span>
+            <div class="flex items-center justify-between border-t border-hairline/70 pt-3">
+                <span class="text-xs font-semibold uppercase tracking-wide text-fossil-400">Est. lesson time</span>
+                <span class="rounded-md border border-malachite-500/30 bg-malachite-500/10 px-2.5 py-1 text-sm font-semibold text-malachite-300">~{totalTime} min</span>
             </div>
         </div>
-    </div>
-</div>
+        </div>
+</section>
