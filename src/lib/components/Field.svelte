@@ -14,7 +14,7 @@
     hint = '',
     error = '',
     required = false,
-    id = `f${Math.random().toString(36).slice(2, 9)}`,
+    id = `f-${crypto.randomUUID()}`,
     class: className = '',
     children,
   }: {
