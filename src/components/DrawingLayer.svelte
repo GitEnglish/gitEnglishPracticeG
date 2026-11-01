@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-
   export interface DrawingPath {
     id: string;
     points: { x: number; y: number }[];
