@@ -329,6 +329,20 @@ export const extractJson = (raw: string): any => {
 
   const open = text[start];
   const close = open === '[' ? ']' : '}';
+
+  // Fast path: attempt to parse the entire block from the first open bracket
+  // to the last matching close bracket. This avoids the character-by-character
+  // state machine for well-formed JSON that doesn't have trailing garbage containing
+  // the closing bracket character.
+  const lastClose = text.lastIndexOf(close);
+  if (lastClose !== -1) {
+    try {
+      return JSON.parse(text.slice(start, lastClose + 1));
+    } catch (e) {
+      // Fallback to the robust character-by-character state machine if parsing fails
+    }
+  }
+
   let depth = 0;
   let inString = false;
   let escaped = false;
