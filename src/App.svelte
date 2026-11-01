@@ -190,8 +190,22 @@
   let globalGrammarInclusionRate = $state<number>(parseFloat(localStorage.getItem('practiceGenie-grammarInclusionRate') || '50'));
 
   // App State
-  let nextId = $derived(blocks.length > 0 ? blocks.reduce((max, b) => b.id > max ? b.id : max, -Infinity) + 1 : 1);
-  let maxZIndex = $derived(blocks.length > 0 ? blocks.reduce((max, b) => b.zIndex > max ? b.zIndex : max, -Infinity) : 10);
+  let nextId = $derived.by(() => {
+    if (blocks.length === 0) return 1;
+    let max = -Infinity;
+    for (let i = 0; i < blocks.length; i++) {
+      if (blocks[i].id > max) max = blocks[i].id;
+    }
+    return max + 1;
+  });
+  let maxZIndex = $derived.by(() => {
+    if (blocks.length === 0) return 10;
+    let max = -Infinity;
+    for (let i = 0; i < blocks.length; i++) {
+      if (blocks[i].zIndex > max) max = blocks[i].zIndex;
+    }
+    return max;
+  });
 
 
   const handleExportState = () => {
