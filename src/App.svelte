@@ -346,13 +346,22 @@
           let positionFound = false;
           search:
           for (let y = viewTop; y <= viewBottom - height && !positionFound; y += step) {
+              // Pre-filter blocks that overlap on the Y-axis to reduce inner loop checks
+              const rowBlocks = [];
+              for (let i = blocks.length - 1; i >= 0; i--) {
+                  const b = blocks[i];
+                  if (y < b.y + b.height && y + height > b.y) {
+                      rowBlocks.push(b);
+                  }
+              }
+
               for (let x = viewLeft; x <= viewRight - width; ) {
                   let maxSkipX = 0;
                   let collision = false;
 
-                  for (let i = blocks.length - 1; i >= 0; i--) {
-                      const b = blocks[i];
-                      if (x < b.x + b.width && x + width > b.x && y < b.y + b.height && y + height > b.y) {
+                  for (let i = 0; i < rowBlocks.length; i++) {
+                      const b = rowBlocks[i];
+                      if (x < b.x + b.width && x + width > b.x) {
                           collision = true;
                           const skipX = viewLeft + Math.ceil((b.x + b.width - viewLeft) / step) * step;
                           if (skipX > maxSkipX) {
