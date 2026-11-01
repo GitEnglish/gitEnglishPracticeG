@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { BookOpen, ChevronDown, Puzzle, Settings as SettingsIcon, PenTool as PenToolIcon, Info as InfoIcon } from 'lucide-svelte';
+  import { BookOpen, ChevronDown } from 'lucide-svelte';
   import { motion } from '@humanspeak/svelte-motion';
   import DifficultyMeter from '../lib/components/DifficultyMeter.svelte';
   import { EXERCISE_CATEGORIES, EXERCISE_PEDAGOGY, PEDAGOGY_COLORS } from '../lib/constants';
@@ -28,6 +28,8 @@
   import DownloadIcon from './icons/DownloadIcon.svelte';
 
   import TrashIcon from './icons/TrashIcon.svelte';
+import SettingsIcon from './icons/SettingsIcon.svelte';
+import InfoIcon from './icons/InfoIcon.svelte';
 
   const EXERCISE_ICONS: Record<ExerciseType, any> = {
     [ExerciseType.FITB]: PencilSquareIcon,
@@ -186,7 +188,7 @@
             {difficulty ?? 'B1'}
           </button>
           <button onclick={onToggleDrawingMode} class="p-2 rounded-lg transition-all {isDrawingMode || isErasing ? 'text-accent bg-accent/15' : 'text-fossil-400 hover:text-fossil-50 hover:bg-fossil-50/10'}" title="Drawing mode" aria-pressed={isDrawingMode || isErasing} aria-label="Toggle drawing mode">
-            <PenToolIcon class="w-4 h-4" />
+            <PencilSquareIcon class="w-4 h-4" />
           </button>
         </div>
       </div>
