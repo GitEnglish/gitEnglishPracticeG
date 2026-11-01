@@ -2,6 +2,7 @@
     import type { ExerciseBlockState } from '../lib/types';
   import { ExerciseType, Difficulty, Tone } from '../lib/types';
   import { EXERCISE_PEDAGOGY, PEDAGOGY_COLORS, calculateExerciseAmount, calculateExerciseDuration, SINGLE_INSTANCE_TYPES, DIFFICULTY_LEVELS, DIFFICULTY_LABELS, TONES } from '../lib/constants';
+  // Used in handleAnswerItem for telemetry
   import { getActivityLogger } from '../services/ActivityLogger';
   import { generateExercise } from '../services/aiService';
   import type { Component } from 'svelte';
