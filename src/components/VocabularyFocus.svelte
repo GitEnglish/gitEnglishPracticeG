@@ -34,16 +34,18 @@
   };
 </script>
 
-<div class="mb-4 bg-fossil-900/50 rounded-xl ring-1 ring-fossil-700 overflow-hidden font-casual">
-  <button onclick={() => isOpen = !isOpen} class="w-full flex justify-between items-center p-4 text-left bg-fossil-800/50 hover:bg-fossil-800 transition-colors focus:outline-none">
+<div class="bg-fossil-900/50 rounded-xl ring-1 ring-fossil-700 overflow-hidden font-casual">
+  <button onclick={() => isOpen = !isOpen} class="w-full flex justify-between items-center p-4 text-left bg-fossil-800/50 hover:bg-fossil-800 transition-colors focus:outline-none" aria-expanded={isOpen} aria-controls="vocabulary-focus-panel">
       <div class="flex items-center">
           <div class="w-5 h-5 mr-2 text-citrine-400 font-bold flex items-center justify-center">Aa</div>
           <span class="font-semibold text-citrine-100 text-[15px] tracking-tight">Vocabulary Focus</span>
       </div>
-      <ChevronDown class={`w-4 h-4 text-citrine-500/70 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+      <div class="flex items-center gap-2">
+          {#if focusVocabulary.length > 0}<span class="rounded-full bg-citrine-500/15 px-2 py-0.5 text-xs text-citrine-200">{focusVocabulary.length}</span>{/if}
+          <ChevronDown class={`w-4 h-4 text-citrine-500/70 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+      </div>
   </button>
-  {#if isOpen}
-      <div class="p-3 border-t border-fossil-700 space-y-4 bg-fossil-900/30">
+      <div id="vocabulary-focus-panel" class={isOpen ? 'p-3 border-t border-fossil-700 space-y-4 bg-fossil-900/30' : 'hidden'}>
           <div>
               <div class="flex gap-2">
                   <input
@@ -88,7 +90,6 @@
               />
           </div>
       </div>
-  {/if}
 </div>
 
 <style>

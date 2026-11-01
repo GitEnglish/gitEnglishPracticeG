@@ -4,6 +4,8 @@
   import DifficultyMeter from '../lib/components/DifficultyMeter.svelte';
   import { EXERCISE_CATEGORIES, EXERCISE_PEDAGOGY, PEDAGOGY_COLORS } from '../lib/constants';
   import { EXERCISE_INFO } from '../lib/exerciseInfo';
+  import type { Difficulty, Tone } from '../lib/types';
+  import GlobalSettings from './GlobalSettings.svelte';
   import VocabularyFocus from './VocabularyFocus.svelte';
   import GrammarFocus from './GrammarFocus.svelte';
   import { ExerciseType } from '../lib/types';
@@ -28,8 +30,7 @@
   import DownloadIcon from './icons/DownloadIcon.svelte';
 
   import TrashIcon from './icons/TrashIcon.svelte';
-import SettingsIcon from './icons/SettingsIcon.svelte';
-import InfoIcon from './icons/InfoIcon.svelte';
+  import InfoIcon from './icons/InfoIcon.svelte';
 
   const EXERCISE_ICONS: Record<ExerciseType, any> = {
     [ExerciseType.FITB]: PencilSquareIcon,
@@ -76,6 +77,17 @@ import InfoIcon from './icons/InfoIcon.svelte';
   let {
       isSidebarOpen = true,
       onAddExercise,
+      difficulty,
+      onUpdateDifficulty,
+      tone,
+      onUpdateTone,
+      theme,
+      onUpdateTheme,
+      totalTime,
+      makerTemperature,
+      onUpdateMakerTemperature,
+      checkerTemperature,
+      onUpdateCheckerTemperature,
       focusVocabulary = [],
       onUpdateFocusVocabulary,
       inclusionRate = 50,
@@ -87,9 +99,6 @@ import InfoIcon from './icons/InfoIcon.svelte';
       onExportState,
       onImportState,
       onClearBoard,
-      onToggleSettings,
-      difficulty,
-      onCycleDifficulty,
       isDrawingMode,
       onToggleDrawingMode,
       isErasing,
@@ -98,6 +107,17 @@ import InfoIcon from './icons/InfoIcon.svelte';
   } = $props<{
       isSidebarOpen?: boolean;
       onAddExercise?: (type: string) => void;
+      difficulty: Difficulty;
+      onUpdateDifficulty: (difficulty: Difficulty) => void;
+      tone: Tone;
+      onUpdateTone: (tone: Tone) => void;
+      theme: string;
+      onUpdateTheme: (theme: string) => void;
+      totalTime: number;
+      makerTemperature: number;
+      onUpdateMakerTemperature: (temperature: number) => void;
+      checkerTemperature: number;
+      onUpdateCheckerTemperature: (temperature: number) => void;
       focusVocabulary?: string[];
       onUpdateFocusVocabulary?: (vocab: string[]) => void;
       inclusionRate?: number;
@@ -109,9 +129,6 @@ import InfoIcon from './icons/InfoIcon.svelte';
       onExportState?: () => void;
       onImportState?: (e: Event) => void;
       onClearBoard?: () => void;
-      onToggleSettings?: () => void;
-      difficulty?: string;
-      onCycleDifficulty?: () => void;
       isDrawingMode?: boolean;
       onToggleDrawingMode?: () => void;
       isErasing?: boolean;
@@ -138,7 +155,7 @@ import InfoIcon from './icons/InfoIcon.svelte';
       e.stopPropagation();
       expandedInfo = expandedInfo === type ? null : type;
   };
-  let isConfigOpen = $state(true);
+  let isQuickSettingsOpen = $state(true);
 
   const toggleCategory = (name: string) => {
       openCategory = openCategory === name ? null : name;
@@ -164,7 +181,7 @@ import InfoIcon from './icons/InfoIcon.svelte';
   class="w-80 flex-shrink-0 bg-chrome border-r border-hairline/50 text-fossil-300 flex flex-col justify-between relative z-30 panel-frosted will-change-transform h-screen lg:static lg:translate-x-0 font-ui"
 >
 
-  <div class="flex flex-col h-full overflow-hidden">
+  <div class="flex h-full min-h-0 flex-col overflow-hidden">
 
     <div class="px-6 pt-7 pb-6 border-b border-hairline/60">
       <div class="flex items-center gap-3">
@@ -179,33 +196,52 @@ import InfoIcon from './icons/InfoIcon.svelte';
             gitEnglish<sup class="text-[9px] font-semibold tracking-widest text-accent ml-0.5">™</sup>
           </span>
         </div>
-        <!-- Primary controls -->
-        <div class="ml-auto flex items-center gap-1.5 shrink-0">
-          <button onclick={onToggleSettings} class="p-2 rounded-lg text-fossil-400 hover:text-fossil-50 hover:bg-fossil-50/10 transition-all" title="Global settings" aria-label="Global settings">
-            <SettingsIcon class="w-4 h-4" />
-          </button>
-          <button onclick={onToggleDrawingMode} class="p-2 rounded-lg transition-all {isDrawingMode || isErasing ? 'text-accent bg-accent/15' : 'text-fossil-400 hover:text-fossil-50 hover:bg-fossil-50/10'}" title="Drawing mode" aria-pressed={isDrawingMode || isErasing} aria-label="Toggle drawing mode">
+        <div class="ml-auto flex items-center shrink-0">
+          <button
+            onclick={onToggleDrawingMode}
+            class="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-medium transition-all {isDrawingMode || isErasing ? 'bg-accent/15 text-accent' : 'text-fossil-400 hover:bg-fossil-50/10 hover:text-fossil-50'}"
+            title={isDrawingMode || isErasing ? 'Exit drawing mode' : 'Enter drawing mode'}
+            aria-pressed={isDrawingMode || isErasing}
+            aria-label={isDrawingMode || isErasing ? 'Exit drawing mode' : 'Enter drawing mode'}
+          >
             <PencilSquareIcon class="w-4 h-4" />
+            <span>{isDrawingMode || isErasing ? 'Drawing' : 'Draw'}</span>
           </button>
         </div>
       </div>
     </div>
 
-    <div class="flex-1 overflow-y-auto px-4 py-5 space-y-6">
+    <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-5 space-y-6 custom-scrollbar-dark">
 
-      <div data-purpose="sidebar-group">
+      <GlobalSettings
+        {difficulty}
+        setDifficulty={onUpdateDifficulty}
+        {tone}
+        setTone={onUpdateTone}
+        {theme}
+        setTheme={onUpdateTheme}
+        {totalTime}
+        {makerTemperature}
+        setMakerTemperature={onUpdateMakerTemperature}
+        {checkerTemperature}
+        setCheckerTemperature={onUpdateCheckerTemperature}
+      />
+
+      <div data-purpose="quick-settings-group">
           <button
-            onclick={() => isConfigOpen = !isConfigOpen}
+            onclick={() => isQuickSettingsOpen = !isQuickSettingsOpen}
             class="w-full flex items-center justify-between px-3 py-2 text-xs font-bold tracking-[0.1em] uppercase text-fossil-400 hover:text-fossil-50 transition-colors"
+            aria-expanded={isQuickSettingsOpen}
+            aria-controls="quick-settings-panel"
           >
               <span class="flex items-center space-x-2">
                 <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
-                <span>CONFIGURATION</span>
+                <span>Quick Settings</span>
               </span>
-              <ChevronDown class="w-3.5 h-3.5 text-fossil-400 transform transition-transform duration-200 {isConfigOpen ? 'rotate-180' : ''}" />
+              <ChevronDown class="w-3.5 h-3.5 text-fossil-400 transform transition-transform duration-200 {isQuickSettingsOpen ? 'rotate-180' : ''}" />
           </button>
 
-          <div class="space-y-2 transition-all duration-300 {isConfigOpen ? 'opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}">
+          <div id="quick-settings-panel" class="space-y-2 {isQuickSettingsOpen ? '' : 'hidden'}">
               <VocabularyFocus
                   {focusVocabulary}
                   onUpdateFocusVocabulary={onUpdateFocusVocabulary}
