@@ -138,7 +138,7 @@ import InfoIcon from './icons/InfoIcon.svelte';
       e.stopPropagation();
       expandedInfo = expandedInfo === type ? null : type;
   };
-  let isConfigOpen = $state(false);
+  let isConfigOpen = $state(true);
 
   const toggleCategory = (name: string) => {
       openCategory = openCategory === name ? null : name;
@@ -184,9 +184,6 @@ import InfoIcon from './icons/InfoIcon.svelte';
           <button onclick={onToggleSettings} class="p-2 rounded-lg text-fossil-400 hover:text-fossil-50 hover:bg-fossil-50/10 transition-all" title="Global settings" aria-label="Global settings">
             <SettingsIcon class="w-4 h-4" />
           </button>
-          <button onclick={onCycleDifficulty} class="px-2 py-1 rounded-lg border border-hairline text-sm font-semibold tracking-widest text-accent hover:bg-fossil-50/10 transition-all whitespace-nowrap" title="Cycle difficulty (CEFR)" aria-label="Cycle difficulty">
-            {difficulty ?? 'B1'}
-          </button>
           <button onclick={onToggleDrawingMode} class="p-2 rounded-lg transition-all {isDrawingMode || isErasing ? 'text-accent bg-accent/15' : 'text-fossil-400 hover:text-fossil-50 hover:bg-fossil-50/10'}" title="Drawing mode" aria-pressed={isDrawingMode || isErasing} aria-label="Toggle drawing mode">
             <PencilSquareIcon class="w-4 h-4" />
           </button>
@@ -208,7 +205,7 @@ import InfoIcon from './icons/InfoIcon.svelte';
               <ChevronDown class="w-3.5 h-3.5 text-fossil-400 transform transition-transform duration-200 {isConfigOpen ? 'rotate-180' : ''}" />
           </button>
 
-          <div class="space-y-2 overflow-hidden transition-all duration-300 {isConfigOpen ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}">
+          <div class="space-y-2 transition-all duration-300 {isConfigOpen ? 'opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}">
               <VocabularyFocus
                   {focusVocabulary}
                   onUpdateFocusVocabulary={onUpdateFocusVocabulary}
