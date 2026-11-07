@@ -4,16 +4,37 @@ import { ExerciseType, Difficulty, Tone } from '../lib/types';
 /**
  * openrouterService.ts
  * ====================
- * AI exercise generation routed via the server-side proxy on gitenglish-admin
- * (`/api/internal/practice-genie/ai`) or `window.parent.postMessage` bridge so
- * secret API keys never enter the browser bundle.
+ * AI exercise generation via OpenRouter (OpenAI-compatible Chat Completions API).
+ *
+ * Configuration (injected by vite.config.ts via `define`, picked up from
+ * .env locally or Railway service variables in production):
+ *   - OPENROUTER_API_KEY  (required)
+ *   - OPENROUTER_MODEL    (optional; default `xiaomi/mimo-v2.6-flash`)
+ *   - OPENROUTER_BASE_URL (optional; default `https://openrouter.ai/api/v1`)
  */
 
 declare const process: { env: Record<string, string | undefined> };
 
-export const PROXY_ENDPOINT: string =
-  process.env.PRACTICE_GENIE_AI_PROXY_URL || 'https://gitenglish.com/api/internal/practice-genie/ai';
+// The endpoint is built defensively so a misconfigured variable cannot break
+// generation: a trailing slash would produce `.../v1//chat/completions`, and
+// a variable that already includes `/chat/completions` must not have it
+// appended twice. Either mistake is a 404 the browser reports as
+// "TypeError: Failed to fetch".
+const CHAT_PATH = '/chat/completions';
+const normaliseBaseUrl = (url: string): string => {
+  const trimmed = url.trim().replace(/\/+$/, '');
+  return trimmed.endsWith(CHAT_PATH) ? trimmed.slice(0, -CHAT_PATH.length) : trimmed;
+};
+
+export const OPENROUTER_BASE_URL: string = normaliseBaseUrl(
+  process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1'
+);
+export const OPENROUTER_ENDPOINT: string = `${OPENROUTER_BASE_URL}${CHAT_PATH}`;
 export const ACTIVE_MODEL: string = process.env.OPENROUTER_MODEL || 'xiaomi/mimo-v2.6-flash';
+
+// The key is injected at build time from .env (local) or Railway variables
+// (production). Never committed to the repo.
+const getApiKey = (): string | undefined => process.env.OPENROUTER_API_KEY || undefined;
 
 const getMakerTemp = (): number => {
   try {
@@ -223,87 +244,46 @@ interface ChatMessage { role: 'system' | 'user' | 'assistant'; content: string; 
 
 const BACKSLASH = String.fromCharCode(92);
 
-const chatCompletionViaPostMessage = (
-  messages: ChatMessage[],
-  jsonMode: boolean,
-  temperature: number
-): Promise<string> | null => {
-  if (typeof window === 'undefined' || !window.parent || window.parent === window) {
-    return null;
-  }
-  const requestId = `pg_ai_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-  return new Promise<string>((resolve, reject) => {
-    const timer = setTimeout(() => {
-      window.removeEventListener('message', onMsg);
-      reject(new Error('POSTMESSAGE_TIMEOUT'));
-    }, 60000);
-
-    const onMsg = (ev: MessageEvent) => {
-      if (ev.data?.type === 'PRACTICE_AI_RESPONSE' && ev.data?.requestId === requestId) {
-        clearTimeout(timer);
-        window.removeEventListener('message', onMsg);
-        if (ev.data.error) {
-          reject(new Error(ev.data.error));
-        } else {
-          resolve(ev.data.text || '');
-        }
-      }
-    };
-
-    window.addEventListener('message', onMsg);
-    window.parent.postMessage(
-      {
-        type: 'PRACTICE_AI_REQUEST',
-        requestId,
-        payload: {
-          model: ACTIVE_MODEL,
-          messages,
-          jsonMode,
-          temperature
-        }
-      },
-      '*'
-    );
-  });
-};
-
 const chatCompletion = async (
   messages: ChatMessage[],
   jsonMode: boolean,
   temperature: number = 0.7
 ): Promise<string> => {
-  // 1. Prefer parent postMessage bridge when embedded inside /practice/genie
-  const parentPromise = chatCompletionViaPostMessage(messages, jsonMode, temperature);
-  if (parentPromise) {
-    try {
-      return await parentPromise;
-    } catch (err) {
-      // Only fall back to direct HTTP proxy if parent bridge timed out
-      if (!(err instanceof Error && err.message === 'POSTMESSAGE_TIMEOUT')) {
-        throw err;
-      }
-    }
-  }
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+      'Authorization': `Bearer ${getApiKey()}`,
+  };
+  // OpenRouter attribution headers (optional but recommended)
+  try {
+    if (typeof location !== 'undefined') headers['HTTP-Referer'] = location.origin;
+    headers['X-Title'] = 'gitEnglish Practice Genie';
+  } catch { /* ignore */ }
 
-  // 2. Direct HTTP POST to server-side proxy
-  const response = await fetch(PROXY_ENDPOINT, {
+  const body: Record<string, unknown> = {
+    model: ACTIVE_MODEL,
+    messages,
+    max_tokens: 4096,
+    temperature,
+  };
+  if (jsonMode) body.response_format = { type: 'json_object' };
+
+  const response = await fetch(OPENROUTER_ENDPOINT, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: ACTIVE_MODEL,
-      messages,
-      jsonMode,
-      temperature
-    })
+    headers,
+    body: JSON.stringify(body)
   });
 
   if (!response.ok) {
+    // Some OpenRouter providers reject response_format — retry once without it.
+    if (jsonMode && response.status === 400) {
+      return chatCompletion(messages, false, temperature);
+    }
     const detail = await response.text().catch(() => '');
     throw new Error(`AI request failed (HTTP ${response.status}): ${detail.slice(0, 300)}`);
   }
 
   const data = await response.json();
-  const text: string | undefined = data?.text ?? data?.choices?.[0]?.message?.content;
+  const text: string | undefined = data?.choices?.[0]?.message?.content;
   if (!text) throw new Error('AI returned an empty response.');
   return text;
 };
@@ -417,7 +397,7 @@ Generate ${amount} item${amount === 1 ? '' : 's'}.
 export type GenerationResult = any[] | { error: string };
 
 /**
- * Generates exercises via the server-side AI proxy.
+ * Generates exercises via OpenRouter.
  * Returns an array of exercise items, or { error } on failure.
  */
 export const generateExercise = async (
@@ -431,6 +411,10 @@ export const generateExercise = async (
   focusGrammar: string[] = [],
   grammarInclusionRate = 0.5,
 ): Promise<GenerationResult> => {
+  if (!getApiKey()) {
+    console.warn('OPENROUTER_API_KEY is not set. Exercise generation is disabled.');
+    return { error: 'AI generation is not configured. Set OPENROUTER_API_KEY in your .env (locally) or Railway variables (production), then reload.' };
+  }
   const makerTemp = getMakerTemp();
 
   try {
@@ -471,6 +455,9 @@ export const checkAnswerWithAI = async (
   exerciseContext: any,
   userResponse: any,
 ): Promise<string> => {
+  if (!getApiKey()) {
+    return 'AI feedback is unavailable: OPENROUTER_API_KEY is not configured.';
+  }
   const checkerTemp = getCheckerTemp();
 
   const prompt = `

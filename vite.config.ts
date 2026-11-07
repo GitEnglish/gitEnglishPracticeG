@@ -54,12 +54,12 @@ export default defineConfig(({ mode }) => {
       healthCheckPlugin()
     ],
     define: {
-      // Never embed secret API keys into the browser bundle.
-      // AI requests are proxied through the gitEnglish server (/api/internal/practice-genie/ai).
-      'process.env.PRACTICE_GENIE_AI_PROXY_URL': JSON.stringify(
-        env.PRACTICE_GENIE_AI_PROXY_URL || 'https://gitenglish.com/api/internal/practice-genie/ai'
-      ),
-      'process.env.OPENROUTER_MODEL': JSON.stringify(env.OPENROUTER_MODEL || 'xiaomi/mimo-v2.6-flash')
+      // OpenRouter (OpenAI-compatible) — set in .env locally or Railway vars in prod.
+      // VITE_* names are accepted as fallbacks so a Railway variable added with
+      // the Vite prefix still gets baked into the existing process.env reads.
+      'process.env.OPENROUTER_API_KEY': JSON.stringify(env.OPENROUTER_API_KEY || env.VITE_OPENROUTER_API_KEY || env.VITE_API_KEY || ''),
+      'process.env.OPENROUTER_MODEL': JSON.stringify(env.OPENROUTER_MODEL || env.VITE_OPENROUTER_MODEL || 'xiaomi/mimo-v2.6-flash'),
+      'process.env.OPENROUTER_BASE_URL': JSON.stringify(env.OPENROUTER_BASE_URL || env.VITE_OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1'),
     }
   }
 })
