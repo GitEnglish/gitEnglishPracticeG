@@ -71,3 +71,4 @@
 Fixed unsafe JSON.parse of URL parameters without comprehensive validation.
 - **2026-11-01 02:42** [ui] Consolidated lesson configuration and quick settings in the sidebar, fixed accordion clipping, clarified AI temperature controls, and verified the responsive scrolling interaction.
 - **2026-11-06 19:24** [bugfix] Restored direct OpenRouter transport on top of origin/main; collapsed branches to main after equivalence check
+- **2026-11-12 17:27** [feature] Added Bun gate server with optional HS256 hub handoff token, server-side session targets, strict data plane API, and server-only telemetry forwarding to the hub

@@ -5,6 +5,8 @@
   import type { ExerciseBlockState } from './lib/types';
   import { Difficulty, Tone, ExerciseType } from './lib/types';
   import { initActivityLogger, getActivityLogger } from './services/ActivityLogger';
+  import { fetchModuleTargets } from './services/moduleSession';
+  import { installTelemetryLifecycle, recordTelemetry } from './services/telemetryClient';
   import { EXERCISE_SIZE_OVERRIDES, DEFAULT_BLOCK_DIMENSIONS } from './lib/constants';
 
   $effect(() => {
@@ -79,6 +81,19 @@
       } catch (e) {}
     }
 
+    // Session targets from the hub handoff. Non-empty session data wins over
+    // the URL params parsed above; unavailable or empty data leaves them intact.
+    void fetchModuleTargets().then((targets) => {
+      if (!targets) return;
+      if (targets.focusVocabulary.length > 0) globalFocusVocabulary = targets.focusVocabulary;
+      if (targets.focusGrammar.length > 0) globalFocusGrammar = targets.focusGrammar;
+      if (typeof targets.inclusionRate === 'number') globalInclusionRate = targets.inclusionRate;
+      if (typeof targets.grammarInclusionRate === 'number') {
+        globalGrammarInclusionRate = targets.grammarInclusionRate;
+      }
+      if (targets.theme) globalTheme = targets.theme;
+    });
+
     // Context Listener
     const handleMessage = (event: MessageEvent) => {
       if (event.data?.type === 'PRACTICE_INIT' && event.data?.payload) {
@@ -118,9 +133,11 @@
     };
     
     window.addEventListener('message', handleMessage);
+    const stopTelemetry = installTelemetryLifecycle();
 
     return () => {
       window.removeEventListener('message', handleMessage);
+      stopTelemetry();
     };
   });
 
@@ -418,21 +435,22 @@
 
   const handleRemoveBlock = (id: number) => {
       const block = blocks.find(b => b.id === id);
-      if (block && block.content && block.content.length > 0 && typeof window !== 'undefined' && window.parent && window.parent !== window) {
-          try {
-              window.parent.postMessage({
-                  type: 'EXERCISE_RECORD',
-                  exercise: {
-                      id: String(id),
-                      type: block.exerciseType,
-                      theme: block.theme || 'General Practice',
-                      difficulty: block.difficulty || 'B1',
-                      questions: block.content,
-                      completedAt: Date.now()
-                  }
-              }, '*');
-          } catch (e) {
-              console.warn('[App] Failed to emit EXERCISE_RECORD:', e);
+      if (block && block.content && block.content.length > 0) {
+          const exercise = {
+              id: String(id),
+              type: block.exerciseType,
+              theme: block.theme || 'General Practice',
+              difficulty: block.difficulty || 'B1',
+              questions: block.content,
+              completedAt: Date.now()
+          };
+          recordTelemetry({ eventType: 'exercise_completed', metadata: { exercise } });
+          if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
+              try {
+                  window.parent.postMessage({ type: 'EXERCISE_RECORD', exercise }, '*');
+              } catch (e) {
+                  console.warn('[App] Failed to emit EXERCISE_RECORD:', e);
+              }
           }
       }
       blocks = blocks.filter(b => b.id !== id);
