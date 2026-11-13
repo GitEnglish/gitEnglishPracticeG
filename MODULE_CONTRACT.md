@@ -45,12 +45,43 @@ backoff, and only while the handoff token is still valid.
 | --- | --- |
 | no valid session cookie | `401` |
 | identified, no targets (hub fetch failed/unavailable) | `204` |
-| identified, targets available | `200` `{theme, focusVocabulary, focusGrammar, inclusionRate, grammarInclusionRate}` |
+| identified, targets available | `200` `{theme, focusVocabulary, focusGrammar, inclusionRate, grammarInclusionRate, sessionId}` |
 | identified, targets empty | `204` (never `200` with empty arrays) |
 
-`studentId` / `studentName` are never returned to the browser. **Content precedence: non-empty
+`studentId` / `studentName` are never returned to the browser; `sessionId` is the hub's class id
+(the `lacId`), used only to preselect the class switcher. **Content precedence: non-empty
 session targets win; otherwise the URL params (`theme`, `focusVocabulary`, `focusGrammar`) are the
 fallback. Never merge the two.**
+
+## Classes and switching
+
+The switcher changes class without leaving the module. Both routes sit behind the same session
+check as `/api/session`, and the hub bearer never reaches the browser.
+
+`GET /api/classes` → hub `GET {origin}/api/internal/practice-genie/classes` with the session's
+bearer (1500 ms timeout, no retry). The list is cached on the session and refetched at most once
+per 60 s.
+
+| State | Response |
+| --- | --- |
+| no valid session cookie | `401` |
+| hub answered (fresh or cached) | `200` `{classes:[{lacId, title, date, vocabularyCount, grammarCount}]}` |
+| hub failed, nothing cached | `204` |
+| hub failed, list cached | `200` with the cached list (a failed refetch never empties the dropdown) |
+
+`POST /api/class` with `{lacId}` → hub `GET …/session?session=<lacId>` with the same bearer.
+
+- The class id is accepted **only** in this JSON body. Never from a header, a query param or client
+  storage, so the browser cannot attribute a write to a class it did not select.
+- `400` for a missing/invalid `lacId`, an oversized id (>128 chars) or a body over 4 KB.
+- `200` with the same target shape as `/api/session`; the session's targets, telemetry
+  `sessionId` and the cached list stay consistent with the selected class.
+- `204` when the hub fails: the previous targets are left intact, so a failed switch never blanks
+  the exercise configuration.
+
+Client: a compact `Class` select in the sidebar header, rendered only when the list is non-empty,
+plus a `← Back to Practice` link to `https://gitenglish.com/practice`. A `401`/`204`/network failure
+renders no dropdown and no error — anonymous mode stays visually identical to today.
 
 ## Telemetry
 

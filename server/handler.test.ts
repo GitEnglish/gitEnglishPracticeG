@@ -14,6 +14,7 @@ const realFetch = globalThis.fetch;
 interface CapturedCall {
 	method: string;
 	url: string;
+	authorization?: string;
 	body?: Record<string, unknown>;
 }
 
@@ -22,9 +23,11 @@ function stubHub(
 ): { calls: CapturedCall[] } {
 	const calls: CapturedCall[] = [];
 	globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+		const headers = (init?.headers || {}) as Record<string, string>;
 		const call: CapturedCall = {
 			method: init?.method || 'GET',
 			url: String(input),
+			authorization: headers.Authorization || headers.authorization,
 			body: init?.body ? (JSON.parse(String(init.body)) as Record<string, unknown>) : undefined
 		};
 		calls.push(call);
@@ -76,6 +79,37 @@ const hubTargets = {
 };
 
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+const hubClasses = {
+	studentId: 4,
+	classes: [
+		{
+			lacId: 'lac-1',
+			title: 'Voltage Searches & Explain-To',
+			date: '09-04-2026',
+			vocabularyCount: 13,
+			grammarCount: 3
+		},
+		{
+			lacId: 'lac-2',
+			title: 'Airport Delays',
+			date: '09-03-2026',
+			vocabularyCount: 9,
+			grammarCount: 2
+		}
+	]
+};
+
+function classRequest(cookie?: string, body: unknown = { lacId: 'lac-2' }): Request {
+	return new Request('https://module.test/api/class', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			...(cookie ? { cookie } : {})
+		},
+		body: typeof body === 'string' ? body : JSON.stringify(body)
+	});
+}
 
 beforeEach(() => {
 	clearSessions();
@@ -256,5 +290,159 @@ describe('/api/telemetry', () => {
 		expect(events[0].moduleId).toBe('practice-g');
 		expect(events[0].sessionId).toBe('lac-1');
 		expect(JSON.stringify(ingest?.body)).not.toContain('forged');
+	});
+});
+
+describe('/api/classes and /api/class', () => {
+	async function identifiedEntry(): Promise<string> {
+		const entry = await handleRequest(document(`/?t=${mint()}`));
+		await tick();
+		return sessionCookie(entry);
+	}
+
+	it('rejects anonymous sessions on both routes', async () => {
+		expect((await handleRequest(document('/api/classes'))).status).toBe(401);
+		expect((await handleRequest(classRequest())).status).toBe(401);
+	});
+
+	it('lists the hub classes for an identified session and keeps the bearer server-side', async () => {
+		const hub = stubHub((call) =>
+			call.url.endsWith('/classes') ? Response.json(hubClasses) : Response.json(hubTargets)
+		);
+		const cookie = await identifiedEntry();
+
+		const response = await handleRequest(withCookie('/api/classes', cookie));
+		expect(response.status).toBe(200);
+		const body = (await response.json()) as { classes: Array<Record<string, unknown>> };
+		expect(body.classes).toHaveLength(2);
+		expect(body.classes[0].lacId).toBe('lac-1');
+		expect(body.classes[0].title).toBe('Voltage Searches & Explain-To');
+		expect(body.classes[0].vocabularyCount).toBe(13);
+
+		const call = hub.calls.find((entry) => entry.url.endsWith('/classes'));
+		expect(call?.authorization?.startsWith('Bearer eyJ')).toBe(true);
+		expect(JSON.stringify(body)).not.toContain('eyJ');
+	});
+
+	it('serves the cached list and refetches at most once per minute', async () => {
+		const hub = stubHub((call) =>
+			call.url.endsWith('/classes') ? Response.json(hubClasses) : Response.json(hubTargets)
+		);
+		const cookie = await identifiedEntry();
+
+		expect((await handleRequest(withCookie('/api/classes', cookie))).status).toBe(200);
+		expect((await handleRequest(withCookie('/api/classes', cookie))).status).toBe(200);
+		expect(hub.calls.filter((call) => call.url.endsWith('/classes'))).toHaveLength(1);
+	});
+
+	it('returns 204 when the hub does not answer and nothing is cached', async () => {
+		stubHub(() => new Response('unauthorized', { status: 401 }));
+		const cookie = await identifiedEntry();
+		expect((await handleRequest(withCookie('/api/classes', cookie))).status).toBe(204);
+	});
+
+	it('keeps the previous list when a refetch fails', async () => {
+		const hub = stubHub((call) =>
+			call.url.endsWith('/classes') ? Response.json(hubClasses) : Response.json(hubTargets)
+		);
+		const cookie = await identifiedEntry();
+		expect((await handleRequest(withCookie('/api/classes', cookie))).status).toBe(200);
+
+		globalThis.fetch = (async () => {
+			throw new TypeError('hub down');
+		}) as unknown as typeof fetch;
+		const session = getSession(readSessionId(cookie));
+		if (session) session.classesFetchAt = 0;
+
+		const response = await handleRequest(withCookie('/api/classes', cookie));
+		expect(response.status).toBe(200);
+		const body = (await response.json()) as { classes: unknown[] };
+		expect(body.classes).toHaveLength(2);
+		expect(hub.calls.length).toBeGreaterThan(1);
+	});
+
+	it('rejects a missing, oversized or header-only class id', async () => {
+		const cookie = await identifiedEntry();
+		expect((await handleRequest(classRequest(cookie, {}))).status).toBe(400);
+		expect(
+			(await handleRequest(classRequest(cookie, { lacId: 'x'.repeat(129) }))).status
+		).toBe(400);
+		expect((await handleRequest(classRequest(cookie, 'not json'))).status).toBe(400);
+
+		const headerOnly = new Request('https://module.test/api/class', {
+			method: 'POST',
+			headers: { cookie, 'x-lac-id': 'lac-2', 'Content-Type': 'application/json' },
+			body: '{}'
+		});
+		expect((await handleRequest(headerOnly)).status).toBe(400);
+	});
+
+	it('switches the class and returns the new targets', async () => {
+		const hub = stubHub((call) => {
+			if (call.url.endsWith('/classes')) return Response.json(hubClasses);
+			if (call.url.includes('session=lac-2')) {
+				return Response.json({
+					...hubTargets,
+					sessionId: 'lac-2',
+					theme: 'Travel',
+					focusVocabulary: ['layover', 'aisle'],
+					focusGrammar: ['past perfect']
+				});
+			}
+			return Response.json(hubTargets);
+		});
+		const cookie = await identifiedEntry();
+		expect((await handleRequest(withCookie('/api/session', cookie))).status).toBe(200);
+
+		const response = await handleRequest(classRequest(cookie, { lacId: 'lac-2' }));
+		expect(response.status).toBe(200);
+		const body = (await response.json()) as Record<string, unknown>;
+		expect(body.focusVocabulary).toEqual(['layover', 'aisle']);
+		expect(body.sessionId).toBe('lac-2');
+
+		const switchCall = hub.calls.find((call) => call.url.includes('session=lac-2'));
+		expect(switchCall?.authorization?.startsWith('Bearer eyJ')).toBe(true);
+
+		const session = getSession(readSessionId(cookie));
+		expect(session?.sessionId).toBe('lac-2');
+		expect(session?.targets?.focusVocabulary).toEqual(['layover', 'aisle']);
+
+		const after = await handleRequest(withCookie('/api/session', cookie));
+		expect(after.status).toBe(200);
+		const afterBody = (await after.json()) as Record<string, unknown>;
+		expect(afterBody.focusVocabulary).toEqual(['layover', 'aisle']);
+	});
+
+	it('leaves the previous targets intact when the switch fails', async () => {
+		stubHub((call) =>
+			call.url.endsWith('/classes') ? Response.json(hubClasses) : Response.json(hubTargets)
+		);
+		const cookie = await identifiedEntry();
+		expect((await handleRequest(withCookie('/api/session', cookie))).status).toBe(200);
+
+		globalThis.fetch = (async () => {
+			throw new TypeError('hub down');
+		}) as unknown as typeof fetch;
+
+		const response = await handleRequest(classRequest(cookie, { lacId: 'lac-2' }));
+		expect(response.status).toBe(204);
+
+		const after = await handleRequest(withCookie('/api/session', cookie));
+		expect(after.status).toBe(200);
+		const body = (await after.json()) as Record<string, unknown>;
+		expect(body.focusVocabulary).toEqual(['deadline', 'stakeholder']);
+		expect(body.sessionId).toBe('lac-1');
+	});
+
+	it('rejects the wrong methods', async () => {
+		const cookie = await identifiedEntry();
+		expect(
+			(
+				await handleRequest(
+					new Request('https://module.test/api/classes', { method: 'POST', headers: { cookie } })
+				)
+			).status
+		).toBe(405);
+		expect((await handleRequest(withCookie('/api/class', cookie))).status).toBe(405);
 	});
 });

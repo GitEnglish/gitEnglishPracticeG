@@ -5,7 +5,7 @@
   import type { ExerciseBlockState } from './lib/types';
   import { Difficulty, Tone, ExerciseType } from './lib/types';
   import { initActivityLogger, getActivityLogger } from './services/ActivityLogger';
-  import { fetchModuleTargets } from './services/moduleSession';
+  import { fetchModuleClasses, fetchModuleTargets, switchModuleClass, type ModuleClass, type ModuleTargets } from './services/moduleSession';
   import { installTelemetryLifecycle, recordTelemetry } from './services/telemetryClient';
   import { EXERCISE_SIZE_OVERRIDES, DEFAULT_BLOCK_DIMENSIONS } from './lib/constants';
 
@@ -13,6 +13,41 @@
     initActivityLogger('practice-genie', 'student_default');
     getActivityLogger()?.startSession();
   });
+
+  let moduleClasses = $state<ModuleClass[]>([]);
+  let activeClassId = $state('');
+  let isSwitchingClass = $state(false);
+
+  // Session targets win over URL params, field by field. Never merged: a field
+  // the session does not provide keeps whatever the params (or localStorage)
+  // already set.
+  function applyModuleTargets(targets: ModuleTargets) {
+    if (targets.focusVocabulary.length > 0) globalFocusVocabulary = targets.focusVocabulary;
+    if (targets.focusGrammar.length > 0) globalFocusGrammar = targets.focusGrammar;
+    if (typeof targets.inclusionRate === 'number') globalInclusionRate = targets.inclusionRate;
+    if (typeof targets.grammarInclusionRate === 'number') {
+      globalGrammarInclusionRate = targets.grammarInclusionRate;
+    }
+    if (targets.theme) globalTheme = targets.theme;
+    if (targets.sessionId) activeClassId = targets.sessionId;
+  }
+
+  const handleSelectClass = async (lacId: string) => {
+    if (!lacId || isSwitchingClass) return;
+    const previous = activeClassId;
+    activeClassId = lacId;
+    isSwitchingClass = true;
+    const targets = await switchModuleClass(lacId);
+    isSwitchingClass = false;
+    // A failed switch changes nothing: keep the previous class selected and the
+    // previous exercise configuration in place.
+    if (!targets) {
+      activeClassId = previous;
+      return;
+    }
+    applyModuleTargets(targets);
+    if (!targets.sessionId) activeClassId = lacId;
+  };
 
   onMount(() => {
     // Mount Handshake
@@ -85,13 +120,13 @@
     // the URL params parsed above; unavailable or empty data leaves them intact.
     void fetchModuleTargets().then((targets) => {
       if (!targets) return;
-      if (targets.focusVocabulary.length > 0) globalFocusVocabulary = targets.focusVocabulary;
-      if (targets.focusGrammar.length > 0) globalFocusGrammar = targets.focusGrammar;
-      if (typeof targets.inclusionRate === 'number') globalInclusionRate = targets.inclusionRate;
-      if (typeof targets.grammarInclusionRate === 'number') {
-        globalGrammarInclusionRate = targets.grammarInclusionRate;
-      }
-      if (targets.theme) globalTheme = targets.theme;
+      applyModuleTargets(targets);
+    });
+
+    // Classes for the switcher. Anonymous (401), unavailable (204) or a network
+    // failure yields an empty list, which renders no dropdown at all.
+    void fetchModuleClasses().then((classes) => {
+      moduleClasses = classes;
     });
 
     // Context Listener
@@ -495,6 +530,9 @@
     onExportState={handleExportState}
     onImportState={handleImportState}
     onClearBoard={handleClearBoard}
+    classes={moduleClasses}
+    {activeClassId}
+    onSelectClass={handleSelectClass}
     isDrawingMode={isDrawingMode}
     isErasing={isErasing}
     onToggleDrawingMode={() => {

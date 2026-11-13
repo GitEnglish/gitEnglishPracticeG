@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { BookOpen, ChevronDown } from 'lucide-svelte';
+  import { BookOpen, ChevronDown, ArrowLeft } from 'lucide-svelte';
   import { motion } from '@humanspeak/svelte-motion';
   import DifficultyMeter from '../lib/components/DifficultyMeter.svelte';
   import { EXERCISE_CATEGORIES, EXERCISE_PEDAGOGY, PEDAGOGY_COLORS } from '../lib/constants';
@@ -11,6 +11,7 @@
   import { ExerciseType } from '../lib/types';
 
   import { getActivityLogger } from '../services/ActivityLogger';
+  import type { ModuleClass } from '../services/moduleSession';
 
 
 
@@ -103,7 +104,10 @@
       onToggleDrawingMode,
       isErasing,
       onToggleEraser,
-      onClearDrawings
+      onClearDrawings,
+      classes = [],
+      activeClassId = '',
+      onSelectClass
   } = $props<{
       isSidebarOpen?: boolean;
       onAddExercise?: (type: string) => void;
@@ -134,6 +138,9 @@
       isErasing?: boolean;
       onToggleEraser?: () => void;
       onClearDrawings?: () => void;
+      classes?: ModuleClass[];
+      activeClassId?: string;
+      onSelectClass?: (lacId: string) => void;
   }>();
 
   let openCategory: string | null = $state('PPP');
@@ -209,6 +216,44 @@
           </button>
         </div>
       </div>
+
+      <div class="mt-4 flex items-center gap-2">
+        <a
+          href="https://gitenglish.com/practice"
+          target="_self"
+          class="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-medium text-fossil-400 transition-colors hover:bg-fossil-50/10 hover:text-fossil-50"
+          title="Back to your Practice hub"
+        >
+          <ArrowLeft class="h-3.5 w-3.5" />
+          <span>Back to Practice</span>
+        </a>
+      </div>
+
+      {#if classes.length > 0}
+        <label
+          class="mt-2 flex items-center gap-2 rounded-lg border border-hairline/80 bg-chrome-raised/50 px-2.5 py-1.5"
+          data-purpose="class-switcher"
+        >
+          <span class="shrink-0 text-[10px] font-semibold uppercase tracking-[0.1em] text-fossil-400">Class</span>
+          <select
+            class="min-w-0 flex-1 cursor-pointer truncate bg-transparent text-xs font-medium text-fossil-50 outline-none"
+            value={activeClassId}
+            onchange={(e) => {
+              if (e.currentTarget.value) onSelectClass?.(e.currentTarget.value);
+            }}
+            aria-label="Class"
+          >
+            {#if !classes.some((cls: ModuleClass) => cls.lacId === activeClassId)}
+              <option value="" disabled>Select class…</option>
+            {/if}
+            {#each classes as cls (cls.lacId)}
+              <option value={cls.lacId} class="bg-chrome text-fossil-50">
+                {cls.title || cls.date || 'Untitled class'}
+              </option>
+            {/each}
+          </select>
+        </label>
+      {/if}
     </div>
 
     <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-5 space-y-6 custom-scrollbar-dark">

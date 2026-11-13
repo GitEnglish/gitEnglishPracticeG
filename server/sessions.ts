@@ -12,6 +12,15 @@ export interface HubTargets {
 	sessionId?: string;
 }
 
+/** One of the student's classes (lac) as listed by the hub. */
+export interface HubClass {
+	lacId: string;
+	title: string;
+	date?: string;
+	vocabularyCount?: number;
+	grammarCount?: number;
+}
+
 export interface GenieSession {
 	id: string;
 	studentId: number;
@@ -24,6 +33,9 @@ export interface GenieSession {
 	sessionId: string;
 	targets: HubTargets | null;
 	lastFetchAt: number;
+	/** Class list shown by the switcher; refetched at most once per minute. */
+	classes: HubClass[] | null;
+	classesFetchAt: number;
 }
 
 const sessions = new Map<string, GenieSession>();
@@ -43,7 +55,9 @@ export function createSession(
 		hubTokenExp,
 		sessionId: `genie-${randomBytes(6).toString('hex')}`,
 		targets: null,
-		lastFetchAt: 0
+		lastFetchAt: 0,
+		classes: null,
+		classesFetchAt: 0
 	};
 	sessions.set(session.id, session);
 	return session;

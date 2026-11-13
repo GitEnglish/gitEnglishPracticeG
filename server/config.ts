@@ -9,6 +9,21 @@ export const MODULE_ID = 'practice-g';
 export const AUDIENCE = 'practice-genie';
 
 const HUB_SESSION_PATH = '/api/internal/practice-genie/session';
+export const HUB_CLASSES_PATH = '/api/internal/practice-genie/classes';
+
+/**
+ * Resolves a hub path against the origin of HUB_INGEST_URL, so the module keeps
+ * a single configurable hub URL instead of one variable per endpoint.
+ */
+function hubUrl(path: string): string | null {
+	const ingestUrl = hubIngestUrl();
+	if (!ingestUrl) return null;
+	try {
+		return new URL(path, new URL(ingestUrl)).toString();
+	} catch {
+		return null;
+	}
+}
 
 export function port(): number {
 	return Number(process.env.PORT || 3000);
@@ -35,11 +50,9 @@ export function sha(): string {
 }
 
 export function hubSessionUrl(): string | null {
-	const ingestUrl = hubIngestUrl();
-	if (!ingestUrl) return null;
-	try {
-		return new URL(HUB_SESSION_PATH, new URL(ingestUrl)).toString();
-	} catch {
-		return null;
-	}
+	return hubUrl(HUB_SESSION_PATH);
+}
+
+export function hubClassesUrl(): string | null {
+	return hubUrl(HUB_CLASSES_PATH);
 }

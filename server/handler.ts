@@ -1,6 +1,6 @@
-import { AUDIENCE, hubSessionUrl, jwtSecret, requireToken, sha } from './config.ts';
+import { AUDIENCE, hubClassesUrl, hubSessionUrl, jwtSecret, requireToken, sha } from './config.ts';
 import { entryDeniedPage, gateCounters, stripEntryToken, verifyEntryToken } from './gate.ts';
-import { getHubTargets } from './hub.ts';
+import { getHubClasses, getHubTargets } from './hub.ts';
 import {
 	createSession,
 	getSession,
@@ -19,6 +19,9 @@ import {
 
 const MAX_EVENTS_PER_REQUEST = 200;
 const TARGET_FETCH_BACKOFF_MS = 30_000;
+const CLASSES_CACHE_MS = 60_000;
+const MAX_LAC_ID_LENGTH = 128;
+const MAX_CLASS_BODY_BYTES = 4096;
 
 function documentHeaders(): Record<string, string> {
 	return {
@@ -56,6 +59,8 @@ interface ClientTargets {
 	focusGrammar: string[];
 	inclusionRate: number;
 	grammarInclusionRate: number;
+	/** The hub's class id, so the switcher can preselect the active class. */
+	sessionId?: string;
 }
 
 function nonEmptyTargets(targets: HubTargets | null): ClientTargets | null {
@@ -72,7 +77,8 @@ function nonEmptyTargets(targets: HubTargets | null): ClientTargets | null {
 		focusVocabulary,
 		focusGrammar,
 		inclusionRate: targets.inclusionRate ?? 50,
-		grammarInclusionRate: targets.grammarInclusionRate ?? 50
+		grammarInclusionRate: targets.grammarInclusionRate ?? 50,
+		...(targets.sessionId ? { sessionId: targets.sessionId } : {})
 	};
 }
 
@@ -86,6 +92,76 @@ async function sessionResponse(request: Request): Promise<Response> {
 	const targets = nonEmptyTargets(session.targets);
 	if (!targets) return noContent(204);
 	return jsonResponse(targets, 200);
+}
+
+/** The hub bearer cannot be replayed once it is about to expire. */
+function canCallHub(session: GenieSession): boolean {
+	return Date.now() < session.hubTokenExp - 60_000;
+}
+
+/**
+ * Class list for the switcher. Served from the session for 60 s; resolved once
+ * from the hub per window. A failed refetch keeps the previous list rather than
+ * yanking the dropdown out from under the student.
+ */
+async function classesResponse(session: GenieSession): Promise<Response> {
+	const fresh = session.classes !== null && Date.now() - session.classesFetchAt < CLASSES_CACHE_MS;
+	if (fresh) return jsonResponse({ classes: session.classes }, 200);
+
+	const cached = session.classes;
+	const classesUrl = hubClassesUrl();
+	if (!classesUrl || !canCallHub(session)) {
+		return cached ? jsonResponse({ classes: cached }, 200) : noContent(204);
+	}
+
+	session.classesFetchAt = Date.now();
+	const classes = await getHubClasses(session.hubToken, classesUrl);
+	if (!classes) return cached ? jsonResponse({ classes: cached }, 200) : noContent(204);
+
+	session.classes = classes;
+	return jsonResponse({ classes }, 200);
+}
+
+/**
+ * Switches the session to another class. The class id arrives only in this
+ * body — never from a header, a query param or client storage — and the hub
+ * bearer never leaves the server.
+ */
+async function classResponse(request: Request, session: GenieSession): Promise<Response> {
+	const declaredLength = Number(request.headers.get('content-length') || 0);
+	if (Number.isFinite(declaredLength) && declaredLength > MAX_CLASS_BODY_BYTES) {
+		return jsonResponse({ error: 'body too large' }, 400);
+	}
+
+	let body: unknown;
+	try {
+		body = await request.json();
+	} catch {
+		return jsonResponse({ error: 'invalid JSON' }, 400);
+	}
+	const lacId =
+		body && typeof body === 'object' ? (body as { lacId?: unknown }).lacId : undefined;
+	if (typeof lacId !== 'string') return jsonResponse({ error: 'lacId required' }, 400);
+	const requested = lacId.trim();
+	if (requested.length === 0 || requested.length > MAX_LAC_ID_LENGTH) {
+		return jsonResponse({ error: 'invalid lacId' }, 400);
+	}
+
+	const sessionUrl = hubSessionUrl();
+	if (!sessionUrl || !canCallHub(session)) return noContent(204);
+
+	const targets = await getHubTargets(session.hubToken, sessionUrl, undefined, requested);
+	const switched = targets
+		? { ...targets, sessionId: targets.sessionId || requested }
+		: null;
+	const client = nonEmptyTargets(switched);
+	// Leave the previous targets in place when the hub cannot answer: a failed
+	// switch must not blank the exercise configuration.
+	if (!switched || !client) return noContent(204);
+
+	session.targets = switched;
+	session.sessionId = switched.sessionId || requested;
+	return jsonResponse(client, 200);
 }
 
 async function telemetryResponse(request: Request): Promise<Response> {
@@ -178,6 +254,18 @@ export async function handleRequest(request: Request): Promise<Response> {
 	if (path === '/api/session') {
 		if (request.method !== 'GET') return noContent(405);
 		return sessionResponse(request);
+	}
+	if (path === '/api/classes') {
+		if (request.method !== 'GET') return noContent(405);
+		const session = getSession(readSessionId(request.headers.get('cookie')));
+		if (!session) return jsonResponse({ error: 'anonymous' }, 401);
+		return classesResponse(session);
+	}
+	if (path === '/api/class') {
+		if (request.method !== 'POST') return noContent(405);
+		const session = getSession(readSessionId(request.headers.get('cookie')));
+		if (!session) return jsonResponse({ error: 'anonymous' }, 401);
+		return classResponse(request, session);
 	}
 	if (path === '/api/telemetry') {
 		if (request.method !== 'POST') return noContent(405);
