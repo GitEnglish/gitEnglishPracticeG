@@ -41,20 +41,37 @@ function parseTargets(data: unknown): ModuleTargets | null {
 	};
 }
 
+const TARGET_RETRY_DELAY_MS = 400;
+
+async function requestTargets(timeoutMs: number): Promise<Response | null> {
+	try {
+		return await fetch('/api/session', {
+			credentials: 'same-origin',
+			headers: { Accept: 'application/json' },
+			signal: AbortSignal.timeout(timeoutMs)
+		});
+	} catch {
+		return null;
+	}
+}
+
 /**
  * Targets for an identified session, resolved server-side from the hub handoff
  * token. Anonymous sessions (401), unresolved sessions (204) and a missing
  * server runtime (dev server, network error) all resolve to null so the URL
  * params stay untouched.
+ *
+ * A 204 is retried once: it can be a genuine hub failure, but it is also what a
+ * request that races the entry fetch sees. A 401 is not retried.
  */
 export async function fetchModuleTargets(timeoutMs = 2500): Promise<ModuleTargets | null> {
+	let response = await requestTargets(timeoutMs);
+	if (response?.status === 204) {
+		await new Promise((resolve) => setTimeout(resolve, TARGET_RETRY_DELAY_MS));
+		response = await requestTargets(timeoutMs);
+	}
+	if (!response || response.status !== 200) return null;
 	try {
-		const response = await fetch('/api/session', {
-			credentials: 'same-origin',
-			headers: { Accept: 'application/json' },
-			signal: AbortSignal.timeout(timeoutMs)
-		});
-		if (response.status !== 200) return null;
 		return parseTargets(await response.json());
 	} catch {
 		return null;

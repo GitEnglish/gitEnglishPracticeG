@@ -36,6 +36,11 @@ function documentHeaders(): Record<string, string> {
  * backoff window. Successes are cached on the session; failures are never
  * cached, so a hub that starts accepting the bearer later does not require a new
  * login — the next /api/session call retries.
+ *
+ * The entry handoff starts this fetch without awaiting it so the 302 stays fast.
+ * A caller that arrives while it is still in flight joins that promise instead
+ * of answering from an empty cache, which is what made roughly a quarter of
+ * entries render with no targets.
  */
 function refreshTargets(session: GenieSession): Promise<void> | null {
 	const sessionUrl = hubSessionUrl();
@@ -43,14 +48,21 @@ function refreshTargets(session: GenieSession): Promise<void> | null {
 	if (!sessionUrl) return null;
 	if (session.targets) return null;
 	if (now >= session.hubTokenExp - 60_000) return null;
+	if (session.targetsFetch) return session.targetsFetch;
 	if (now - session.lastFetchAt < TARGET_FETCH_BACKOFF_MS) return null;
 
 	session.lastFetchAt = now;
-	return getHubTargets(session.hubToken, sessionUrl).then((targets) => {
-		if (!targets) return;
-		session.targets = targets;
-		if (targets.sessionId) session.sessionId = targets.sessionId;
-	});
+	const pending = getHubTargets(session.hubToken, sessionUrl)
+		.then((targets) => {
+			if (!targets) return;
+			session.targets = targets;
+			if (targets.sessionId) session.sessionId = targets.sessionId;
+		})
+		.finally(() => {
+			session.targetsFetch = null;
+		});
+	session.targetsFetch = pending;
+	return pending;
 }
 
 interface ClientTargets {

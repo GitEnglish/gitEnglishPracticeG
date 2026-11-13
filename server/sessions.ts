@@ -33,6 +33,8 @@ export interface GenieSession {
 	sessionId: string;
 	targets: HubTargets | null;
 	lastFetchAt: number;
+	/** The target fetch in flight, so concurrent callers join it instead of skipping it. */
+	targetsFetch: Promise<void> | null;
 	/** Class list shown by the switcher; refetched at most once per minute. */
 	classes: HubClass[] | null;
 	classesFetchAt: number;
@@ -56,6 +58,7 @@ export function createSession(
 		sessionId: `genie-${randomBytes(6).toString('hex')}`,
 		targets: null,
 		lastFetchAt: 0,
+		targetsFetch: null,
 		classes: null,
 		classesFetchAt: 0
 	};

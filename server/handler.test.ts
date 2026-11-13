@@ -222,6 +222,34 @@ describe('/api/session', () => {
 		expect(response.status).toBe(204);
 	});
 
+	it('waits for the entry fetch instead of answering 204 while it is in flight', async () => {
+		const hub = stubHub(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 50));
+			return Response.json(hubTargets);
+		});
+
+		const entry = await handleRequest(document(`/?t=${mint()}`));
+		expect(entry.status).toBe(302);
+
+		// No tick(): this is the browser-shaped call that used to find nothing
+		// cached and answer 204 while the entry fetch was still running.
+		const response = await handleRequest(withCookie('/api/session', sessionCookie(entry)));
+		expect(response.status).toBe(200);
+		const body = (await response.json()) as Record<string, unknown>;
+		expect(body.focusVocabulary).toEqual(['deadline', 'stakeholder']);
+		expect(hub.calls.length).toBe(1);
+	});
+
+	it('honours the backoff window once no fetch is in flight', async () => {
+		const hub = stubHub(() => new Response('nope', { status: 401 }));
+		const entry = await handleRequest(document(`/?t=${mint()}`));
+		await tick();
+
+		const response = await handleRequest(withCookie('/api/session', sessionCookie(entry)));
+		expect(response.status).toBe(204);
+		expect(hub.calls.length).toBe(1);
+	});
+
 	it('rejects a method other than GET', async () => {
 		const response = await handleRequest(
 			new Request('https://module.test/api/session', { method: 'POST' })
