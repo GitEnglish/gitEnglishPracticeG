@@ -64,8 +64,8 @@ describe('verifyEntryToken', () => {
 
 describe('stripEntryToken', () => {
 	it('removes only t and keeps the path and other params', () => {
-		const url = new URL('https://module.test/practice/genie?t=abc.def.ghi&theme=Jazz&session=12');
-		expect(stripEntryToken(url)).toBe('/practice/genie?theme=Jazz&session=12');
+		const url = new URL('https://module.test/practice/practicegenie?t=abc.def.ghi&theme=Jazz&session=12');
+		expect(stripEntryToken(url)).toBe('/practice/practicegenie?theme=Jazz&session=12');
 	});
 
 	it('keeps a bare path clean', () => {

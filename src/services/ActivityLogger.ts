@@ -1,3 +1,5 @@
+import { recordTelemetry } from './telemetryClient';
+
 const uuidv4 = () => crypto.randomUUID(); // Assuming uuid is available via module import or global polyfill
 
 /**
@@ -233,12 +235,24 @@ export class ActivityLogger {
     console.log(`[ActivityLogger] Activity ended: ${activity.activity_name}. Stream events: ${activity.stream_data.length}`);
     this.currentActivity = null;
 
-    if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
-      window.parent.postMessage({
-        type: 'ACTIVITY_LOG',
-        event: 'activity_completed',
-        activity: activity
-      }, '*');
+    if (typeof window !== 'undefined') {
+      const hasLearningItem = activity.focus_items.some(
+        (fi) => !['General UI', 'Settings', 'Movement', 'Attention'].includes(fi.category)
+      );
+      if (hasLearningItem) {
+        recordTelemetry({
+          eventType: 'activity_completed',
+          dwellMs: Math.round(activity.duration_seconds * 1000),
+          metadata: { activity }
+        });
+      }
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({
+          type: 'ACTIVITY_LOG',
+          event: 'activity_completed',
+          activity: activity
+        }, '*');
+      }
     }
   }
 

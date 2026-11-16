@@ -5,6 +5,7 @@ export interface ClientTelemetryEvent {
 	lexicalToken?: string;
 	attempts?: number;
 	metadata?: Record<string, unknown>;
+	timestamp?: number;
 }
 
 const MAX_BATCH = 200;
@@ -28,7 +29,7 @@ function send(payload: string, keepalive: boolean): void {
 
 export function recordTelemetry(event: ClientTelemetryEvent): void {
 	if (queue.length >= MAX_BATCH) flushTelemetry();
-	queue.push(event);
+	queue.push({ ...event, timestamp: event.timestamp ?? Date.now() });
 	if (!timer) timer = setInterval(() => flushTelemetry(), FLUSH_INTERVAL_MS);
 }
 

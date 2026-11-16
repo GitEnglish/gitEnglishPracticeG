@@ -98,13 +98,25 @@ describe('flushTelemetry', () => {
 		expect(telemetryCounters.forwarded).toBe(0);
 	});
 
-	it('does not retry an HTTP error response', async () => {
-		const { calls } = stubFetch(() => new Response('rate limited', { status: 429 }));
-		enqueueTelemetry(7, [event()]);
+	it('re-queues an HTTP error batch so the next flush retries and succeeds', async () => {
+		let attempt = 0;
+		const { calls } = stubFetch(() => {
+			attempt += 1;
+			return attempt === 1
+				? new Response('rate limited', { status: 429 })
+				: new Response('{}', { status: 200 });
+		});
+		enqueueTelemetry(7, [event({ lexicalToken: 'retry-word' })]);
 		await flushTelemetry();
 
 		expect(calls.length).toBe(1);
 		expect(telemetryCounters.failed).toBe(1);
+		expect(telemetryCounters.forwarded).toBe(0);
+
+		await flushTelemetry();
+		expect(calls.length).toBe(2);
+		expect(calls[1].body.events[0].lexicalToken).toBe('retry-word');
+		expect(telemetryCounters.forwarded).toBe(1);
 	});
 
 	it('keeps students in separate requests', async () => {

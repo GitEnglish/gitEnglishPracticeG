@@ -104,6 +104,8 @@ export async function flushTelemetry(): Promise<void> {
 			const ok = await postTelemetry(ingestUrl, ingestSecret, studentId, batch);
 			if (!ok) {
 				telemetryCounters.failed += batch.length;
+				const room = Math.max(0, MAX_QUEUED_PER_STUDENT - queue.events.length);
+				if (room > 0) queue.events.unshift(...batch.slice(0, room));
 				break;
 			}
 			telemetryCounters.forwarded += batch.length;
